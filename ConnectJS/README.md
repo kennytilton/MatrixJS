@@ -1,20 +1,20 @@
-# ciWeb
-Welcome to ciWeb, a lightweight but powerful JS web development framework with Cells Inside(tm). Hence the "ci".
+# ConnectJS (formerly ciWeb)
+Welcome to ConnectJS, a lightweight but powerful JS web development framework with Cells Inside(tm). Hence the "ci".
 
 #### Our chops
 We have done this before, and built enterprise applications this way. Here is [the latest](http://tiltonsalgebra.com/#).
 
 [Cells](https://github.com/kennytilton/cells) is a mature, largely transparent databinding library that began in 1996 as a Common Lisp library and has since been ported to Clojure/ClojureScript as [Rube](https://github.com/kennytilton/rube) and now Javascript as [jCells](https://github.com/kennytilton/jCells). It has been used to drive application development frameworks wrapping Macintosh [QuickDraw](https://en.wikipedia.org/wiki/QuickDraw), Windows GDT, Tcl/Tk as [Celtk](https://github.com/kennytilton/celtk), OpenGL (you read that correctly) as [Cello](https://github.com/kennytilton/Cello), Gtk as [Cells-Gtk](https://github.com/Ramarren/cells-gtk3), qooxdoo as [qooxlisp](https://github.com/kennytilton/qooxlisp), and qooxdoo mobile as [Qxia](https://github.com/kennytilton/qxia).
 
-#### The ciWeb Design Imperatives
+#### The ConnectJS Design Imperatives
  * HTML and CSS shall be wrapped so thinly that we will not have to document anything other than the databinding. This will be [the doc](https://developer.mozilla.org/en-US/docs/Web/API) for the rest;
  * no preprocessing. Stackless. Just Javascript and jCells (itself just JS);
  * transparent databinding, reaching across the entire application model, embracing model as well as view, indeed rejecting the distinction; 
  * declarative and dynamic (thanks to the formulaic databinding); and
- * fast, with the theoretical minimum of DOM manipulation, without the diffing.
+ * fast, with the theoretical minimum of DOM manipulation, without the diffing and without re-running renderers unnecessarily.
 
 #### Getting Acquainted
-Before we dig into the magic of Cells and the nitty-gritty of ciWeb, the reader might want to just follow along as I evolve a trivial bit of web work*. After that we will get acquainted with Cells. They might make more sense after you have seen how they are applied.
+Before we dig into the magic of Cells and the nitty-gritty of ConnectJS, the reader might want to just follow along as I evolve a trivial bit of web work*. After that we will get acquainted with Cells. They might make more sense after you have seen how they are applied.
 
 > *The idea for this exercise came from an engineer at a company I had approached for work. Along the way I got into a rant on Cells vs ReactJS and its problem with interdependency in a UI and he asked how I would use Cells to, oh, highlight something in red if the user violated some data entry rule. He offered specifically that an exclamation mark might be disallowed in some text entry field, so we wanted something to turn red if the user entered said character in said field. 
 
@@ -23,7 +23,7 @@ Let us build that.
 > The code for each iteration to come is [here](https://github.com/kennytilton/ciWeb/blob/master/public/js/tutorial/hilited-error.js), in functions named `hilitedError[_n]`. Please note that your author is new to hardcore JS and welcomes any edification the cognoscenti care to offer.
 
 ### Step 1 - Launching the demo
-FWIW, I develop with NetBeans, opening the ciWeb directory as a NetBeans project and testing with **Run Main Project** aka **F6** aka the little green triangle in the toolbar. You can also just navigate to `ciWeb/js/Sources/public` and open `index.html` in your browser, but then you will need to edit the index.html to switch between iterations.
+FWIW, I develop with NetBeans, opening the ConnectJS directory as a NetBeans project and testing with **Run Main Project** aka **F6** aka the little green triangle in the toolbar. You can also just navigate to `ConnectJS/js/Sources/public` and open `index.html` in your browser, but then you will need to edit the index.html to switch between iterations.
 
 Launching index.html should bring up a mildly functional:
 
