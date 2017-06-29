@@ -1,5 +1,7 @@
 # ConnectJS (formerly ciWeb)
-Welcome to ConnectJS, a lightweight but powerful JS web development framework with Cells Inside(tm). Providing the "connect".
+Welcome to ConnectJS, lightweight but powerful JS and CLJS web development frameworks, with Cells Inside(tm) providing the "connect".
+
+Lightweight means you do not have to learn a new framework erected atop HTML/JS. Powerful means delivering a maximum of user functionality with a minimum of programing effort, thanks to transparently coding highly connected UI elements in a purely declarative style.
 
 As Buddha said 2500 years ago, everything is connected, especially in a highly usable computer application interface. Usability derives from interfaces that anticipate us, changing shape as we interact to provide just the information and controls we need. So as Buddha might have guessed, everything on the screen is connected to everything else. And as Fred Brooks pointed out, those connections grow exponentially with the number of elements in play at any one time. 
 
@@ -7,7 +9,7 @@ The classic TodoMVC with its simple "do list" and just a few controls does a fai
 
 Nowadays, every JS library tries to simplify Web development one way or another, usually by providing a new framework that, with sufficient hand-wiring from the developer, is able to automate things at run-time.
 
-ConnectedJS (thanks to Cells) goes in the other direction, transparently changing what happens when we read or set state. With more transparent code propagating change from our JS application model to the DOm and from events, we achieve dynamic interfaces from declarative scripts, all with optimal efficiency.
+ConnectJS (thanks to Cells) goes in the other direction, inside the JS transparently changing what happens when we read or set state. With more transparent code propagating change from our JS application model to the DOm and from events, we achieve dynamic interfaces from declarative scripts, all with optimal efficiency.
 
 #### Our chops
 We have done this before, and built enterprise applications this way. Here is [the latest](http://tiltonsalgebra.com/#).
