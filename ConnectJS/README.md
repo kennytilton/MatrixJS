@@ -1,5 +1,13 @@
 # ConnectJS (formerly ciWeb)
-Welcome to ConnectJS, a lightweight but powerful JS web development framework with Cells Inside(tm). Hence the "ci".
+Welcome to ConnectJS, a lightweight but powerful JS web development framework with Cells Inside(tm). Providing the "connect".
+
+As Buddha said 2500 years ago, everything is connected, especially in a highly usable computer application interface. Usability derives from interfaces that anticipate us, changing shape as we interact to provide just the information and controls we need. So as Buddha might have guessed, everything on the screen is connected to everything else. And as Fred Brooks pointed out, those connections grow exponentially with the number of elements in play at any one time. 
+
+The classic TodoMVC with its simple "do list" and just a few controls does a fair job of demonstrating how a JS library works, but may not make clear how well that library scales to a real application such as an Electronic Medical Recods interface to be dealt with by a busy doctor at the patient's bedside.
+
+Nowadays, every JS library tries to simplify Web development one way or another, usually by providing a new framework that, with sufficient hand-wiring from the developer, is able to automate things at run-time.
+
+ConnectedJS (thanks to Cells) goes in the other direction, transparently changing what happens when we read or set state. With more transparent code propagating change from our JS application model to the DOm and from events, we achieve dynamic interfaces from declarative scripts, all with optimal efficiency.
 
 #### Our chops
 We have done this before, and built enterprise applications this way. Here is [the latest](http://tiltonsalgebra.com/#).
