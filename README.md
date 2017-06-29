@@ -1,4 +1,4 @@
-# ConnectJS (formerly ciWeb)
+# ConnectJS
 Welcome to ConnectJS, lightweight but powerful JS and CLJS web development frameworks, with Cells Inside(tm) providing the "connect".
 
 Lightweight means you do not have to learn a new framework erected atop HTML/JS. Powerful means delivering a maximum of user functionality with a minimum of programing effort, thanks to transparently coding highly connected UI elements in a purely declarative style.
