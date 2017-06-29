@@ -18,7 +18,7 @@ We have done this before, and built enterprise applications this way. Here is [t
 
 #### The ConnectJS Design Imperatives
  * HTML and CSS shall be wrapped so thinly that we will not have to document anything other than the databinding. This will be [the doc](https://developer.mozilla.org/en-US/docs/Web/API) for the rest;
- * no preprocessing. Stackless. Just Javascript and jCells (itself just JS);
+ * no preprocessing. Stackless. Just Javascript and Cells (itself just JS or CLJS);
  * transparent databinding, reaching across the entire application model, embracing model as well as view, indeed rejecting the distinction; 
  * declarative and dynamic (thanks to the formulaic databinding); and
  * fast, with the theoretical minimum of DOM manipulation, without the diffing and without re-running renderers unnecessarily.
