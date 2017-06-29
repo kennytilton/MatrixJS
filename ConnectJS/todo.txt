@@ -1,0 +1,7 @@
+get back to optimizing away
+
+check we can add kid in middle
+
+have observer on kids call not-to-be on lostks
+
+ajax demo
