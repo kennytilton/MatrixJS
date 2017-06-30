@@ -68,7 +68,7 @@ function hilitedError_2(hostId) {
         tag('section', {kids: cKids(c=> {
             return [ h1(`A Tiny Registration Panel`)
                     , div( {kids: cKids(c=>{
-                        return [ label("Username:")
+                        return [ label("Usernnnvvvvvvame:")
                                 , input({ val: cI(""
                                             // use debug observer to confirm the action
                                             , {observer: obsDbg})
