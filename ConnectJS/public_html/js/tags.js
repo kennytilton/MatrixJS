@@ -103,7 +103,6 @@ CommonCSSPropertiesJS = new Map([['background','background'], ['backgroundAttach
     , ['verticalAlign','vertical-align'], ['visibility','visibility']
     , ['width','width'], ['zIndex','z-index']]);
 
-
 function tagAttrsBuild(md) {
     let attrs = '';
     for (let prop in md) {
@@ -131,7 +130,7 @@ function tagAttrsBuild(md) {
                             clg(TagAttributesGlobal.has(prop));
                         }*/
                         if (TagAttributesGlobal.has(prop) && md[prop]) {
-                            clg('bingo attr global '+prop+'='+md[prop]);
+                            // clg('bingo attr global '+prop+'='+md[prop]);
                             attrs += ` ${prop}="${md[prop]}"`;
                         }
                     }
@@ -139,7 +138,7 @@ function tagAttrsBuild(md) {
             }
         }
     }
-    clg(md.tag + ' attrs ' + attrs);
+    // clg(md.tag + ' attrs ' + attrs);
     return attrs;
 }
 
@@ -168,9 +167,20 @@ function tag( tag, initargs, parent) {
             , null
             , Tag);
 }
+function tagx( tag, islots, kids) {
+    clg(`tagx ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
+    return mkmx( gPar, null // todo fully lose this idea of supplying id initargs.id
+            , Object.assign({tag: tag}
+                        , islots)
+            , kids
+            , Tag);
+}
 
 function div(initargs, parent) {
     return tag('div', initargs, parent);
+}
+function divx(initargs, kids) {
+    return tagx('div', initargs, kids);
 }
 function h1(content, initargs, parent) {
     return tag('h1', Object.assign( {content: content}, initargs), parent);
@@ -189,6 +199,9 @@ function h5(content, initargs, parent) {
 }
 function h6(content, initargs, parent) {
     return tag('h6', Object.assign( {content: content}, initargs), parent);
+}
+function section(attrs, kids, parent) {
+    return tag('section', attrs, kids, parent);
 }
 function label(content, initargs, parent) {
     return tag('label', Object.assign( {content: content}, initargs), parent);

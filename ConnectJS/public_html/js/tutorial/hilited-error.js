@@ -93,8 +93,9 @@ function hilitedError_2(hostId) {
 function hilitedError_3(hostId) {
     document.body.innerHTML =
         tag('section', {kids: cKids(c=> {
-            return [ h1(`A Tiny Registration Panel`)
-                    , div( {kids: cKids(c=>{
+            return [ h1(`Registration Panel`, {margin: "36px", padding: "12px"})
+                    , div( {marginLeft: "48px"
+                        , kids: cKids(c=>{
                         return [ label("Username:")
                                 , input({ name: 'uname'
                                         , val: cI(""
@@ -115,6 +116,7 @@ function hilitedError_3(hostId) {
                                 ];
                             })})
                     , div( {margin:'9px'
+                        , id: 42
                         , kids: cKids(c=>{
                             let uerr = c.fm('uname').userError;
                             clg('uerr? '+uerr);
@@ -126,57 +128,118 @@ function hilitedError_3(hostId) {
             })}).toHTML();
 }
 
+function he3(hostId) {
+    return tagx('section'
+            , {name: "section42"}
+            , c=> {return [
+                divx( { name: "div.uname", marginLeft: "48px"}, c=>{return [
+                    input({ name: 'uname'
+                        , val: cI("")
+                        , userError: cF(c=>{
+                            return (c.md.val.indexOf("!") === -1)? null:
+                                "&lt;ahem&gt; No bangs, please.";
+                        })
+                        , color: cF(c=>{return c.md.userError ? 'red':'black';})
+                        , oninput: 'unameGlue'
+                        , margin: '6px'
+                        , autofocus: true
+                        , placeholder: "No bangs, please."})
+                ];})
+                , divx( {name: "div.uerr", margin:'9px'}, c=>{
+                    let uerr = c.fm('uname').userError;
+                    // dynamic model!
+                    clg('uerr? '+uerr);
+                    return uerr ? [label(uerr, {name: "uerr"})]:[];
+                })
+            ];
+    })
+}
+
+function he3ok(hostId) {
+    document.body.innerHTML =
+        tag('section', {name: "section42", kids: cKids(c=> {
+            return [div( { name: "div.uname"
+                , marginLeft: "48px"
+                , kids: cKids(c=>{
+                    return [input({ name: 'uname'
+                        , val: cI("")
+
+                        , userError: cF(c=>{
+                            return (c.md.val.indexOf("!") === -1)? null:
+                                "&lt;ahem&gt; No bangs, please.";
+                        })
+                        , color: cF(c=>{
+                            return c.md.userError ? 'red':'black';
+                        })
+                        , oninput: 'unameGlue'
+                        , margin: '6px'
+                        , autofocus: true
+                        , placeholder: "No bangs, please."})
+                    ];
+                })})
+                , div( {name: "div.uerr"
+                    , margin:'9px'
+                    , id: 42
+                    , kids: cKids(c=>{
+                        let uerr = c.fm('uname').userError;
+                        clg('uerr? '+uerr);
+                        return uerr ? [label(uerr, {name: "uerr"})]:[];})})
+
+            ];
+        })}).toHTML();
+}
+
 function hilitedError(hostId) {
     document.body.innerHTML =
-        tag('section', {
-            padding: "36px"
-            , kids: cKids(c=> {
-            return [
-                h2(`A Tiny Registration Panel`)
-                , div({
-                    class: "mdl-textfield mdl-js-textfield"
-                    , kids: cKids(c=>{ return [
-                            tag('input', {
+        section( { padding: "36px"}
+            , c=>{ return [
+                h2(`A Registration Panel`)
+                , divx({ class: "mdl-textfield mdl-js-textfield"} 
+                    , c=>{ return [
+                            input({
                                 class: "mdl-textfield__input"
                                 , type: "text"
                                 , id: "sample1"
+                                //, name: 'uname'
                             })
                             , label("Text...", {
                                 class: "mdl-textfield__label"
                                 , for: "sample1"
                             })
                         ]})
-                })
-                , div( {kids: cKids(c=>{
-                        return [ label("Username:")
-                                , input({ name: 'uname'
-                                        , val: cI(""
-                                            // use debug observer to confirm the action
-                                            , {observer: obsDbg})
+                , divx( {}
+                    , c=>{ return [
+                            label("Username:")
+                            , input({ name: 'uname'
+                                    , val: cI(""
+                                        // use debug observer to confirm the action
+                                       , {observer: obsDbg})
 
-                                        , userError: cF(c=>{
-                                            return (c.md.val.indexOf("!") === -1)? null:
+                                    , userError: cF(c=>{
+                                        return (c.md.val.indexOf("!") === -1)? null:
                                                     "&lt;ahem&gt; No bangs, please.";
                                         })                                        
-                                        , color: cF(c=>{
+                                    , color: cF(c=>{
                                             return c.md.userError ? 'red':'black';
                                         })
-                                        , oninput: 'unameGlue'
-                                        , margin: '6px'
-                                        , autofocus: true
-                                        , placeholder: "No bangs, please."})
+                                    , oninput: 'unameGlue'
+                                    , margin: '6px'
+                                    , autofocus: true
+                                    , placeholder: "No bangs, please."})
                                 ];
-                            })})
-                    , div( {margin:'9px'
-                        , kids: cKids(c=>{
-                            let uerr = c.fm('uname').userError;
-                            clg('uerr? '+uerr);
-                            return uerr ? [label(uerr)]:[];})})
-                    , button("Register", {
+                            })
+                , divx( {margin:'9px'}
+                    , c=>{
+                        clg('oops '+c.md.id);
+                        clg('oops par '+c.md.par);
+                        let uerr = c.fm('uname').userError;
+                        clg('uerr? '+uerr);
+                        return uerr ? [label(uerr)]:[];})
+                , button("Register", {
                         class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
                         , onclick: "(function () {alert('Registering!!');})"})
-                    ];
-            })}).toHTML();
+                ];
+            }).toHTML();
 }
 
 

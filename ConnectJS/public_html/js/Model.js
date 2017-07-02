@@ -36,7 +36,9 @@ class Model {
          * OK, I'll stop that, but this warning stands in re other initializations.
          * 
          */
+        clg("Model entry name=" + name + ", par= "+ parent + ', gPar=' + gPar);
         this.par = parent || gPar; // we build models as parent<->>kids
+        clg("Model this " + islots.name + " gets par " + this.par + " named " + (this.par? this.par.name : "unnamed"));
         this.name = name;
         this.mdType = null; // eg, "selMgr" for list items to seek out
         this.cells = {};
@@ -213,14 +215,27 @@ class Model {
 //module.exports.Model = Model;
 
 function mkm( par, id, props, kids, factory=Model) {
+    // clg('mkm kids '+kids);
     opts = Object.assign({}, props
-            , kids ? {kids: typeof kids==='function'?
-                                cF( c=>{//clg(' making kids!!! '+c.md.name);
-                                        let kds = kids(c);
-                                        //clg('got kids', kds !== null, typeof kds);
-                                        return kds;})
-                                : kids} // do these need par set?
-                : null);
+        , kids ? {kids: typeof kids==='function'?
+            cF( c=>{clg(' making kids!!! '+c.md.name);
+                let kds = kids(c);
+                clg('got kids', kds !== null, typeof kds);
+                return kds;})
+            : kids} // do these need par set?
+            : null);
+    let md = new factory( par, id, opts);
+    //clg(`mkm sees ids ${id} and mdid ${md.id} name ${md.name}`);
+    return md;
+}
+
+function mkmx( par, id, props, kids, factory=Model) {
+    // clg('mkm kids '+kids);
+    opts = Object.assign({}, props
+        , kids ? {kids: typeof kids==='function'?
+            cKids( kids)
+            : kids} // TODO do these need par set? and does this ever work (hence need support)?
+            : null);
     let md = new factory( par, id, opts);
     //clg(`mkm sees ids ${id} and mdid ${md.id} name ${md.name}`);
     return md;
@@ -231,10 +246,16 @@ function cKids(formula, options) {
                                 , c=>{
                                     let sgp = gPar;
                                     gPar = c.md;
+                                    clg('ckids switched gpar from '+(sgp? sgp.name : "none")+' to '+ gPar.name);
+                                    ast(gPar);
                                     try {
                                         return formula(c);
                                     } finally {
+                                        clg('ckids switching gpar from '+ gPar.name +' BACK TO '
+                                            + (sgp? sgp.name : "none"));
                                         gPar = sgp;
+
+
                                     }
                                 }
                                 , false, false, null)
