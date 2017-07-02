@@ -7,56 +7,43 @@
 
 /* global tag, obsDbg, jsDom */
 
-function hilitedError_0(hostId) {
-    let jsDom =
-        tag('section', {kids: cKids(c=> {
-            return [ h1(`A Tiny Registration Panel`)
-                    , div( {kids: cKids(c=>{
-                        return [ label("Username:")
-                                , input({ margin: '6px'
-                                        , autofocus: true
-                                        , placeholder: "No bangs, please."})
-                                ];
-                            })})
-                    , button("Register", {
-                        class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
-                        , onclick: "(function () {alert('Registering!!');})"})
-                    ];
-            })});
-    /*
-     * In version _0 we will dump the HTML to the console for our
-     * amusement and demonstrate that ciWeb can inject mid-document'\
-     * if desired by specifying the Id of a dom element.
-     */
-    let ih = jsDom.toHTML()
-        , host = hostId? document.getElementById(hostId) : document.body;
-    clg('innerhtml: '+ih);
-    
-    if (host) {
-        host.innerHTML = ih;
-    } else {
-        document.body.innerHTML = `<h4>Target DOM "${hostId}" not found.`;
-    }
+function hilitedError_0() {
+    return section( {padding: "36px"}, c=>{return [
+        h3(`Registration Panel Zero`)
+        , div({}, c => { return [
+            label("Username:")
+            , input({margin: '6px'
+                , autofocus: true
+                , placeholder: "No bangs, please."
+            })
+        ]})
+        , button("Register", { class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                            , onclick: "(function () {alert('Registering!!');})"})
+        ]
+    })
 }
 
-function hilitedError_1(hostId) {
-    document.body.innerHTML =
-        tag('section', {kids: cKids(c=> {
-            return [ h1(`A Tiny Registration Panel`)
-                    , div( {kids: cKids(c=>{
-                        return [ label("Username:")
-                                , input({ val: cI(""
-                                            // use debug observer to confirm the action
-                                            , {observer: obsDbg})
-                                        , oninput: 'unameGlue'                                        , margin: '6px'
-                                        , autofocus: true
-                                        , placeholder: "No bangs, please."})
-                                ];
-                            })})
+function hilitedError_1() {
+    return section({}, c => {return [
+            h2(`Registration Panel One`)
+            , div( {}, c => {return [
+                    label("Username:")
+                    , input({
+                        val: cI(""
+                            // use debug observer to confirm the action
+                            , {observer: obsDbg})
+                        , oninput: 'unameGlue'
+                        , margin: '6px'
+                        , autofocus: true
+                        , placeholder: "No bangs, please."
+                    })
                     , button("Register", {
-                        onclick: "(function () {alert('Registering!!');})"})
-                    ];
-            })}).toHTML();
+                        onclick: "(function () {alert('Registering!!');})"
+                    })
+                ]
+            })
+        ]
+    })
 }
 
 function unameGlue (dom, e) {
@@ -70,9 +57,7 @@ function hilitedError_2(hostId) {
             return [ h1(`A Tiny Registration Panel`)
                     , div( {kids: cKids(c=>{
                         return [ label("Username:")
-                                , input({ val: cI(""
-                                            // use debug observer to confirm the action
-                                            , {observer: obsDbg})
+                                , input({ val: cI("")
                                         , userError: cF(c=>{
                                             return (c.md.val.indexOf("!") !==-1);
                                         })
@@ -155,39 +140,6 @@ function he3(hostId) {
     })
 }
 
-function he3ok(hostId) {
-    document.body.innerHTML =
-        tag('section', {name: "section42", kids: cKids(c=> {
-            return [div( { name: "div.uname"
-                , marginLeft: "48px"
-                , kids: cKids(c=>{
-                    return [input({ name: 'uname'
-                        , val: cI("")
-
-                        , userError: cF(c=>{
-                            return (c.md.val.indexOf("!") === -1)? null:
-                                "&lt;ahem&gt; No bangs, please.";
-                        })
-                        , color: cF(c=>{
-                            return c.md.userError ? 'red':'black';
-                        })
-                        , oninput: 'unameGlue'
-                        , margin: '6px'
-                        , autofocus: true
-                        , placeholder: "No bangs, please."})
-                    ];
-                })})
-                , div( {name: "div.uerr"
-                    , margin:'9px'
-                    , id: 42
-                    , kids: cKids(c=>{
-                        let uerr = c.fm('uname').userError;
-                        clg('uerr? '+uerr);
-                        return uerr ? [label(uerr, {name: "uerr"})]:[];})})
-
-            ];
-        })}).toHTML();
-}
 
 function hilitedError(hostId) {
     document.body.innerHTML =

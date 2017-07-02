@@ -159,56 +159,45 @@ function tagStyleBuild(md) {
     return ss===''? '' : ` style="${ss}"`;
 }
 
-function tag( tag, initargs, parent) {
-    //clg(`tag ${tag} sees parent `+parent);
-    return mkm( parent, null // todo fully lose this idea of supplying id initargs.id
-            , Object.assign({tag: tag}
-                        , initargs)
-            , null
-            , Tag);
-}
-function tagx( tag, islots, kids) {
-    clg(`tagx ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
-    return mkmx( gPar, null // todo fully lose this idea of supplying id initargs.id
+function tag( tag, islots, kids) {
+    // clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
+    return mkm( gPar, null // todo fully lose this idea of supplying id initargs.id
             , Object.assign({tag: tag}
                         , islots)
             , kids
             , Tag);
 }
 
-function div(initargs, parent) {
-    return tag('div', initargs, parent);
+function div(islots, kids) {
+    return tag('div', islots, kids);
 }
-function divx(initargs, kids) {
-    return tagx('div', initargs, kids);
+function h1(content, islots, kids) {
+    return tag('h1', Object.assign( {content: content}, islots), kids);
 }
-function h1(content, initargs, parent) {
-    return tag('h1', Object.assign( {content: content}, initargs), parent);
+function h2(content, islots, kids) {
+    return tag('h2', Object.assign( {content: content}, islots), kids);
 }
-function h2(content, initargs, parent) {
-    return tag('h2', Object.assign( {content: content}, initargs), parent);
+function h3(content, islots, kids) {
+    return tag('h3', Object.assign( {content: content}, islots), kids);
 }
-function h3(content, initargs, parent) {
-    return tag('h3', Object.assign( {content: content}, initargs), parent);
+function h4(content, islots, kids) {
+    return tag('h4', Object.assign( {content: content}, islots), kids);
 }
-function h4(content, initargs, parent) {
-    return tag('h4', Object.assign( {content: content}, initargs), parent);
+function h5(content, islots, kids) {
+    return tag('h5', Object.assign( {content: content}, islots), kids);
 }
-function h5(content, initargs, parent) {
-    return tag('h5', Object.assign( {content: content}, initargs), parent);
+function h6(content, islots, kids) {
+    return tag('h6', Object.assign( {content: content}, islots), kids);
 }
-function h6(content, initargs, parent) {
-    return tag('h6', Object.assign( {content: content}, initargs), parent);
+function section(islots, kids) {
+    return tag('section', islots, kids);
 }
-function section(attrs, kids, parent) {
-    return tag('section', attrs, kids, parent);
+function label(content, islots, kids) { // can a label have kids?
+    return tag('label', Object.assign( {content: content}, islots), kids);
 }
-function label(content, initargs, parent) {
-    return tag('label', Object.assign( {content: content}, initargs), parent);
+function button(content, islots, kids) {
+    return tag('button', Object.assign( {content: content}, islots), kids);
 }
-function button(content, initargs, parent) {
-    return tag('button', Object.assign( {content: content}, initargs), parent);
-}
-function input(initargs, parent) {
-    return tag('input', initargs, parent);
+function input(islots, kids) {
+    return tag('input', islots, kids);
 }

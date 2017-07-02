@@ -214,22 +214,8 @@ class Model {
 
 //module.exports.Model = Model;
 
-function mkm( par, id, props, kids, factory=Model) {
-    // clg('mkm kids '+kids);
-    opts = Object.assign({}, props
-        , kids ? {kids: typeof kids==='function'?
-            cF( c=>{clg(' making kids!!! '+c.md.name);
-                let kds = kids(c);
-                clg('got kids', kds !== null, typeof kds);
-                return kds;})
-            : kids} // do these need par set?
-            : null);
-    let md = new factory( par, id, opts);
-    //clg(`mkm sees ids ${id} and mdid ${md.id} name ${md.name}`);
-    return md;
-}
 
-function mkmx( par, id, props, kids, factory=Model) {
+function mkm( par, id, props, kids, factory=Model) {
     // clg('mkm kids '+kids);
     opts = Object.assign({}, props
         , kids ? {kids: typeof kids==='function'?
@@ -246,13 +232,12 @@ function cKids(formula, options) {
                                 , c=>{
                                     let sgp = gPar;
                                     gPar = c.md;
-                                    clg('ckids switched gpar from '+(sgp? sgp.name : "none")+' to '+ gPar.name);
+                                    //clg('ckids switched gpar from '+(sgp? sgp.name : "none")+' to '+ gPar.name);
                                     ast(gPar);
                                     try {
                                         return formula(c);
                                     } finally {
-                                        clg('ckids switching gpar from '+ gPar.name +' BACK TO '
-                                            + (sgp? sgp.name : "none"));
+                                        // clg('ckids switching gpar from '+ gPar.name +' BACK TO ' + (sgp? sgp.name : "none"));
                                         gPar = sgp;
 
 
