@@ -19,7 +19,8 @@ function hilitedError_0(hostId) {
                                 ];
                             })})
                     , button("Register", {
-                        onclick: "(function () {alert('Registering!!');})"})
+                        class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                        , onclick: "(function () {alert('Registering!!');})"})
                     ];
             })});
     /*
@@ -68,7 +69,7 @@ function hilitedError_2(hostId) {
         tag('section', {kids: cKids(c=> {
             return [ h1(`A Tiny Registration Panel`)
                     , div( {kids: cKids(c=>{
-                        return [ label("Usernnnvvvvvvame:")
+                        return [ label("Username:")
                                 , input({ val: cI(""
                                             // use debug observer to confirm the action
                                             , {observer: obsDbg})
@@ -107,7 +108,8 @@ function hilitedError_3(hostId) {
                                         , color: cF(c=>{
                                             return c.md.userError ? 'red':'black';
                                         })
-                                        , oninput: 'unameGlue'                                        , margin: '6px'
+                                        , oninput: 'unameGlue'
+                                        , margin: '6px'
                                         , autofocus: true
                                         , placeholder: "No bangs, please."})
                                 ];
@@ -118,16 +120,34 @@ function hilitedError_3(hostId) {
                             clg('uerr? '+uerr);
                             return uerr ? [label(uerr)]:[];})})
                     , button("Register", {
-                        onclick: "(function () {alert('Registering!!');})"})
+                        class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                        , onclick: "(function () {alert('Registering!!');})"})
                     ];
             })}).toHTML();
 }
 
 function hilitedError(hostId) {
     document.body.innerHTML =
-        tag('section', {kids: cKids(c=> {
-            return [ h1(`A Tiny Registration Panel`)
-                    , div( {kids: cKids(c=>{
+        tag('section', {
+            padding: "36px"
+            , kids: cKids(c=> {
+            return [
+                h2(`A Tiny Registration Panel`)
+                , div({
+                    class: "mdl-textfield mdl-js-textfield"
+                    , kids: cKids(c=>{ return [
+                            tag('input', {
+                                class: "mdl-textfield__input"
+                                , type: "text"
+                                , id: "sample1"
+                            })
+                            , label("Text...", {
+                                class: "mdl-textfield__label"
+                                , for: "sample1"
+                            })
+                        ]})
+                })
+                , div( {kids: cKids(c=>{
                         return [ label("Username:")
                                 , input({ name: 'uname'
                                         , val: cI(""
@@ -141,7 +161,8 @@ function hilitedError(hostId) {
                                         , color: cF(c=>{
                                             return c.md.userError ? 'red':'black';
                                         })
-                                        , oninput: 'unameGlue'                                        , margin: '6px'
+                                        , oninput: 'unameGlue'
+                                        , margin: '6px'
                                         , autofocus: true
                                         , placeholder: "No bangs, please."})
                                 ];
@@ -152,11 +173,12 @@ function hilitedError(hostId) {
                             clg('uerr? '+uerr);
                             return uerr ? [label(uerr)]:[];})})
                     , button("Register", {
-                        disabled: cF(c=>{let unm = c.fm('uname');
-                                    return (unm.val.length===0) || unm.userError
-                                    ;})
+                        class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
                         , onclick: "(function () {alert('Registering!!');})"})
                     ];
             })}).toHTML();
 }
+
+
+
 

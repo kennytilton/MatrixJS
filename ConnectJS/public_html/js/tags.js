@@ -124,11 +124,22 @@ function tagAttrsBuild(md) {
                         break;
                     case 'placeholder': // todo make tagSpecificAttrs a class attribute of appropriate tags
                         attrs += ` ${prop}="${md[prop]}"`;
-                        break;                        
+                        break;
+                    default: {
+                        /*if (md.tag=='button') {
+                            clg(md.tag + ' def prop ' + prop +'='+ md[prop]);
+                            clg(TagAttributesGlobal.has(prop));
+                        }*/
+                        if (TagAttributesGlobal.has(prop) && md[prop]) {
+                            clg('bingo attr global '+prop+'='+md[prop]);
+                            attrs += ` ${prop}="${md[prop]}"`;
+                        }
+                    }
                 }
             }
         }
     }
+    clg(md.tag + ' attrs ' + attrs);
     return attrs;
 }
 
