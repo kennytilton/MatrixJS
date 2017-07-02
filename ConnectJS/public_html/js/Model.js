@@ -36,9 +36,9 @@ class Model {
          * OK, I'll stop that, but this warning stands in re other initializations.
          * 
          */
-        clg("Model entry name=" + name + ", par= "+ parent + ', gPar=' + gPar);
+        // clg("Model entry name=" + name + ", par= "+ parent + ', gPar=' + gPar);
         this.par = parent || gPar; // we build models as parent<->>kids
-        clg("Model this " + islots.name + " gets par " + this.par + " named " + (this.par? this.par.name : "unnamed"));
+        // clg("Model this " + islots.name + " gets par " + this.par + " named " + (this.par? this.par.name : "unnamed"));
         this.name = name;
         this.mdType = null; // eg, "selMgr" for list items to seek out
         this.cells = {};

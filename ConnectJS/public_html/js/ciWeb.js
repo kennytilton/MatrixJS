@@ -99,7 +99,7 @@ class Tag extends Model {
         let superSlots = Object.assign({}, islots);
         delete superSlots.id;
 
-        console.log("Tag sees par "+ (gPar? gPar.name : "noPar") + " name/iname " + name + "/" + islots.name);
+        // console.log("Tag sees par "+ (gPar? gPar.name : "noPar") + " name/iname " + name + "/" + islots.name);
         super( parent, (name || islots.name), superSlots, false);
         if (islots.id) {
             console.warn(`Provided dom id ${islots.id} is your responsibility.`);

@@ -171,6 +171,12 @@ function tag( tag, islots, kids) {
 function div(islots, kids) {
     return tag('div', islots, kids);
 }
+function header(islots, kids) {
+    return tag('header', islots, kids);
+}
+function footer(islots, kids) {
+    return tag('footer', islots, kids);
+}
 function h1(content, islots, kids) {
     return tag('h1', Object.assign( {content: content}, islots), kids);
 }
@@ -201,3 +207,7 @@ function button(content, islots, kids) {
 function input(islots, kids) {
     return tag('input', islots, kids);
 }
+function p(islots, content) {
+    return tag('p', Object.assign( {content: content}, islots));
+}
+
