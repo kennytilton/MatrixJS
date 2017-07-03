@@ -1,83 +1,58 @@
 /**
  * Created by kennetht2 on 7/2/17.
  */
-/*
- <!-- section class="todoapp">
- <header class="header">
- <h1>todos</h1>
- <input class="new-todo" placeholder="What needs to be done?" autofocus>
- </header>
- </section>
- <footer class="info">
- <p>Double-click to edit a todo</p>
- <p>Created by <a href="http://tiltontec.com">Kenneth Tilton</a></p>
- <p>Not Yet Part of <a href="http://todomvc.com">TodoMVC</a></p>
- </footer -->
-*/
-/*
- <section class="main">
- <input id="toggle-all" class="toggle-all" type="checkbox">
- <label for="toggle-all">Mark all as complete</label>
- </section>
 
- */
+function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    )
+}
+
+function mkTodo(text) {
+    return {key: "todos-ConnectJS."+uuidv4(), value: text, created: Date.now(), status: "undone"}
+}
 
 function todoGlue (dom, e) {
-    clg( "onchg!!"+ dom.id);
-    let md = jsDom[dom.id]; // find the "shadow" JS object matching the event dom
-    console.log(`onchg md=${md.class} VAL=${e.target.value}`);
-    let tdom=md.fm('todoapp')
+    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
+        , tdom=md.fm('todoapp')
         , todos = tdom.todos.slice();
-    todos.push(e.target.value);
+    todos.push( mkTodo(e.target.value));
     e.target.value = null; // todo not good, bypasses dataflow
-    clg('same? '+ (todos==tdom.todos));
     tdom.todos = todos;
 }
-/*
- <ul class="todo-list">
- <!-- These are here just to show the structure of the list items -->
- <!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
- <li class="completed">
-   <div class="view">
-     <input class="toggle" type="checkbox" checked>
-     <label>Taste JavaScript</label>
-     <button class="destroy"></button>
-   </div>
-   <input class="edit" value="Create a TodoMVC template">
- </li>
- <li>
- <div class="view">
- <input class="toggle" type="checkbox">
- <label>Buy a unicorn</label>
- <button class="destroy"></button>
- </div>
- <input class="edit" value="Rule the web">
- </li>
- </ul>
- */
+
 function todoLines( todos) {
-    return todos.map( (todo)=> {
-        return li({}, c => {
-            return [
+    return todos.map( (todo)=>{
+        return li({}, c => { return [
                 div({class: "view"}, c => {
                     return [
                         input({class: "toggle", type: "checkbox", checked: true})
-                        , label(todo)
+                        , label(todo.value)
                         , button(null, {class: "destroy"})]
                 })
-                , input({class: "edit", value: "Create a TodoMVC template"})
-            ]
-        })
+                , input({class: "edit", value: "Create a TodoMVC template"})]})
     })
 }
 
+
+function todosPersist (name, me, newv, priorv, c) {
+    if ( priorv !== kUnbound) {
+        localStorage.clear();
+        localStorage.setObject("todos-ConnectJS", newv);
+        //clg('pst ' + newv.toString());
+        //console.log(`obsTodos!!!!!! ${String(name)} ${me? me.name:'noMd'} new=${newv} old=${priorv}`);
+    }
+}
+
 function todoMVC() {
-    return div( {}, c=> {
-        return [
+    return div( {}, c=> {return [
             section({class: "todoapp"
                     , name: "todoapp"
-                    , todos: cI( ["bingo", "booya"])}
-                    , c => { return [
+                    , todos: cI( localStorage.getObject( "todos-ConnectJS")
+                    //, ["hello", "world"].map( v=>{ return mkTodo(v)}));
+                    //[mkTodo("bingo"), mkTodo("booya")]
+                                , {observer: todosPersist})}
+                    , c=>{ return [
                         h1("todos")
                         , header({class: "header"}
                             , c => {
@@ -98,7 +73,5 @@ function todoMVC() {
                     ]})
             , footer({ class: "info"}, c=>{ return [
                 p({}, 'Created by <a href="http://tiltontec.com">Kenneth Tilton')
-                ]})
-        ]
-    })
+                ]})]})
 }
