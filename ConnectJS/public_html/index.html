@@ -17,7 +17,7 @@
 <p>Please check the console for diagnostics.</p>
 <script>
     clg('todos old' + localStorage.getObject("todos-ConnectJS"));
-    //localStorage.clear();
+    localStorage.clear();
     //localStorage.setObject( "todos-ConnectJS"
       //  , ["Hello,", "world!"].map( v=>{ return mkTodo(v)}));
     document.body.innerHTML = todoMVC().toHTML();

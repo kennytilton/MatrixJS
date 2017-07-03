@@ -208,12 +208,15 @@ function ul(islots, kids) {
 function li(islots, kids) {
     return tag('li', islots, kids);
 }
-
+// todo Standardize all these so islots precedes content
 function label(content, islots, kids) { // can a label have kids?
     return tag('label', Object.assign( {content: content}, islots), kids);
 }
 function button(content, islots, kids) {
     return tag('button', Object.assign( {content: content}, islots), kids);
+}
+function span( islots) {
+    return tag('span', islots);
 }
 function input(islots, kids) {
     return tag('input', islots, kids);

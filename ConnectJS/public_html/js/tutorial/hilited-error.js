@@ -18,9 +18,7 @@ function hilitedError_0() {
             })
         ]})
         , button("Register", { class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
-                            , onclick: "(function () {alert('Registering!!');})"})
-        ]
-    })
+                            , onclick: "(function () {alert('Registering!!');})"})]})
 }
 
 function hilitedError_1() {
@@ -29,21 +27,15 @@ function hilitedError_1() {
             , div( {}, c => {return [
                     label("Username:")
                     , input({
-                        val: cI(""
-                            // use debug observer to confirm the action
-                            , {observer: obsDbg})
+                        val: cI("", {observer: obsDbg}) // debug observer shows It's Alive!
                         , oninput: 'unameGlue'
                         , margin: '6px'
                         , autofocus: true
                         , placeholder: "No bangs, please."
                     })
                     , button("Register", {
-                        onclick: "(function () {alert('Registering!!');})"
-                    })
-                ]
-            })
-        ]
-    })
+                        onclick: "(function () {alert('Registering!!');})"})]
+            })]})
 }
 
 function unameGlue (dom, e) {
@@ -83,23 +75,17 @@ function hilitedError_3(hostId) {
                         , kids: cKids(c=>{
                         return [ label("Username:")
                                 , input({ name: 'uname'
-                                        , val: cI(""
-                                            // use debug observer to confirm the action
-                                            , {observer: obsDbg})
-
+                                        , val: cI("")
                                         , userError: cF(c=>{
                                             return (c.md.val.indexOf("!") === -1)? null:
-                                                    "&lt;ahem&gt; No bangs, please.";
-                                        })                                        
+                                                    "&lt;ahem&gt; No bangs, please.";})
                                         , color: cF(c=>{
-                                            return c.md.userError ? 'red':'black';
-                                        })
+                                            return c.md.userError ? 'red':'black';})
                                         , oninput: 'unameGlue'
                                         , margin: '6px'
                                         , autofocus: true
                                         , placeholder: "No bangs, please."})
-                                ];
-                            })})
+                                ];})})
                     , div( {margin:'9px'
                         , id: 42
                         , kids: cKids(c=>{
@@ -108,8 +94,7 @@ function hilitedError_3(hostId) {
                             return uerr ? [label(uerr)]:[];})})
                     , button("Register", {
                         class: "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
-                        , onclick: "(function () {alert('Registering!!');})"})
-                    ];
+                        , onclick: "(function () {alert('Registering!!');})"})];
             })}).toHTML();
 }
 
@@ -163,9 +148,7 @@ function hilitedError(hostId) {
                     , c=>{ return [
                             label("Username:")
                             , input({ name: 'uname'
-                                    , val: cI(""
-                                        // use debug observer to confirm the action
-                                       , {observer: obsDbg})
+                                    , val: cI("", {observer: obsDbg})
 
                                     , userError: cF(c=>{
                                         return (c.md.val.indexOf("!") === -1)? null:
