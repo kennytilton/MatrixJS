@@ -114,6 +114,7 @@ function tagAttrsBuild(md) {
                 switch (prop) {
                     case 'disabled':
                     case 'autofocus':
+                    case 'hidden':
                     case 'checked':
                         // booleans can stand alone. So weird.
                         if (md[prop]) {
@@ -126,6 +127,7 @@ function tagAttrsBuild(md) {
                     case 'placeholder': // todo make tagSpecificAttrs a class attribute of appropriate tags
                         attrs += ` ${prop}="${md[prop]}"`;
                         break;
+
                     default: {
                         /*if (md.tag=='button') {
                             clg(md.tag + ' def prop ' + prop +'='+ md[prop]);
@@ -223,5 +225,8 @@ function input(islots, kids) {
 }
 function p(islots, content) {
     return tag('p', Object.assign( {content: content}, islots));
+}
+function a(islots, content) {
+    return tag('a', Object.assign( {content: content}, islots));
 }
 

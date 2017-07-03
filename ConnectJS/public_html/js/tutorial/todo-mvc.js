@@ -1,6 +1,7 @@
 function todoMVC() {
     return div({}, c => {
         return [
+            label( Date.now()),
             section({ class: "todoapp"
                     , name: "todoapp"
                     , todos: cI(localStorage.getObject("todos-ConnectJS") || []
@@ -8,21 +9,17 @@ function todoMVC() {
                 , c => { return [
                         h1("todos")
                         , header({class: "header"}
-                            , c => { return [
-                                    input({
+                            , c => [input({
                                         class: "new-todo"
                                         , placeholder: "What needs doing?"
                                         , autofocus: true
-                                        , onchange: 'todoAdd'
-                                    })]
-                            })
-                        , section({class: "main", name: "mainsection"}, c => { return [
+                                        , onchange: 'todoAdd'})])
+
+                        , section({class: "main", name: "mainsection"}, c => [
                                 input({id: "toggle-all", class: "toggle-all", type: "checkbox"})
                                 , label("Mark all as complete", {for: "toggle-all"})
-                                , ul({class: "todo-list"}, c => {
-                                    return todoLines(c.fm('todoapp').todos)
-                                })]
-                        })
+                                , ul({class: "todo-list", name: "todo-list"}, c => {
+                                    return todoLines(c.fm('todoapp').todos)})])
                         , todoFooter(c)]
                 })
             , footer({class: "info"}
@@ -31,76 +28,64 @@ function todoMVC() {
 }
 
 function todoLines( todos) {
-    return todos.map( (todo)=>{
-        return li({val: todo
-                , class: cF(c=>{ return c.md.val.complete ? "complete" : null})}
-            , c => { return [
-                div({class: "view"}, c => {
-                    return [
-                        input({class: "toggle complete" /*cF(c=>{ return "toggle" +
-                                            (c.md.complete ? " complete":"")
-                                        }) */
+    // todo use cache to preserve existing dom and minimize output
+    return todos.map( todo=>
+        li({val: todo
+                , complete: cI( todo.complete, {observer: obsTodoComplete})
+                , class: cF( function (c) {
+                                //clg('todo line class rule runs! seeing complete '+c.md.complete);
+                                return (c.md.complete ? "completed" : "dunno");
+                            }//, {observer: obsDbg}
+                            )
+            }
+          , c => [ div({class: "view"}
+                    , c => [ input({class: "toggle"
                             , type: "checkbox", checked: true
-                            , complete: cI( todo.complete)
                             , onclick: 'todoToggleComplete'})
                         , label(todo.value)
-                        , button(null, {class: "destroy"})]
-                })
-                , input({class: "edit", value: "Create a TodoMVC template"})]})})
+                        , button(null, {class: "destroy"
+                                        , onclick: 'todoDelete'})])
+                , input({class: "edit", value: "Create a TodoMVC template"})]))
 }
 
 function todoToggleComplete (dom, e) {
-    clg('togglecomplete!!!!!');
     let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
-        md.complete = !md.complete;
+        , li = md.fmTag('li');
+    clg(`togglecomplete li!!!!! ${li?li.tag:"li not found"}`);
+    li.complete = !li.complete;
+}
+
+function todoDelete (dom, e) {
+    clg('delete!!!!!');
+    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
+}
+
+function todosReselect (dom, e) {
+    clg('delete!!!!!');
+    let li = jsDom[dom.id] // find the "shadow" JS object matching the event dom
+    clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
+    li.fmTag('ul').selection = li.content;
 }
 
 // --- footer -------------------------------------------------------------
 
 function todoFooter (c) {
-    return footer({class: "footer"}, c => {
-        return [
+    return footer({class: "footer"}, c => [
             span({ class: "todo-count"
                 , content: cF(c => {
-                    let remCt = c.fm('todoapp').todos
-                        .filter(todo => {
-                            return !todo.completed;
-                        }).length;
-                    return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`
-                })
-            })
+                        let remCt = c.fm('todo-list').kids.filter(todo => !todo.complete).length;
+                        return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
+            , ul( {class: "filters"
+                    , selection: cI("All")}
+                , c => ["All", "Active","Completed"].map( which =>
+                    li({}, c=> [a({content: which
+                                    , selected: cF( c => c.md.content === c.md.fmTag('ul').selection)
+                                    , class: cF( c => c.md.selected ? "selected":"")
+                                    , onclick: 'todosReselect'})])))
             , button("Clear completed", {
                 class: "clear-completed"
-                , hidden: cF(c => {
-                    return c.fm('todoapp')
-                            .todos
-                            .filter(todo => { return todo.completed})
-                            .length === 0
-                })
-            })]
-    })
-}
-// --- persistence -------------------------------------------------------
+                , hidden: cF(c => c.fm('todo-list').kids.filter(todo => todo.complete).length === 0)})])}
 
-function todosPersist (name, me, newv, priorv, c) {
-    if ( priorv !== kUnbound) {
-        localStorage.clear();
-        localStorage.setObject("todos-ConnectJS", newv);
-    }
-}
-
-function mkTodo(text) {
-    return {key: "todos-ConnectJS."+uuidv4(), value: text, created: Date.now(), complete: false}
-}
-
-function todoAdd (dom, e) {
-    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
-        , appMd = md.fm('todoapp')
-        , todos = appMd.todos.slice();
-    todos.push( mkTodo(e.target.value));
-    e.target.value = null; // todo not good, bypasses dataflow
-    appMd.todos = todos;
-}
 
 
 /*
@@ -123,3 +108,39 @@ function todoAdd (dom, e) {
  <button class="clear-completed">Clear completed</button>
  </footer>
  */
+
+// --- persistence -------------------------------------------------------
+
+function todosPersist (name, me, newv, priorv, c) {
+    if ( priorv !== kUnbound) {
+        localStorage.clear();
+        localStorage.setObject("todos-ConnectJS", newv);
+    }
+}
+
+function obsTodoComplete (name, me, newv, priorv, c) {
+    if ( priorv !== kUnbound) {
+        clg(`obscomp setting ${me.tag} todo from ${me.val.complete} to ${newv}`);
+        me.val.complete = newv;
+        let ul = me.fmTag('ul')
+            , todos = [];
+        ul.kids.map( li=> todos.push( li.val));
+        clg(`culled todos ${todos.length}`);
+        localStorage.clear();
+        localStorage.setObject("todos-ConnectJS", todos);
+    }
+}
+
+function mkTodo(text) {
+    return {key: "todos-ConnectJS."+uuidv4(), value: text, created: Date.now(), complete: false}
+}
+
+function todoAdd (dom, e) {
+    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
+        , appMd = md.fm('todoapp')
+        , todos = appMd.todos.slice();
+    todos.push( mkTodo(e.target.value));
+    e.target.value = null; // todo not good, bypasses dataflow
+    appMd.todos = todos;
+}
+

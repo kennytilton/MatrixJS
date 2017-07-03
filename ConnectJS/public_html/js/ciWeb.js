@@ -105,6 +105,17 @@ function obsTagEventHandler (property, md, newv, oldv, c) {
     //clg(`setting ${property}!!! `+ newv);
     md.dom.style.set[property] = newv;
 }
+
+AttrAliases = new Map([['class','className']]);
+
+function obsAttrGlobal (property, md, newv, oldv, c) {
+    if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
+    //clg(`setting tag attribute ${property}!!! via ${AttrAliases.get(property)} = `+ newv);
+    //clg('md is '+md.dom['className'] );
+    let trueAttr = AttrAliases.get(property) || property;
+        md.dom[trueAttr] = newv;
+}
+
 class Tag extends Model {
     constructor(parent, name, islots) {
         let superSlots = Object.assign({}, islots);
@@ -169,13 +180,18 @@ class Tag extends Model {
                 obs = obsStyleProperty;
             } else if (TagEvents.has(slot)) {
                 obs = obsTagEventHandler;
+            } else if (TagAttributesGlobal.has(slot)) {
+                obs = obsAttrGlobal;
             } else {
-                //console.warn(`tag ${this.tag} not resolving observer for ${slot}`);
+                console.warn(`tag ${this.tag} not resolving observer for ${slot}`);
                 obs = kObserverUnresolved;
             }
             this.slotObservers[slot] = obs;
         }
         return obs;
+    }
+    fmTag(tag, key) {
+        return this.fmUp(md=> md.tag===tag,{}, key)
     }
 }
 

@@ -301,6 +301,7 @@ body {
 
 .filters li a {
 	color: inherit;
+	/* width: 96px;*/
 	margin: 3px;
 	padding: 3px 7px;
 	text-decoration: none;

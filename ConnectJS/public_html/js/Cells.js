@@ -854,7 +854,7 @@ function cIe(value, options) {
         , options);
 }
 function obsDbg (name, me, newv, priorv, c) {
-    console.log(`obsDbg! ${name} ${me? me.name:'noMd'} ${newv}`);
+    console.log(`obsDbg! ${name} ${me? me.name||me.id : 'noMd'} new=${newv} prior=${priorv===kUnbound?'unbound':priorv}`);
 //    console.log(`OBS: ${name} now ${newv} (was ${priorv})`);
 }
 function XobsDbg (name, me, newv, priorv, c) {
