@@ -189,6 +189,7 @@ body {
 
 .todo-list li .toggle {
 	opacity: 0;
+	cursor: pointer;
 }
 
 .todo-list li .toggle + label {
