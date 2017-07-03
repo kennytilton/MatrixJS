@@ -61,7 +61,7 @@ function todoDelete (dom, e) {
 }
 
 function todosReselect (dom, e) {
-    clg('delete!!!!!');
+    clg('select!!!!');
     let li = jsDom[dom.id] // find the "shadow" JS object matching the event dom
     clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
     li.fmTag('ul').selection = li.content;
@@ -86,29 +86,6 @@ function todoFooter (c) {
                 class: "clear-completed"
                 , hidden: cF(c => c.fm('todo-list').kids.filter(todo => todo.complete).length === 0)})])}
 
-
-
-/*
- <footer class="footer">
- <!-- This should be `0 items left` by default -->
- <span class="todo-count"><strong>0</strong> item left</span>
- <!-- Remove this if you don't implement routing -->
- <ul class="filters">
- <li>
- <a class="selected" href="#/">All</a>
- </li>
- <li>
- <a href="#/active">Active</a>
- </li>
- <li>
- <a href="#/completed">Completed</a>
- </li>
- </ul>
- <!-- Hidden if no completed items are left ↓ -->
- <button class="clear-completed">Clear completed</button>
- </footer>
- */
-
 // --- persistence -------------------------------------------------------
 
 function todosPersist (name, me, newv, priorv, c) {
@@ -123,8 +100,7 @@ function obsTodoComplete (name, me, newv, priorv, c) {
         clg(`obscomp setting ${me.tag} todo from ${me.val.complete} to ${newv}`);
         me.val.complete = newv;
         let ul = me.fmTag('ul')
-            , todos = [];
-        ul.kids.map( li=> todos.push( li.val));
+            , todos = ul.kids.reduce( (c, li) => c.concat( li.val), []);
         clg(`culled todos ${todos.length}`);
         localStorage.clear();
         localStorage.setObject("todos-ConnectJS", todos);
