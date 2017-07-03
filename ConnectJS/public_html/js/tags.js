@@ -113,7 +113,9 @@ function tagAttrsBuild(md) {
             } else {
                 switch (prop) {
                     case 'disabled':
-                    case 'autofocus': // booleans can standalone weird
+                    case 'autofocus':
+                    case 'checked':
+                        // booleans can stand alone. So weird.
                         if (md[prop]) {
                             attrs += ` ${prop}`;
                         }
@@ -198,6 +200,15 @@ function h6(content, islots, kids) {
 function section(islots, kids) {
     return tag('section', islots, kids);
 }
+
+function ul(islots, kids) {
+    return tag('ul', islots, kids);
+}
+
+function li(islots, kids) {
+    return tag('li', islots, kids);
+}
+
 function label(content, islots, kids) { // can a label have kids?
     return tag('label', Object.assign( {content: content}, islots), kids);
 }
