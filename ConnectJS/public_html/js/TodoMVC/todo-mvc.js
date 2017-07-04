@@ -1,11 +1,69 @@
+ // --- Our database: transparent persistence! -----------------------
+
+ const TODO_LS_PREFIX = "todos-ConnectJS.";
+
+ class Todo extends Model {
+    constructor(islots) {
+        let netSlots = Object.assign({dbKey: TODO_LS_PREFIX+uuidv4()
+                                        , text: cI("")
+                                        , created: Date.now()
+                                        , "completed": cI(null)
+                                        , deleted: cI(null)}
+                                        , islots);
+
+        super(null, null, netSlots, false);
+        if ( !islots.dbKey) { // ie, if not being instantiated from DB JSON
+            this.store();
+        }
+    }
+    static fromJSON (j) {
+        // only some properties should be changing after creation...
+        return new Todo( Object.assign( j,
+            { text: cI( j.text)
+                , completed: cI(j.completed)
+                , deleted: cI(j.deleted)}))
+    }
+    static load (dbKey) {
+        return new Todo( localStorage.getObject( dbKey))
+    }
+
+    static obsTodoChange ( slot, todo, newv, priorv, c) {
+        // no matter what changed, re-write the whole thing
+        todo.store();
+    }
+
+    slotObserverResolve(slot) { return Todo.obsTodoChange }
+
+    static mdLoadAll() { // load all into model property items for various widgets to watch via Cell dependencies
+        return mkm( null, 'Todo'
+            , { items: cI( Object.keys(localStorage).filter( k => k.startsWith(TODO_LS_PREFIX)).map( Todo.load))})
+    }
+    store () {
+        clg('storing todo '+ this.dbKey);
+        localStorage.setObject( this.dbKey, this.toJSON());
+    }
+    toJSON () {
+        return  { dbKey: this.dbKey
+                , text: this.text
+                , created: this.created
+                , completed: this.completed
+                , deleted: this.deleted }
+    }
+}
+
+// const Todos = Todo.mdLoadAll();
+
+function todoAdd (dom, e) {
+    Todo.items = Todos.items.concat( new Todo( {text: e.target.value}))
+}
+
+// --- Our application -------------
+
 function todoMVC() {
     return div({}, c => {
         return [
             label( Date.now()),
-            section({ class: "todoapp"
-                    , name: "todoapp"
-                    , todos: cI(localStorage.getObject("todos-ConnectJS") || []
-                                , {observer: todosPersist})}
+            section({ class: "todoapp", name: "todoapp"}
                 , c => { return [
                         h1("todos")
                         , header({class: "header"}
@@ -62,7 +120,7 @@ function todoDelete (dom, e) {
 
 function todosReselect (dom, e) {
     clg('select!!!!');
-    let li = jsDom[dom.id] // find the "shadow" JS object matching the event dom
+    let li = jsDom[dom.id]; // find the "shadow" JS object matching the event dom
     clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
     li.fmTag('ul').selection = li.content;
 }
@@ -85,38 +143,4 @@ function todoFooter (c) {
             , button("Clear completed", {
                 class: "clear-completed"
                 , hidden: cF(c => c.fm('todo-list').kids.filter(todo => todo.complete).length === 0)})])}
-
-// --- persistence -------------------------------------------------------
-
-function todosPersist (name, me, newv, priorv, c) {
-    if ( priorv !== kUnbound) {
-        localStorage.clear();
-        localStorage.setObject("todos-ConnectJS", newv);
-    }
-}
-
-function obsTodoComplete (name, me, newv, priorv, c) {
-    if ( priorv !== kUnbound) {
-        clg(`obscomp setting ${me.tag} todo from ${me.val.complete} to ${newv}`);
-        me.val.complete = newv;
-        let ul = me.fmTag('ul')
-            , todos = ul.kids.reduce( (c, li) => c.concat( li.val), []);
-        clg(`culled todos ${todos.length}`);
-        localStorage.clear();
-        localStorage.setObject("todos-ConnectJS", todos);
-    }
-}
-
-function mkTodo(text) {
-    return {key: "todos-ConnectJS."+uuidv4(), value: text, created: Date.now(), complete: false}
-}
-
-function todoAdd (dom, e) {
-    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
-        , appMd = md.fm('todoapp')
-        , todos = appMd.todos.slice();
-    todos.push( mkTodo(e.target.value));
-    e.target.value = null; // todo not good, bypasses dataflow
-    appMd.todos = todos;
-}
 

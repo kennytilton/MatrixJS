@@ -5,6 +5,30 @@ function uuidv4() {
     )
 }
 
+function localStorageLoad (keyPrefix) {
+    var values = [],
+        keys = Object.keys(localStorage),
+        i = keys.length;
+    clg('lsl sees keys'+keys)
+    while ( i-- ) {
+        if ( keys[i].startsWith(keyPrefix))
+            values.push( JSON.parse(localStorage.getItem(keys[i])));
+    }
+    return values;
+}
+
+// --- localStorag setup ------------------------------
+
+Storage.prototype.setObject = function(key, value) {
+    this.setItem(key, JSON.stringify(value));
+}
+
+Storage.prototype.getObject = function(key) {
+    var value = this.getItem(key);
+    return value && JSON.parse(value);
+}
+
+
 
 /* https://gist.github.com/Benvie/9988604*/
 
