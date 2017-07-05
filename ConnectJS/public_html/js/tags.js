@@ -214,6 +214,10 @@ function li(islots, kids) {
 function label(content, islots, kids) { // can a label have kids?
     return tag('label', Object.assign( {content: content}, islots), kids);
 }
+function labelx(islots, kids) { // can a label have kids?
+    ast( islots.content, 'labelx sees islots sans content');
+    return tag('label', islots, kids);
+}
 function button(content, islots, kids) {
     return tag('button', Object.assign( {content: content}, islots), kids);
 }

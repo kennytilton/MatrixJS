@@ -34,7 +34,7 @@ function storageTest () {
 
     clg('got two? '+localStorageLoad(TODO_LS_PREFIX).length);
 
-    let mdb = Todo.mdLoadAll();
+    let mdb = Todo.loadAllItems();
 
     clg('mdb items '+ mdb.items.length);
 
