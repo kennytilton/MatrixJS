@@ -100,7 +100,8 @@ AttrAliases = new Map([['class','className']]);
 function obsAttrGlobal (property, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
     //clg(`setting tag attribute ${property}!!! via ${AttrAliases.get(property)} = `+ newv);
-    //clg('md is '+md.dom['className'] );
+    clg('obsAttrGlobal md.id is '+ md.id);
+    clg('obsAttrGlobal md.dom is '+md.dom);
     let trueAttr = AttrAliases.get(property) || property;
         md.dom[trueAttr] = newv;
 }
@@ -128,8 +129,10 @@ class Tag extends Model {
             , 'dom', {
                 enumerable: true
                 , get: ()=> {
+                    clg('tag dom jit sees id '+this.id);
                     if (this.domCache===null) {
                         this.domCache = document.getElementById(this.id);
+                        ast(this.domCache);
                     }
                     return this.domCache;
                 }
