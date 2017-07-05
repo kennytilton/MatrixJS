@@ -5,8 +5,9 @@ const Todos = Todo.loadAllItems();
 // Todos.items = ["aaa", "bbb", "ccc"].map( text => new Todo( {text: text}));
 
 function todoAddNew (dom, e) {
-    Todos.items = Todos.items.concat( new Todo( {text: e.target.value}));
-    e.target.value = null; // Is this OK? Mebbe not....
+    Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {text: e.target.value}));
+    // constructor will have written Todo to localStorage
+    e.target.value = null;
 }
 
 function todoMVC() {
@@ -41,7 +42,7 @@ function todoMVC() {
                                         , onclick: 'toggleAllCompleted'})*/
 
                             , ul({class: "todo-list", name: "todo-list"}
-                                    , c =>  todoLines( c, Todos.items.filter( td => !td.deleted)))])
+                                    , c =>  todoLines( c, Todos.items))])
                             , todoFooter(c)]
                 })
             , footer({class: "info"}
@@ -88,7 +89,7 @@ function todoLines( c, items ) {
 }
 
 function todoMatchesSelect( todo, selection) {
-    clg(`match??? ${todo.text} ${todo.completed} ${selection}`);
+    //clg(`match??? ${todo.text} ${todo.completed} ${selection}`);
     return selection==='All'
         || (selection==='Completed' && todo.completed)
         || (selection==='Active' && !todo.completed);
@@ -97,10 +98,10 @@ function todoMatchesSelect( todo, selection) {
 function todoToggleComplete (dom, e) {
     let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
         , li = md.fmTag('li');
-    clg(`togglecomplete li!!!!! ${li?li.tag:"li not found"}`);
-    clg('tog completed start '+li.todo.completed);
+    //clg(`togglecomplete li!!!!! ${li?li.tag:"li not found"}`);
+    //('tog completed start '+li.todo.completed);
     li.todo.completed = (li.todo.completed ? null : Date.now());
-    clg('tog completed after '+li.todo.completed);
+    //clg('tog completed after '+li.todo.completed);
 }
 
 function todoDelete (dom, e) {
@@ -110,9 +111,9 @@ function todoDelete (dom, e) {
 }
 
 function todosReselect (dom, e) {
-    clg('select!!!!');
+    //clg('select!!!!');
     let li = jsDom[dom.id]; // find the "shadow" JS object matching the event dom
-    clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
+    //clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
     li.fmTag('ul').selection = li.content;
 }
 
@@ -138,6 +139,10 @@ function todoFooter (c) {
                 class: "clear-completed"
                 , disabled: cF(c => Todos.items.filter(todo => todo.completed).length === 0)
                 , hidden: cF( c=> c.md.disabled )
-                , onclick: (dom,e) => clg('clear!!!!')})])
+                , onclick: 'todoCompletedClear'})])
+}
+
+function todoCompletedClear( dom, e) {
+    Todos.items.filter( td => td.completed ).map( td => td.deleted = Date.now());
 }
 

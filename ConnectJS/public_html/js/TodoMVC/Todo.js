@@ -29,13 +29,12 @@ class Todo extends Model {
     }    slotObserverResolve(slot) { return Todo.obsTodoChange }
 
     static loadAllItems() {
-        // visible wiring to support transparent persistence:
-        //    load all into model for various widgets to watch via Cell dependencies
+        // load all items into model so various widgets can watch via Cell dependencies
         return mkm( null, 'Todo'
-            , { itemsRaw: cI( Object.keys(localStorage)
-                .filter( k => k.startsWith(TODO_LS_PREFIX))
-                .map( Todo.load)) || []
-                , items: cF()})
+                , { itemsRaw: cI( Object.keys(localStorage)
+                                    .filter( k => k.startsWith(TODO_LS_PREFIX))
+                                    .map( Todo.load) || [])
+                    , items: cF( c => c.md.itemsRaw.filter( td => !td.deleted))})
     }
     store () {
         localStorage.setObject( this.dbKey, this.toJSON());
