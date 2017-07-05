@@ -1,5 +1,7 @@
  // --- Our database: transparent persistence! -----------------------
 
+ localStorage.clear();
+
  const TODO_LS_PREFIX = "todos-ConnectJS.";
 
  class Todo extends Model {
@@ -26,17 +28,17 @@
     static load (dbKey) {
         return new Todo( localStorage.getObject( dbKey))
     }
-
     static obsTodoChange ( slot, todo, newv, priorv, c) {
         // no matter what changed, re-write the whole thing
         todo.store();
     }
-
     slotObserverResolve(slot) { return Todo.obsTodoChange }
 
     static mdLoadAll() { // load all into model property items for various widgets to watch via Cell dependencies
         return mkm( null, 'Todo'
-            , { items: cI( Object.keys(localStorage).filter( k => k.startsWith(TODO_LS_PREFIX)).map( Todo.load))})
+            , { items: cI( Object.keys(localStorage)
+                .filter( k => k.startsWith(TODO_LS_PREFIX))
+                .map( Todo.load)) || []})
     }
     store () {
         clg('storing todo '+ this.dbKey);
@@ -51,10 +53,10 @@
     }
 }
 
-// const Todos = Todo.mdLoadAll();
+const Todos = Todo.mdLoadAll();
 
 function todoAdd (dom, e) {
-    Todo.items = Todos.items.concat( new Todo( {text: e.target.value}))
+    Todos.items = Todos.items.concat( new Todo( {text: e.target.value}))
 }
 
 // --- Our application -------------
@@ -76,8 +78,9 @@ function todoMVC() {
                         , section({class: "main", name: "mainsection"}, c => [
                                 input({id: "toggle-all", class: "toggle-all", type: "checkbox"})
                                 , label("Mark all as complete", {for: "toggle-all"})
+                                // todo optimize so only new/lost lines handled
                                 , ul({class: "todo-list", name: "todo-list"}, c => {
-                                    return todoLines(c.fm('todoapp').todos)})])
+                                    return todoLines( Todos.items )})])
                         , todoFooter(c)]
                 })
             , footer({class: "info"}
@@ -85,44 +88,41 @@ function todoMVC() {
     })
 }
 
-function todoLines( todos) {
+function todoLines( items ) {
     // todo use cache to preserve existing dom and minimize output
-    return todos.map( todo=>
-        li({val: todo
-                , complete: cI( todo.complete, {observer: obsTodoComplete})
-                , class: cF( function (c) {
-                                //clg('todo line class rule runs! seeing complete '+c.md.complete);
-                                return (c.md.complete ? "completed" : "dunno");
-                            }//, {observer: obsDbg}
-                            )
-            }
-          , c => [ div({class: "view"}
+    items.map( todo =>
+        li({ todo: todo
+           , class: cF( c => (todo.completed ? "completed" : ""))}
+           , c => [ div({class: "view"}
                     , c => [ input({class: "toggle"
                             , type: "checkbox", checked: true
                             , onclick: 'todoToggleComplete'})
-                        , label(todo.value)
+                        , label(todo.text)
                         , button(null, {class: "destroy"
                                         , onclick: 'todoDelete'})])
-                , input({class: "edit", value: "Create a TodoMVC template"})]))
+                        , input({class: "edit", value: "Create a TodoMVC template"})]))
 }
 
 function todoToggleComplete (dom, e) {
     let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
         , li = md.fmTag('li');
     clg(`togglecomplete li!!!!! ${li?li.tag:"li not found"}`);
-    li.complete = !li.complete;
+    li.todo.completed = (li.completed ? null : Date.now());
 }
 
 function todoDelete (dom, e) {
     clg('delete!!!!!');
     let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
+        , li = md.fmTag('li');
+    clg(`togglecomplete li!!!!! ${li?li.tag:"li not found"}`);
+    li.todo.deleted = (li.deleted ? null : Date.now());
 }
 
 function todosReselect (dom, e) {
     clg('select!!!!');
     let li = jsDom[dom.id]; // find the "shadow" JS object matching the event dom
     clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
-    li.fmTag('ul').selection = li.content;
+    li.fmTag('ul').selection = li.todo;
 }
 
 // --- footer -------------------------------------------------------------
@@ -131,7 +131,7 @@ function todoFooter (c) {
     return footer({class: "footer"}, c => [
             span({ class: "todo-count"
                 , content: cF(c => {
-                        let remCt = c.fm('todo-list').kids.filter(todo => !todo.complete).length;
+                        let remCt = Todos.items.filter(todo => !todo.completed).length;
                         return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
             , ul( {class: "filters"
                     , selection: cI("All")}
@@ -142,5 +142,5 @@ function todoFooter (c) {
                                     , onclick: 'todosReselect'})])))
             , button("Clear completed", {
                 class: "clear-completed"
-                , hidden: cF(c => c.fm('todo-list').kids.filter(todo => todo.complete).length === 0)})])}
+                , hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0)})])}
 
