@@ -106,17 +106,13 @@ function todoLines( c, items ) {
 }
 
 function obsContentToDom ( slot, me, newv, priorv, c) {
-    clg('contentto dom!!!! '+newv);
     if (priorv !== kUnbound) {
-
         me.dom.innerHTML = newv;
     }
 }
 // stick todo in more places to reduce navigation
 
 function todoStartEditing (dom,e) {
-    //clg('start edit!!!!');
-
     let md = jsDom[dom.id]
         , li = md.fmTag('li', 'myLi');
 
@@ -129,19 +125,17 @@ function todoStartEditing (dom,e) {
     edt.dom.value = edt.dom.value; // hack to put insertion point at end of text
 }
 function todoEdit ( edtdom, e) {
-    // clg(`edit!!!! ${e.type} key ${e.key} li=${edt.li}`);
     switch (e.key) {
         case 'Escape':
             edtdom.li.dom.classList.remove('editing');
             break;
+
         case 'Enter':
-            clg(`enter val ${edtdom.value} for ${edtdom.li.todo.title}`);
             edtdom.li.todo.title = edtdom.value;
             edtdom.li.dom.classList.remove('editing');
             break;
     }
 }
-
 
 function todoMatchesSelect( todo, selection) {
     return selection==='All'
@@ -150,14 +144,12 @@ function todoMatchesSelect( todo, selection) {
 }
 
 function todoToggleComplete (dom, e) {
-    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
-        , li = md.fmTag('li');
+    let li = jsDom[dom.id].fmTag('li');
     li.todo.completed = (li.todo.completed ? null : Date.now());
 }
 
 function todoDelete (dom, e) {
-    let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
-        , li = md.fmTag('li'); // now navigate to its containing li
+    let li = jsDom[dom.id].fmTag('li');
     li.todo.deleted = Date.now(); // Bam!
 }
 
