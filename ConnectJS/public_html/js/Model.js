@@ -77,6 +77,10 @@ class Model {
                         }
                     });
             } else {
+                let non = this.constructor.nonCells();
+                if (non.indexOf(slot) === -1)
+                    console.warn(`Slot ${slot} will silently reject writes!!!`);
+
                 Object.defineProperty(this
                     , slot, {
                         enumerable: true
@@ -96,6 +100,7 @@ class Model {
             }            
         }
     }
+    static nonCells() { return []}
     awaken() {
         if (this.state !== kNascent) return this;
         this.state = kAwakening;

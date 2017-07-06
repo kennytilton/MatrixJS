@@ -145,7 +145,7 @@ class Tag extends Model {
             });
         }
     }
-    
+    static
     toHTML() {
         let tag = this.tag
             , others = tagAttrsBuild(this)

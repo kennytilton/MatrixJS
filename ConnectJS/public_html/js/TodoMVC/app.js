@@ -106,13 +106,14 @@ function todoLines( c, items ) {
 }
 
 function obsContentToDom ( slot, me, newv, priorv, c) {
+    clg('content to dom!!!! '+newv);
     if (priorv !== kUnbound)
         me.dom.content = newv;
 }
 // stick todo in more places to reduce navigation
 
 function todoStartEditing (dom,e) {
-    clg('start edit!!!!');
+    //clg('start edit!!!!');
 
     let md = jsDom[dom.id]
         , li = md.fmTag('li', 'myLi');
@@ -125,16 +126,16 @@ function todoStartEditing (dom,e) {
     edt.dom.focus();
     edt.dom.value = edt.dom.value; // hack to put insertion point at end of text
 }
-function todoEdit ( edt, e) {
-    clg(`edit!!!! ${e.type} key ${e.key} li=${edt.li}`);
+function todoEdit ( edtdom, e) {
+    // clg(`edit!!!! ${e.type} key ${e.key} li=${edt.li}`);
     switch (e.key) {
         case 'Escape':
-            edt.li.dom.classList.remove('editing');
+            edtdom.li.dom.classList.remove('editing');
             break;
         case 'Enter':
-            clg(`enter val ${edt.value}`);
-            edt.li.todo.title = edt.value;
-            edt.li.dom.classList.remove('editing');
+            clg(`enter val ${edtdom.value} for ${edtdom.li.todo.title}`);
+            edtdom.li.todo.title = edtdom.value;
+            edtdom.li.dom.classList.remove('editing');
             break;
     }
 }

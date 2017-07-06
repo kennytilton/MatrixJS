@@ -3,18 +3,20 @@ const TODO_LS_PREFIX = "todos-ConnectJS.";
 class Todo extends Model {
     constructor(islots) {
         ast( islots.title, 'new Todo: title property is required');
-        let netSlots = Object.assign({dbKey: TODO_LS_PREFIX + uuidv4()
-                , title: cI( islots.title, {observer: obsDbg})
-                , created: Date.now()
-                , completed: cI( islots.completed || null)
-                , deleted: cI( islots.deleted || null)}
-            , islots);
+        let netSlots = Object.assign(
+                        {dbKey: TODO_LS_PREFIX + uuidv4()
+                        , created: Date.now()}
+                        , islots
+                        , { title: cI( islots.title )
+                            , completed: cI( islots.completed || null)
+                            , deleted: islots.deleted || cI( null)});
 
         super(null, null, netSlots, false);
         if ( !islots.dbKey) { // ie, if not being instantiated from DB JSON
             this.store();
         }
     }
+    static nonCells () {return ['dbKey','created']}
     static fromJSON ( json) {
         return new Todo( json )
     }
