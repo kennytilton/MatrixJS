@@ -1,11 +1,15 @@
-localStorage.clear();
+//localStorage.clear();
 
 const Todos = Todo.loadAllItems();
 
-// Todos.items = ["aaa", "bbb", "ccc"].map( text => new Todo( {text: text}));
-
 function todoAddNew (dom, e) {
-    Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {text: e.target.value}));
+    let title = e.target.value.trim();
+
+    if (title==='')
+        alert("A reminder to do nothing? I like it! We all need to remember to slow things down from time to time. But, no.")
+    else
+        Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title}));
+
     // constructor will have written Todo to localStorage
     e.target.value = null;
 }
@@ -15,7 +19,8 @@ function todoMVC() {
         return [
             section({ class: "todoapp", name: "todoapp"}
                 , c => { return [
-                        h1("todos")
+                        button("Bam", {onclick: 'localStorage.clear();'})
+                    , h1("todos3")
                         , header({class: "header"}
                             , c => [input({
                                         class: "new-todo"
@@ -23,7 +28,9 @@ function todoMVC() {
                                         , autofocus: true
                                         , onchange: 'todoAddNew'})])
 
-                        , section({class: "main", name: "mainsection"}, c => [
+                        , section({class: "main"
+                                , name: "mainsection"
+                                , hidden: cF( c => Todos.items.length===0)}, c => [
                             labelx( { content: cF( c => c.md.optio)
                                     , optio: cF( c => (Todos.items.length===0) ? "na"
                                                     : (Todos.items.every( i => i.completed) ? "undo" : "done")
@@ -52,6 +59,8 @@ function todoMVC() {
     })
 }
 
+// todo leverage classList handling
+
 function toggleAllCompleted (dom,e) {
     let md = jsDom[dom.id]
         , newCompleted = (md.optio==="done" ? Date.now():null);
@@ -79,17 +88,59 @@ function todoLines( c, items ) {
                             input({class: "toggle"
                                     , type: "checkbox", checked: true
                                     , onclick: 'todoToggleComplete'})
-                            , label(todo.text)
+                            , labelx({content: cF( c=> { clg('lbl sees title '+ todo.title);
+                                                        return todo.title}
+                                                        , {observer: obsContentToDom})
+                                    , todo: todo
+                                    , ondblclick: 'todoStartEditing'})
                             , button(null, {
                                 class: "destroy"
-                                , onclick: 'todoDelete'
-                            })])
-                        , input({class: "edit", value: "Create a TodoMVC template"})])}
-    })
+                                , onclick: 'todoDelete'})])
+                        , input({name: "myEditor"
+                            , class: "edit"
+                            , todo: todo
+                            , value: cF( c => todo.title)
+                            , onkeydown: 'todoEdit'
+                            , onkeypress: 'todoEdit'})])}})
+
 }
 
+function obsContentToDom ( slot, me, newv, priorv, c) {
+    if (priorv !== kUnbound)
+        me.dom.content = newv;
+}
+// stick todo in more places to reduce navigation
+
+function todoStartEditing (dom,e) {
+    clg('start edit!!!!');
+
+    let md = jsDom[dom.id]
+        , li = md.fmTag('li', 'myLi');
+
+    // todo resolve redundancy of upp v insidep v mep
+    let edt = li.fm('myEditor',{upp: false, insidep: true, mep: false}, 'edt');
+    ast(edt);
+    edt.dom.li = li;
+    li.dom.classList.add("editing");
+    edt.dom.focus();
+    edt.dom.value = edt.dom.value; // hack to put insertion point at end of text
+}
+function todoEdit ( edt, e) {
+    clg(`edit!!!! ${e.type} key ${e.key} li=${edt.li}`);
+    switch (e.key) {
+        case 'Escape':
+            edt.li.dom.classList.remove('editing');
+            break;
+        case 'Enter':
+            clg(`enter val ${edt.value}`);
+            edt.li.todo.title = edt.value;
+            edt.li.dom.classList.remove('editing');
+            break;
+    }
+}
+
+
 function todoMatchesSelect( todo, selection) {
-    //clg(`match??? ${todo.text} ${todo.completed} ${selection}`);
     return selection==='All'
         || (selection==='Completed' && todo.completed)
         || (selection==='Active' && !todo.completed);
@@ -98,22 +149,18 @@ function todoMatchesSelect( todo, selection) {
 function todoToggleComplete (dom, e) {
     let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
         , li = md.fmTag('li');
-    //clg(`togglecomplete li!!!!! ${li?li.tag:"li not found"}`);
-    //('tog completed start '+li.todo.completed);
     li.todo.completed = (li.todo.completed ? null : Date.now());
-    //clg('tog completed after '+li.todo.completed);
 }
 
 function todoDelete (dom, e) {
     let md = jsDom[dom.id] // find the "shadow" JS object matching the event dom
-        , li = md.fmTag('li');
-    li.todo.deleted = (li.todo.deleted ? null : Date.now());
+        , li = md.fmTag('li'); // now navigate to its containing li
+    li.todo.deleted = Date.now(); // Bam!
 }
 
 function todosReselect (dom, e) {
-    //clg('select!!!!');
-    let li = jsDom[dom.id]; // find the "shadow" JS object matching the event dom
-    //clg(`toggleReselect li!!!!! ${li?li.content:"li not found"}`);
+    let li = jsDom[dom.id]; // find the "mirroe" JS object matching the actual dom element
+    // todo: why the content and not the li?
     li.fmTag('ul').selection = li.content;
 }
 
@@ -121,11 +168,11 @@ function todosReselect (dom, e) {
 
 function todoFooter (c) {
     return footer({class: "footer"
-                   , hidden: cF( c => Todos.items.filter( td => !td.deleted ).length===0)}
+                   , hidden: cF( c => Todos.items.length===0)}
         , c => [
             span({ class: "todo-count"
                 , content: cF(c => {
-                        let remCt = Todos.items.filter(todo => !(todo.completed || todo.deleted)).length;
+                        let remCt = Todos.items.filter(todo => !todo.completed).length;
                         return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
             , ul( {class: "filters"
                     , name: "filters"

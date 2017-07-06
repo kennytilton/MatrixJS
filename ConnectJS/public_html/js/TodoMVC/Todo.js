@@ -2,9 +2,9 @@ const TODO_LS_PREFIX = "todos-ConnectJS.";
 
 class Todo extends Model {
     constructor(islots) {
-        ast( islots.text, 'new Todo: text property is required');
+        ast( islots.title, 'new Todo: title property is required');
         let netSlots = Object.assign({dbKey: TODO_LS_PREFIX + uuidv4()
-                , text: cI( islots.text)
+                , title: cI( islots.title, {observer: obsDbg})
                 , created: Date.now()
                 , completed: cI( islots.completed || null)
                 , deleted: cI( islots.deleted || null)}
@@ -26,14 +26,17 @@ class Todo extends Model {
     // todo try with anon fn as obs
     static obsTodoChange ( slot, todo, newv, priorv, c) {
         todo.store();
-    }    slotObserverResolve(slot) { return Todo.obsTodoChange }
+    }
+
+    slotObserverResolve(slot) { return Todo.obsTodoChange }
 
     static loadAllItems() {
         // load all items into model so various widgets can watch via Cell dependencies
         return mkm( null, 'Todo'
                 , { itemsRaw: cI( Object.keys(localStorage)
                                     .filter( k => k.startsWith(TODO_LS_PREFIX))
-                                    .map( Todo.load) || [])
+                                    .map( Todo.load)
+                    .sort( (a,b) => a.created < b.created ? -1 : 1) || [])
                     , items: cF( c => c.md.itemsRaw.filter( td => !td.deleted))})
     }
     store () {
@@ -41,7 +44,7 @@ class Todo extends Model {
     }
     toJSON () {
         return  { dbKey: this.dbKey
-            , text: this.text
+            , title: this.title
             , created: this.created
             , completed: this.completed
             , deleted: this.deleted }
