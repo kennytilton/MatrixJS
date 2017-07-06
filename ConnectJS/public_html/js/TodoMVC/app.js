@@ -106,9 +106,11 @@ function todoLines( c, items ) {
 }
 
 function obsContentToDom ( slot, me, newv, priorv, c) {
-    clg('content to dom!!!! '+newv);
-    if (priorv !== kUnbound)
-        me.dom.content = newv;
+    clg('contentto dom!!!! '+newv);
+    if (priorv !== kUnbound) {
+
+        me.dom.innerHTML = newv;
+    }
 }
 // stick todo in more places to reduce navigation
 

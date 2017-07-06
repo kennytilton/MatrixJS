@@ -8,9 +8,11 @@ function storageTest () {
 
     clg('after clear '+localStorageLoad(TODO_LS_PREFIX).length);
 
-    let booya = new Todo({title: cI("Booya!")});
+    let booya = new Todo({title: cI("Booya!")
+                        , whoa: 42});
 
     booya.title = "new cool title";
+    booya.whoa = 43;
 
     clg( 'title s/b cool '+ JSON.stringify( booya.toJSON()));
     clg( 'title s/b cool '+ booya.title);

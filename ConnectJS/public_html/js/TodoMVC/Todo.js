@@ -16,7 +16,6 @@ class Todo extends Model {
             this.store();
         }
     }
-    static nonCells () {return ['dbKey','created']}
     static fromJSON ( json) {
         return new Todo( json )
     }

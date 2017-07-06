@@ -68,24 +68,17 @@ class Model {
                 Object.defineProperty(this
                     , slot, {
                         enumerable: true
-                        , get: ()=> {
-                            //clg('getteringhh '+value.name+','+value.md);
-                            return value.slotValue();
-                        }
-                        , set: (newv)=>{
-                            return value.slotValueSet(newv);
-                        }
+                        , get: () =>  value.slotValue()
+                        , set: (newv) => value.slotValueSet(newv)
                     });
             } else {
-                let non = this.constructor.nonCells();
-                if (non.indexOf(slot) === -1)
-                    console.warn(`Slot ${slot} will silently reject writes!!!`);
-
                 Object.defineProperty(this
                     , slot, {
                         enumerable: true
-                        , value: value
-                        , writable: false
+                        , get: () =>  value
+                        , set: (newv) => {
+                            throw `Slot ${slot} cannot be set to ${newv} because it is not mediated by an input Cell`;
+                        }
                     });
             }
         }
@@ -100,7 +93,7 @@ class Model {
             }            
         }
     }
-    static nonCells() { return []}
+
     awaken() {
         if (this.state !== kNascent) return this;
         this.state = kAwakening;
