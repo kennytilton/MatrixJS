@@ -44,6 +44,7 @@ function obsContent (slot, md, newv, oldv, c) {
 // referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 function obsKids (slot, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
+
     //clg(`<${md.tag}> ${c.name} changed!!! `+ newv + ' from ' + oldv +'!');
     let priork = null;
     
@@ -63,11 +64,12 @@ function obsKids (slot, md, newv, oldv, c) {
         if (find( newk, oldv)) {
             priork = newk;
         } else {
-            let newtag = document.createElement('div'); //(newk.tag); 
-            newk.creDom = newtag; // will be parent of newk.dom!!
+            let incubator = document.createElement('div'); //(newk.tag);
+            incubator.innerHTML = newk.toHTML()
+            newk.domCache = incubator.firstChild;
             // clg(`par ${md.id} gets newk!! ${newk.id} = `+newh);
             // clg(`newk!!! ${typeof newk} ${newk instanceof Goog} `+newk.name);
-            if (typeof Goog !== 'undefined' && newk instanceof Goog) {
+            /* if (typeof Goog !== 'undefined' && newk instanceof Goog) {
                 let g = new newk.gFactory();
                 g.create(newtag);
                 g.id = newk.id;
@@ -76,14 +78,14 @@ function obsKids (slot, md, newv, oldv, c) {
             } else {
                 newtag.innerHTML = newk.toHTML()
                 // todo try replacing newtag with its only child
-            }
+            }*/
 
             if (priork === null) {
                 //clg('ibefore null');
-                md.dom.insertBefore( newtag, null);
+                md.dom.insertBefore( newk.domCache, null);
             } else {
                 //clg('got priork!!! '+priork);
-                md.dom.insertBefore( newtag, priork.dom.nextSibling);
+                md.dom.insertBefore( newk.domCache, priork.dom.nextSibling);
             }
             //clg(`yep!! ${newtag===newk.dom.parentNode}`);
             priork = newk;

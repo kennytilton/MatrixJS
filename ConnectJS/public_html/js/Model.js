@@ -164,6 +164,10 @@ class Model {
     fmUp(what, how, key) {
         return this.fm( what, Object.assign({upp: true, mep: false}, how), key)
     }
+    fmDown(what, how, key) {
+        return this.fm( what, Object.assign({upp: false, insidep: true, mep: false}, how), key)
+    }
+
     fmatch(seek) {
         //clg(`fmatch looks at ${this.name} seeking ${seek.toString()}`);
         //clg(`fmatch sees seektype ${typeof seek} ${this.mdType} ${seek.toString()}`);

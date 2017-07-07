@@ -815,11 +815,12 @@ class Cell {
     fmUp (what,how,key) {
         return this.fm(what, Object.assign({upp: true, insidep: false}, how));
     }
+    fmDown (what, key, how) {
+        return this.fm( what, Object.assign( {mep: false, upp: false, insidep: true}, how), key);
+    }
+    // todo deprecate this
     fmd (what, key, how) {
-        return this.fm( what, {mep: false, upp: false, insidep: true}, key);
-        return this.fmd( what
-                        , key || (typeof what === 'string' ? what : null)
-                        , how);
+        return fmDown( what, key, how);
     }
 }
 

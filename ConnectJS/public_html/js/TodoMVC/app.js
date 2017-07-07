@@ -6,20 +6,19 @@ function todoMVC() {
     return div({}, c => {
         return [ section({ class: "todoapp", name: "todoapp"}
                     , c => { return [
-                        h1("todos")
-                            , header({class: "header"}
-                                , c => [input({ class: "new-todo"
-                                            , placeholder: "What needs doing?"
-                                            , autofocus: true
-                                            , onchange: 'todoAddNew'})])
+                    h1("todos")
+                        , header({class: "header"}
+                            , c => [input({ class: "new-todo"
+                                        , placeholder: "What needs doing?"
+                                        , autofocus: true
+                                        , onchange: 'todoAddNew'})])
 
-                            , section({class: "main"
-                                    , hidden: cF( c => Todos.items.length===0)}  // IN-FLOW
-                                , c => [ mkToggleAllCompleted(c)
-                                        , ul({class: "todo-list", name: "todo-list"}
-                                                , c =>  todoLines( c, Todos.items))]) // IN-FLOW
-                                        , mkTodoFooter(c)]
-                    })
+                        , section({class: "main"
+                                , hidden: cF( c => Todos.items.length===0)}  // IN-FLOW
+                            , c => [ mkToggleAllCompleted(c)
+                                    , ul({class: "todo-list", name: "todo-list"}
+                                            , c =>  todoLines( c, Todos.items))]) // IN-FLOW
+                                    , mkTodoFooter(c)]})
                 , footer({class: "info"}
                     , c => [p({}, 'Double-click a todo to edit it')
                             , p({}, 'Created by... <a href="http://tiltontec.com">Kenneth Tilton')
@@ -30,7 +29,7 @@ function todoAddNew (dom, e) {
     let title = e.target.value.trim();
 
     if (title==='')
-        alert("A reminder to do nothing? I like it! We should all slow things down from time to time. But, no.");
+        alert("A reminder to do nothing? I like it! We should all slow it down from time to time. But, no.");
     else
         Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title})); // OUT-FLOW
 
@@ -40,11 +39,11 @@ function todoAddNew (dom, e) {
 // todo Try filter as property of global state along with Todos
 
 function mkToggleAllCompleted (c) {
-    return label( cF( c => c.md.optio) // IN-FLOW
-                , { optio: cF( c => (Todos.items.length===0) ? "na" // IN-FLOW
-                            : (Todos.items.every( i => i.completed) ? "undo" // IN_FLOW
-                            : "done"))
-        , onclick: 'toggleAllCompleted'})
+    return label( cF( c => { let xlates = { na: "??", done: "Mark all done", undone: "Undo all"};
+                                return xlates[c.md.optio]; })
+        , { optio: cF( c => (Todos.items.length===0) ? "na" // IN-FLOW
+                    : (Todos.items.every( i => i.completed) ? "undo" : "done")) // IN-FLOW
+        , onclick: 'toggleAllCompleted'});
 }
 
 function toggleAllCompleted (dom,e) {
@@ -65,13 +64,13 @@ input({id: "toggle-all"
  , {observer: obsDbg})
  , onclick: 'toggleAllCompleted'})*/
 
-// todo write an array.difference to split into left, both, right
 
 function todoLines( c, items ) {
     let existing = (c.pv === kUnbound? [] : c.pv); // pv = "prior value", ie prior formula calculation (to-do items)
-    // todo generalize this optimization
+    // todo generalize this optimization as FamilyValues
     return items.map( todo => {
         existingIndex = existing.findIndex( li => li.todo === todo);
+
         if (existingIndex !== -1) {
             return existing[existingIndex];
         } else {
@@ -92,9 +91,9 @@ function todoLines( c, items ) {
                         , input({name: "myEditor"
                             , class: "edit"
                             , todo: todo
-                            , value: cFI( c=> todo.title) // one-time load, so no need cFI/dataflow linkage
-                            , onkeydown: 'todoEdit'
-                            , onkeypress: 'todoEdit'})])}})
+                            , value: cFI( c=> todo.title) // todo use wocd instead
+                            , onblur: 'todoEdit'
+                            , onkeydown: 'todoEdit'})])}})
 }
 
 function todoMatchesSelect( todo, selection) {
@@ -105,11 +104,9 @@ function todoMatchesSelect( todo, selection) {
         || (selection==='Active' && !todo.completed); // IN-FLOW
 }
 
-// todo write/use fmContained
-
 function todoStartEditing (dom,e) {
     let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
-        , edt = li.fm('myEditor', {upp: false, insidep: true, mep: false}, 'edt'); // find its editor
+        , edt = li.fmDown('myEditor');
     edt.dom.li = li; // save a little navigation later
     li.dom.classList.add("editing");
     edt.dom.focus();
@@ -118,14 +115,13 @@ function todoStartEditing (dom,e) {
     edt.dom.setSelectionRange(0, edt.dom.value.length);
 }
 
-// todo save on blur
-
 function todoEdit ( edtdom, e) {
     let li = edtdom.li;
-    if (e.key === 'Escape') {
-        li.dom.classList.remove('editing');
-    } else if (e.key === 'Enter') {
+
+    if (e.type === 'blur' || e.key === 'Enter') {
         li.todo.title = edtdom.value; // OUT-FLOW
+        li.dom.classList.remove('editing');
+    } else if (e.key === 'Escape') {
         li.dom.classList.remove('editing');
     }
 }
