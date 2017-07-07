@@ -207,7 +207,7 @@ function eko (tag,value) {
     return(value);
 }
 Array.prototype.somex = function (test) {
-    clg(`somex entry this ${this} w entries ${this.entries()}`);
+    //clg(`somex entry this ${this} w entries ${this.entries()}`);
     for (let [eltx, elt] of this.entries()) {
         let res = test(eltx, elt);
         if (res) {

@@ -34,9 +34,13 @@ function dom2js(dom, mustFind=true) {
     return js;
 }
 
+
+    // Is this generic content observer a good idea?
+
 function obsContent (slot, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
-    //clg('setting ihtml!!! '+ newv);
+    clg(`obsContent of ${md.name || md.id} setting ihtml!!! to ${newv} from ${oldv}`);
+    ast( md.dom, "Tag obs Content");
     md.dom.innerHTML = newv;
 }
 
@@ -50,6 +54,7 @@ function obsKids (slot, md, newv, oldv, c) {
         let oldk = oldv[kx];
         if (!find( oldk, newv)) {
             let kdom = oldk.creDom || document.getElementById(oldk.id);
+            clg(`Tag obskids removing dom ${kdom} of id ${oldk.id}`);
             kdom.parentNode.removeChild(kdom);
         }
     }
@@ -130,6 +135,7 @@ class Tag extends Model {
             console.warn(`Provided dom id ${islots.id} is your responsibility.`);
             this.id = islots.id;
         } else {
+            clg(`Id ${this.sid} assigned to ${name || islots.name} tag ${islots.tag}`);
             this.id = this.sid;
         }
         
@@ -143,6 +149,7 @@ class Tag extends Model {
                 enumerable: true
                 , get: ()=> {
                     if (this.domCache===null) {
+                        clg(`seeking DOM for ${this.id} tag ${this.tag} name ${this.name}`);
                         this.domCache = document.getElementById(this.id);
                         ast(this.domCache);
                     }

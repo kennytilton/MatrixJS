@@ -88,15 +88,15 @@ function todoLines( c, items ) {
                             input({class: "toggle"
                                     , type: "checkbox", checked: true
                                     , onclick: 'todoToggleComplete'})
-                            , labelx({content: cF( c => todo.title) // IN-FLOW
-                                    , todo: todo
+                            , label( cF( c => todo.title) // IN-FLOW
+                                    , { todo: todo
                                     , ondblclick: 'todoStartEditing'})
                             , button(null, { class: "destroy"
                                             , onclick: 'todoDelete'})])
                         , input({name: "myEditor"
                             , class: "edit"
                             , todo: todo
-                            , value: todo.title // one-time load, so no need cFI/dataflow linkage
+                            , value: cFI( c=> todo.title) // one-time load, so no need cFI/dataflow linkage
                             , onkeydown: 'todoEdit'
                             , onkeypress: 'todoEdit'})])}})
 }
@@ -119,7 +119,7 @@ function todoStartEditing (dom,e) {
     edt.dom.focus();
     // todo actually, all text should be selected
     // edt.dom.value = edt.dom.value; // this hack leaves insertion point at end of text
-    edt.dom.setSelectionRange(0);
+    edt.dom.setSelectionRange(0, edt.dom.value.length);
 }
 
 // todo save on blur

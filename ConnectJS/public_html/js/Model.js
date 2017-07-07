@@ -188,13 +188,14 @@ class Model {
                     && this.kids
                     && this.kids.somex((eltx, elt)=>{
                         //clg(`${self.name} kidchks ${elt.name}`);
-                        clg(`somex passed eltx ${eltx} and elt ${elt}`)
+                    // todo this bombed when undefined (via no-return bug) got into kids (they need packed-flat)
+                        // clg(`somex passed eltx ${eltx} and elt ${elt}`)
                         let found = (elt !== how.skip)
                                  && elt.fmTv(what, Object.assign( {}, how, { upp: false, mep: true}));
                         if (found) return found;})) ||
 
                 (function () {
-                    clg(`fmTv ${self.name} considers upp ${how.upp} par=${self.par}`);
+                    // clg(`fmTv ${self.name} considers upp ${how.upp} par=${self.par}`);
                     return (how.upp
                             && self.par
                             && self.par.fmTv( what, Object.assign({}, how
