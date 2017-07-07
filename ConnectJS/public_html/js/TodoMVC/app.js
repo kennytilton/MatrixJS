@@ -8,9 +8,10 @@ function todoAddNew (dom, e) {
     if (title==='')
         alert("A reminder to do nothing? I like it! We all need to remember to slow things down from time to time. But, no.");
     else
-        Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title})); // ===>
+        Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title})); // OUT-FLOW
 
     // constructor will have written Todo to localStorage
+
     e.target.value = null;
 }
 
@@ -21,19 +22,17 @@ function todoMVC() {
                 , c => { return [
                     h1("todos3")
                         , header({class: "header"}
-                            , c => [input({
-                                        class: "new-todo"
+                            , c => [input({ class: "new-todo"
                                         , placeholder: "What needs doing?"
                                         , autofocus: true
-                                        , onchange: 'todoAddNew'})]) // ===>
+                                        , onchange: 'todoAddNew'})])
 
                         , section({class: "main"
-                                , name: "mainsection"
                                 , hidden: cF( c => Todos.items.length===0)}, c => [ // IN-FLOW
                             labelx( { content: cF( c => c.md.optio) // IN-FLOW
                                     , optio: cF( c => (Todos.items.length===0) ? "na" // IN-FLOW
                                                     : (Todos.items.every( i => i.completed) ? "undo" : "done")) // IN-FLOW
-                                    , onclick: 'toggleAllCompleted'}) // ===>
+                                    , onclick: 'toggleAllCompleted'})
                             /* input({id: "toggle-all"
                                     , class: "toggle-all"
                                     , type: "checkbox"
@@ -58,10 +57,8 @@ function todoMVC() {
 }
 
 function toggleAllCompleted (dom,e) {
-    let md = jsDom[dom.id]
-        , newCompleted = (md.optio==="done" ? Date.now():null);
-
-    Todos.items.map( td => td.completed = newCompleted);
+    let action = dom2js(dom).optio; // CELLS hack: capture semantics before altering any state which changes semantics!
+    Todos.items.map( td => td.completed = (action==="done" ? Date.now():null));
 }
 
 function todoLines( c, items ) {
@@ -81,18 +78,15 @@ function todoLines( c, items ) {
                             input({class: "toggle"
                                     , type: "checkbox", checked: true
                                     , onclick: 'todoToggleComplete'})
-                            , labelx({content: cF( c => todo.title // IN-FLOW
-                                    // , {observer: obsContentToDom}
-                                    )
+                            , labelx({content: cF( c => todo.title) // IN-FLOW
                                     , todo: todo
                                     , ondblclick: 'todoStartEditing'})
-                            , button(null, {
-                                class: "destroy"
-                                , onclick: 'todoDelete'})])
+                            , button(null, { class: "destroy"
+                                            , onclick: 'todoDelete'})])
                         , input({name: "myEditor"
                             , class: "edit"
                             , todo: todo
-                            , value: cF( c => todo.title) // IN-FLOW
+                            , value: todo.title // one-way load, so no cFI
                             , onkeydown: 'todoEdit'
                             , onkeypress: 'todoEdit'})])}})
 
@@ -106,7 +100,7 @@ function todoMatchesSelect( todo, selection) {
 }
 
 function todoStartEditing (dom,e) {
-    let li = jsDom[dom.id].fmTag('li', 'myLi');
+    let li = dom2js(dom).fmTag('li', 'myLi');
 
     let edt = li.fm('myEditor', {upp: false, insidep: true, mep: false}, 'edt');
     edt.dom.li = li; // save a little navigation later
@@ -120,24 +114,24 @@ function todoEdit ( edtdom, e) {
     if (e.key === 'Escape') {
         li.dom.classList.remove('editing');
     } else if (e.key === 'Enter') {
-        li.todo.title = edtdom.value; // ===>
+        li.todo.title = edtdom.value; // OUT-FLOW
         li.dom.classList.remove('editing');
     }
 }
 
 function todoToggleComplete (dom, e) {
-    let li = jsDom[dom.id].fmTag('li');
-    li.todo.completed = (li.todo.completed ? null : Date.now()); // ===>
+    let todo = dom2js(dom).fmTag('li').todo;
+    todo.completed = (todo.completed ? null : Date.now()); // OUT-FLOW
 }
 
 function todoDelete (dom, e) {
-    let li = jsDom[dom.id].fmTag('li');
-    li.todo.deleted = Date.now(); // ===>
+    let todo = dom2js(dom).fmTag('li').todo;
+    todo.deleted = Date.now(); // OUT-FLOW
 }
 
 function todosFilterChange (dom, e) {
-    let li = jsDom[dom.id]; // find the "mirror" JS object matching the actual dom element
-    li.fmTag('ul').selection = li.content; // ===>
+    // "fm" navigate to selection manager and reset current selection
+    dom2js(dom).fmTag('ul').selection = li.content; // OUT-FLOW
 }
 
 // --- footer -------------------------------------------------------------
@@ -161,10 +155,10 @@ function todoFooter (c) {
             , button("Clear completed", {
                 class: "clear-completed"
                 , hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0) // IN-FLOW
-                , onclick: 'todoCompletedClear'})])
+                , onclick: 'todoCompletedDelete'})])
 }
 
-function todoCompletedClear( dom, e) {
-    Todos.items.filter( td => td.completed ).map( td => td.deleted = Date.now()); // ===>
+function todoCompletedDelete( dom, e) {
+    Todos.items.filter( td => td.completed ).map( td => td.deleted = Date.now()); // OUT-FLOW
 }
 

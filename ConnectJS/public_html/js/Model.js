@@ -19,16 +19,6 @@ const kDead = "md-dead";
 
 var sid = 0; // aka "serial ID"
 
-const jsDom = []; // here we will link JS "mirror" DOM to actual DOM by their numerical ids
-
-function dom2js(dom, mustFind=true) {
-    let jsDom = jsDom[dom.id];
-    if ( !jsDom && mustFind) {
-        throw `dom2js cannot find jsDom with dom.id ${dom.id}`;
-    }
-    return jsDom;
-}
-
 class Model {
     constructor(parent, name, islots, awakenp=true) {
         /*

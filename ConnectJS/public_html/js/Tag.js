@@ -24,6 +24,16 @@
 
 /*global kUnbound sid jsDom */
 
+const jsDom = []; // here we will link JS "mirror" DOM to actual DOM by their numerical ids
+
+function dom2js(dom, mustFind=true) {
+    let js = jsDom[dom.id];
+    if ( !js && mustFind) {
+        throw `dom2js cannot find jsDom with dom.sid ${dom.sid}, dom.id ${dom.id}`;
+    }
+    return js;
+}
+
 function obsContent (slot, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
     //clg('setting ihtml!!! '+ newv);
@@ -113,11 +123,14 @@ class Tag extends Model {
 
         // console.log("Tag sees par "+ (gPar? gPar.name : "noPar") + " name/iname " + name + "/" + islots.name);
         super( parent, (name || islots.name), superSlots, false);
+
+        this.sid = ++sid;
+
         if (islots.id) {
             console.warn(`Provided dom id ${islots.id} is your responsibility.`);
             this.id = islots.id;
         } else {
-            this.id = ++sid;
+            this.id = this.sid;
         }
         
         this.slotObservers = [];

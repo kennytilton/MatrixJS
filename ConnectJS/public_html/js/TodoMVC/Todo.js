@@ -7,14 +7,22 @@ class Todo extends Model {
                         {dbKey: TODO_LS_PREFIX + uuidv4()
                         , created: Date.now()}
                         , islots
+                        // CELLSGLUE "box" certain islots in input Cells to support dataflow
                         , { title: cI( islots.title )
                             , completed: cI( islots.completed || null)
                             , deleted: islots.deleted || cI( null)});
 
-        super(null, null, netSlots, false);
-        if ( !islots.dbKey) { // ie, if not being instantiated from DB JSON
+        super(null, null, netSlots, false); // CELLSGLUE: Model constructor does a *lot*
+        if ( !islots.dbKey) { // ie, if not already stored, ie if being instantiated from DB
             this.store();
         }
+    }
+    toJSON () {
+        return  { dbKey: this.dbKey
+            , title: this.title
+            , created: this.created
+            , completed: this.completed
+            , deleted: this.deleted }
     }
     static fromJSON ( json) {
         return new Todo( json )
@@ -23,31 +31,24 @@ class Todo extends Model {
         return new Todo( localStorage.getObject( dbKey))
     }
 
-    // no matter what changed, re-write the whole thing...
-    // todo try with anon fn as obs
+    // CELLSGLUE no matter what changed, re-write the whole thing...
     static obsTodoChange ( slot, todo, newv, priorv, c) {
-        todo.store();
+        todo.store(); // FLOW OUTSIDE MODEL BY OBSERVER
     }
-
-    slotObserverResolve(slot) { return Todo.obsTodoChange }
+    slotObserverResolve(slot) {
+        // ignore which slot chnaged since localStorage does not support that granularity
+        return Todo.obsTodoChange }
 
     static loadAllItems() {
-        // load all items into model so various widgets can watch via Cell dependencies
+        // CELLSGLUE load all items into container model so various widgets can watch via Cell dependencies
         return mkm( null, 'Todo'
                 , { itemsRaw: cI( Object.keys(localStorage)
                                     .filter( k => k.startsWith(TODO_LS_PREFIX))
                                     .map( Todo.load)
                     .sort( (a,b) => a.created < b.created ? -1 : 1) || [])
-                    , items: cF( c => c.md.itemsRaw.filter( td => !td.deleted))})
+                    , items: cF( c => c.md.itemsRaw.filter( td => !td.deleted))}) // IN-FLOW
     }
     store () {
         localStorage.setObject( this.dbKey, this.toJSON());
-    }
-    toJSON () {
-        return  { dbKey: this.dbKey
-            , title: this.title
-            , created: this.created
-            , completed: this.completed
-            , deleted: this.deleted }
     }
 }
