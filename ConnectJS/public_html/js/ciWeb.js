@@ -174,7 +174,7 @@ class Tag extends Model {
             } else if (TagAttributesGlobal.has(slot)) {
                 obs = obsAttrGlobal;
             } else {
-                console.warn(`tag ${this.tag} not resolving observer for ${slot}`);
+                // console.warn(`tag ${this.tag} not resolving observer for ${slot}`);
                 obs = kObserverUnresolved;
             }
             this.slotObservers[slot] = obs;

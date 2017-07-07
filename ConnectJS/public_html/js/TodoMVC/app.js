@@ -6,7 +6,7 @@ function todoAddNew (dom, e) {
     let title = e.target.value.trim();
 
     if (title==='')
-        alert("A reminder to do nothing? I like it! We all need to remember to slow things down from time to time. But, no.")
+        alert("A reminder to do nothing? I like it! We all need to remember to slow things down from time to time. But, no.");
     else
         Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title}));
 
@@ -19,8 +19,8 @@ function todoMVC() {
         return [
             section({ class: "todoapp", name: "todoapp"}
                 , c => { return [
-                        button("Bam", {onclick: 'localStorage.clear();'})
-                    , h1("todos3")
+                        // button("Bam", {onclick: 'localStorage.clear();'}),
+                    h1("todos3")
                         , header({class: "header"}
                             , c => [input({
                                         class: "new-todo"
@@ -65,8 +65,6 @@ function toggleAllCompleted (dom,e) {
     let md = jsDom[dom.id]
         , newCompleted = (md.optio==="done" ? Date.now():null);
 
-    clg('toggle all compl applies ' + md.optio);
-
     Todos.items.map( td => td.completed = newCompleted);
 }
 
@@ -79,7 +77,6 @@ function todoLines( c, items ) {
             return plis[plix];
         } else {
             let selector = c.md.fmUp('filters');
-            ast(selector, "Filters not found");
 
             return li({ todo: todo
                     , class: cF(c => (todo.completed ? "completed" : ""))
@@ -88,9 +85,8 @@ function todoLines( c, items ) {
                             input({class: "toggle"
                                     , type: "checkbox", checked: true
                                     , onclick: 'todoToggleComplete'})
-                            , labelx({content: cF( c=> { clg('lbl sees title '+ todo.title);
-                                                        return todo.title}
-                                                        , {observer: obsContentToDom})
+                            , labelx({content: cF( c => todo.title
+                                    , {observer: obsContentToDom})
                                     , todo: todo
                                     , ondblclick: 'todoStartEditing'})
                             , button(null, {
@@ -110,21 +106,20 @@ function obsContentToDom ( slot, me, newv, priorv, c) {
         me.dom.innerHTML = newv;
     }
 }
-// stick todo in more places to reduce navigation
 
 function todoStartEditing (dom,e) {
     let md = jsDom[dom.id]
         , li = md.fmTag('li', 'myLi');
 
-    // todo resolve redundancy of upp v insidep v mep
-    let edt = li.fm('myEditor',{upp: false, insidep: true, mep: false}, 'edt');
-    ast(edt);
+    let edt = li.fm('myEditor', {upp: false, insidep: true, mep: false}, 'edt');
     edt.dom.li = li;
     li.dom.classList.add("editing");
     edt.dom.focus();
     edt.dom.value = edt.dom.value; // hack to put insertion point at end of text
 }
 function todoEdit ( edtdom, e) {
+
+    clg('edit '+e.type);
     switch (e.key) {
         case 'Escape':
             edtdom.li.dom.classList.remove('editing');
@@ -155,7 +150,6 @@ function todoDelete (dom, e) {
 
 function todosReselect (dom, e) {
     let li = jsDom[dom.id]; // find the "mirroe" JS object matching the actual dom element
-    // todo: why the content and not the li?
     li.fmTag('ul').selection = li.content;
 }
 
@@ -179,8 +173,7 @@ function todoFooter (c) {
                                     , onclick: 'todosReselect'})])))
             , button("Clear completed", {
                 class: "clear-completed"
-                , disabled: cF(c => Todos.items.filter(todo => todo.completed).length === 0)
-                , hidden: cF( c=> c.md.disabled )
+                , hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0)
                 , onclick: 'todoCompletedClear'})])
 }
 
