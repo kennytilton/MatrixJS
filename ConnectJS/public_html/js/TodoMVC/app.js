@@ -2,19 +2,6 @@
 
 const Todos = Todo.loadAllItems();
 
-function todoAddNew (dom, e) {
-    let title = e.target.value.trim();
-
-    if (title==='')
-        alert("A reminder to do nothing? I like it! We all need to remember to slow things down from time to time. But, no.");
-    else
-        Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title})); // OUT-FLOW
-
-    // constructor will have written Todo to localStorage
-
-    e.target.value = null;
-}
-
 function todoMVC() {
     return div({}, c => {
         return [
@@ -29,25 +16,10 @@ function todoMVC() {
 
                         , section({class: "main"
                                 , hidden: cF( c => Todos.items.length===0)}, c => [ // IN-FLOW
-                            labelx( { content: cF( c => c.md.optio) // IN-FLOW
-                                    , optio: cF( c => (Todos.items.length===0) ? "na" // IN-FLOW
-                                                    : (Todos.items.every( i => i.completed) ? "undo" : "done")) // IN-FLOW
-                                    , onclick: 'toggleAllCompleted'})
-                            /* input({id: "toggle-all"
-                                    , class: "toggle-all"
-                                    , type: "checkbox"
-                                    , onclick: 'toggleAllComplete'})
-                                , label("Mark all as completed"
-                                        , {for: "toggle-all"
-                                        , checked: cF( c => Todo.items && Todo.items.every( i => i.completed)
-                                                    , {observer: obsDbg})
-                                        , class: cF( c=> c.md.checked? "checked":""
-                                                    , {observer: obsDbg})
-                                        , onclick: 'toggleAllCompleted'})*/
-
+                            mkToggleAllCompleted(c)
                             , ul({class: "todo-list", name: "todo-list"}
                                     , c =>  todoLines( c, Todos.items))]) // IN-FLOW
-                            , todoFooter(c)]
+                            , mkTodoFooter(c)]
                 })
             , footer({class: "info"}
                 , c => [p({}, 'Double-click a todo to edit it')
@@ -56,13 +28,51 @@ function todoMVC() {
     })
 }
 
+
+
+function todoAddNew (dom, e) {
+    let title = e.target.value.trim();
+
+    if (title==='')
+        alert("A reminder to do nothing? I like it! We should all slow things down from time to time. But, no.");
+    else
+        Todos.itemsRaw = Todos.itemsRaw.concat( new Todo( {title: title})); // OUT-FLOW
+
+    e.target.value = null;
+}
+
+// todo Make filter a property of global state along with Todos
+
+function mkToggleAllCompleted (c) {
+    return label( cF( c => c.md.optio) // IN-FLOW
+                , { optio: cF( c => (Todos.items.length===0) ? "na" // IN-FLOW
+                            : (Todos.items.every( i => i.completed) ? "undo" // IN_FLOW
+                            : "done"))
+        , onclick: 'toggleAllCompleted'})
+}
+
 function toggleAllCompleted (dom,e) {
     let action = dom2js(dom).optio; // CELLS hack: capture semantics before altering any state which changes semantics!
     Todos.items.map( td => td.completed = (action==="done" ? Date.now():null));
 }
 
+/* todo try to get this working
+input({id: "toggle-all"
+ , class: "toggle-all"
+ , type: "checkbox"
+ , onclick: 'toggleAllComplete'})
+ , label("Mark all as completed"
+ , {for: "toggle-all"
+ , checked: cF( c => Todo.items && Todo.items.every( i => i.completed)
+ , {observer: obsDbg})
+ , class: cF( c=> c.md.checked? "checked":""
+ , {observer: obsDbg})
+ , onclick: 'toggleAllCompleted'})*/
+
+// todo write an array.difference to split into left, both, right
+
 function todoLines( c, items ) {
-    let existing = (c.pv === kUnbound? [] : c.pv); // internalese for "prior value"
+    let existing = (c.pv === kUnbound? [] : c.pv); // pv = "prior value", ie prior formula calculation (to-do items)
     // todo generalize this optimization
     return items.map( todo => {
         existingIndex = existing.findIndex( li => li.todo === todo);
@@ -86,28 +96,33 @@ function todoLines( c, items ) {
                         , input({name: "myEditor"
                             , class: "edit"
                             , todo: todo
-                            , value: todo.title // one-way load, so no cFI
+                            , value: todo.title // one-time load, so no need cFI/dataflow linkage
                             , onkeydown: 'todoEdit'
                             , onkeypress: 'todoEdit'})])}})
-
 }
 
 function todoMatchesSelect( todo, selection) {
-    // note that dependency inside a function is detected. (No "lifting" required as in classic FRP.)
+    // note that the dependency here inside a function is detected.
+    // "Lifting" FRPs do not allow this
     return selection==='All'
         || (selection==='Completed' && todo.completed) // IN-FLOW
         || (selection==='Active' && !todo.completed); // IN-FLOW
 }
 
-function todoStartEditing (dom,e) {
-    let li = dom2js(dom).fmTag('li', 'myLi');
+// todo write/use fmContained
 
-    let edt = li.fm('myEditor', {upp: false, insidep: true, mep: false}, 'edt');
+function todoStartEditing (dom,e) {
+    let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
+        , edt = li.fm('myEditor', {upp: false, insidep: true, mep: false}, 'edt'); // find its editor
     edt.dom.li = li; // save a little navigation later
     li.dom.classList.add("editing");
     edt.dom.focus();
-    edt.dom.value = edt.dom.value; // hack to put insertion point at end of text
+    // todo actually, all text should be selected
+    // edt.dom.value = edt.dom.value; // this hack leaves insertion point at end of text
+    edt.dom.setSelectionRange(0);
 }
+
+// todo save on blur
 
 function todoEdit ( edtdom, e) {
     let li = edtdom.li;
@@ -129,14 +144,9 @@ function todoDelete (dom, e) {
     todo.deleted = Date.now(); // OUT-FLOW
 }
 
-function todosFilterChange (dom, e) {
-    // "fm" navigate to selection manager and reset current selection
-    dom2js(dom).fmTag('ul').selection = li.content; // OUT-FLOW
-}
-
 // --- footer -------------------------------------------------------------
 
-function todoFooter (c) {
+function mkTodoFooter (c) {
     return footer({class: "footer"
                    , hidden: cF( c => Todos.items.length===0)} // IN-FLOW
         , c => [
@@ -156,6 +166,13 @@ function todoFooter (c) {
                 class: "clear-completed"
                 , hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0) // IN-FLOW
                 , onclick: 'todoCompletedDelete'})])
+}
+
+// --- footer control actions ---------------------------------
+
+function todosFilterChange (dom, e) {
+    // "fm" navigate to selection manager and reset current selection
+    dom2js(dom).fmTag('ul').selection = li.content; // OUT-FLOW
 }
 
 function todoCompletedDelete( dom, e) {

@@ -182,29 +182,26 @@ class Model {
 //        clg(`fmTv entry par=${this.par && this.par.name}`);
 //        clg(`fmTv entry kids=${this.kids}`);
         let self = this;
-        try {
-            return (how.mep && this.fmatch(what)) ||
+        return (how.mep && this.fmatch(what)) ||
                     
-                    (how.insidep && this.kids
-                        && this.kids.somex((elt, eltx, _)=>{
-                            //clg(`${self.name} kidchks ${elt.name}`);
-                            let found = (elt !== how.skip)
-                                     && elt.fmTv(what, Object.assign( {}, how, { upp: false, mep: true}));
-                            if (found) return found;})) ||
+                (how.insidep
+                    && this.kids
+                    && this.kids.somex((eltx, elt)=>{
+                        //clg(`${self.name} kidchks ${elt.name}`);
+                        clg(`somex passed eltx ${eltx} and elt ${elt}`)
+                        let found = (elt !== how.skip)
+                                 && elt.fmTv(what, Object.assign( {}, how, { upp: false, mep: true}));
+                        if (found) return found;})) ||
 
-                    (function () {
-                        //clg(`fmTv ${self.name} considers upp ${how.upp} par=${self.par}`);
-                        return (how.upp
-                                && self.par
-                                && self.par.fmTv( what, Object.assign({}, how
-                                                    , {mep: true
-                                                        , insidep: true
-                                                        , skip: self})));
-                        })();
-        } catch (e) {
-            clg('fmtv caught error',e);
-            return null;
-        }
+                (function () {
+                    clg(`fmTv ${self.name} considers upp ${how.upp} par=${self.par}`);
+                    return (how.upp
+                            && self.par
+                            && self.par.fmTv( what, Object.assign({}, how
+                                                , {mep: true
+                                                    , insidep: true
+                                                    , skip: self})));
+                    })();
     }
     mDeadp() {return this.state===kDead;}
 }
