@@ -34,12 +34,9 @@ function dom2js(dom, mustFind=true) {
     return js;
 }
 
-
-    // Is this generic content observer a good idea?
-
 function obsContent (slot, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
-    clg(`obsContent of ${md.name || md.id} setting ihtml!!! to ${newv} from ${oldv}`);
+    // clg(`obsContent of ${md.name || md.id} setting ihtml!!! to ${newv} from ${oldv}`);
     ast( md.dom, "Tag obs Content");
     md.dom.innerHTML = newv;
 }
@@ -53,21 +50,23 @@ function obsKids (slot, md, newv, oldv, c) {
     for (kx=0; kx < oldv.length; ++kx) {
         let oldk = oldv[kx];
         if (!find( oldk, newv)) {
-            let kdom = oldk.creDom || document.getElementById(oldk.id);
-            clg(`Tag obskids removing dom ${kdom} of id ${oldk.id}`);
+            let kdom = oldk.dom; // I wonder if this will always be there?
+            //clg(`Tag obskids removing dom ${kdom} of id ${oldk.id}`);
             kdom.parentNode.removeChild(kdom);
         }
     }
     
     for (kx=0; kx < newv.length; ++kx) {
         let newk = newv[kx];
+        // todo wait, did todo ul really have to re-use kids on its own?
+
         if (find( newk, oldv)) {
             priork = newk;
         } else {
             let newtag = document.createElement('div'); //(newk.tag); 
             newk.creDom = newtag; // will be parent of newk.dom!!
             // clg(`par ${md.id} gets newk!! ${newk.id} = `+newh);
-            //clg(`newk!!! ${typeof newk} ${newk instanceof Goog} `+newk.name);
+            // clg(`newk!!! ${typeof newk} ${newk instanceof Goog} `+newk.name);
             if (typeof Goog !== 'undefined' && newk instanceof Goog) {
                 let g = new newk.gFactory();
                 g.create(newtag);
@@ -106,7 +105,7 @@ function obsStyleProperty (property, md, newv, oldv, c) {
 
 function obsTagEventHandler (property, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
-    //clg(`setting ${property}!!! `+ newv);
+    clg(`setting tag ${md.dbg()} style ${property}!!! `+ newv);
     md.dom.style.set[property] = newv;
 }
 
@@ -114,9 +113,6 @@ AttrAliases = new Map([['class','className']]);
 
 function obsAttrGlobal (property, md, newv, oldv, c) {
     if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
-    //clg(`setting tag attribute ${property}!!! via ${AttrAliases.get(property)} = `+ newv);
-    //clg('obsAttrGlobal md.id is '+ md.id);
-    //clg('obsAttrGlobal md.dom is '+md.dom);
     let trueAttr = AttrAliases.get(property) || property;
         md.dom[trueAttr] = newv;
 }
@@ -126,7 +122,6 @@ class Tag extends Model {
         let superSlots = Object.assign({}, islots);
         delete superSlots.id;
 
-        // console.log("Tag sees par "+ (gPar? gPar.name : "noPar") + " name/iname " + name + "/" + islots.name);
         super( parent, (name || islots.name), superSlots, false);
 
         this.sid = ++sid;
@@ -135,7 +130,6 @@ class Tag extends Model {
             console.warn(`Provided dom id ${islots.id} is your responsibility.`);
             this.id = islots.id;
         } else {
-            clg(`Id ${this.sid} assigned to ${name || islots.name} tag ${islots.tag}`);
             this.id = this.sid;
         }
         
@@ -149,7 +143,6 @@ class Tag extends Model {
                 enumerable: true
                 , get: ()=> {
                     if (this.domCache===null) {
-                        clg(`seeking DOM for ${this.id} tag ${this.tag} name ${this.name}`);
                         this.domCache = document.getElementById(this.id);
                         ast(this.domCache);
                     }
@@ -157,6 +150,7 @@ class Tag extends Model {
                 }
             });
 
+        // todo this is unfortunate: perhaps we do as another automatic call such as to super, or as Model static
         if (this.awakenOnInitp) {
             this.awaken();
         } else {
@@ -165,6 +159,7 @@ class Tag extends Model {
             });
         }
     }
+    dbg() { return `tag ${this.tag} nm=${this.name} id=${this.id} `}
 
     toHTML() {
         let tag = this.tag

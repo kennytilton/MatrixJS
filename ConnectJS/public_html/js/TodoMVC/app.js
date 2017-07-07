@@ -4,31 +4,27 @@ const Todos = Todo.loadAllItems();
 
 function todoMVC() {
     return div({}, c => {
-        return [
-            section({ class: "todoapp", name: "todoapp"}
-                , c => { return [
-                    h1("todos3")
-                        , header({class: "header"}
-                            , c => [input({ class: "new-todo"
-                                        , placeholder: "What needs doing?"
-                                        , autofocus: true
-                                        , onchange: 'todoAddNew'})])
+        return [ section({ class: "todoapp", name: "todoapp"}
+                    , c => { return [
+                        h1("todos")
+                            , header({class: "header"}
+                                , c => [input({ class: "new-todo"
+                                            , placeholder: "What needs doing?"
+                                            , autofocus: true
+                                            , onchange: 'todoAddNew'})])
 
-                        , section({class: "main"
-                                , hidden: cF( c => Todos.items.length===0)}, c => [ // IN-FLOW
-                            mkToggleAllCompleted(c)
-                            , ul({class: "todo-list", name: "todo-list"}
-                                    , c =>  todoLines( c, Todos.items))]) // IN-FLOW
-                            , mkTodoFooter(c)]
-                })
-            , footer({class: "info"}
-                , c => [p({}, 'Double-click a todo to edit it')
-                        , p({}, 'Created by... <a href="http://tiltontec.com">Kenneth Tilton')
-                        , p({}, 'Part of <a href="http://todomvc.com">TodoMVC</a>')])]
-    })
+                            , section({class: "main"
+                                    , hidden: cF( c => Todos.items.length===0)}  // IN-FLOW
+                                , c => [ mkToggleAllCompleted(c)
+                                        , ul({class: "todo-list", name: "todo-list"}
+                                                , c =>  todoLines( c, Todos.items))]) // IN-FLOW
+                                        , mkTodoFooter(c)]
+                    })
+                , footer({class: "info"}
+                    , c => [p({}, 'Double-click a todo to edit it')
+                            , p({}, 'Created by... <a href="http://tiltontec.com">Kenneth Tilton')
+                            , p({}, 'Part of <a href="http://todomvc.com">TodoMVC</a>')])]})
 }
-
-
 
 function todoAddNew (dom, e) {
     let title = e.target.value.trim();
@@ -41,7 +37,7 @@ function todoAddNew (dom, e) {
     e.target.value = null;
 }
 
-// todo Make filter a property of global state along with Todos
+// todo Try filter as property of global state along with Todos
 
 function mkToggleAllCompleted (c) {
     return label( cF( c => c.md.optio) // IN-FLOW
@@ -53,7 +49,7 @@ function mkToggleAllCompleted (c) {
 
 function toggleAllCompleted (dom,e) {
     let action = dom2js(dom).optio; // CELLS hack: capture semantics before altering any state which changes semantics!
-    Todos.items.map( td => td.completed = (action==="done" ? Date.now():null));
+    Todos.items.map( td => td.completed = (action==="done" ? (td.completed || Date.now()) : null));
 }
 
 /* todo try to get this working
