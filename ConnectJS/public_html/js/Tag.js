@@ -331,9 +331,9 @@ function tagAttrsBuild(md) {
                     case 'hidden':
                     case 'checked':
                         // booleans can stand alone. So weird.
-                        if (md[prop]) {
+                        /* if (md[prop]) {
                             attrs += ` ${prop}`;
-                        }
+                        }*/
                         break;
                     case 'value': // todo make tagSpecificAttrs a class attribute of appropriate tags
                         attrs += ` ${prop}="${md[prop]}"`;
