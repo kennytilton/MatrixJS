@@ -1,6 +1,8 @@
 # ConnectJS
 Welcome to ConnectJS, lightweight but powerful Javascript/ES6 and CLJS web development frameworks, with Cells Inside(tm) providing the "connect".
 
+[FLASH! [ConnectJS TodoMVC](https://github.com/kennytilton/connectjs-todomvc) via our JS/HTML has reached a state of functional plausibility and documentation is underway.]
+
 Lightweight means you do not have to learn a new framework erected atop HTML/JS. Powerful means delivering a maximum of user functionality with a minimum of your programming effort.
 
 You code declaratively thinking only about your application, ConnectJS does the rest. With no tooling or pre-processing.
