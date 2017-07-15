@@ -60,6 +60,7 @@
 ;;; --- accessors ----
 
 (defn md-reset! [me slot new-value]
+  (println :md-reset slot new-value)
   (if-let [c  (md-cell me slot)]
     (c-reset! c new-value)
     (do
@@ -70,7 +71,7 @@
   ;;(rmap-setf [slot me] new-value))))
 
 (defn make [& arg-list]
-    (println :md-make!!!!!!!!!!! arg-list)
+  ;;(println :md-make!!!!!!!!!!! arg-list)
   (cond
     (odd? (count arg-list)) (apply make :type arg-list)
     :else

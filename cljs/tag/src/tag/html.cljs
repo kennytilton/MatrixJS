@@ -14,12 +14,12 @@
   ;;(println :tohtml-sees me (type me))
   (if (string? me) me
   (let [h (pp/cl-format nil "<~a ~a>~{~a~}</~0@*~a>"
-                (:tag @me) (toAttrs (:attrs @me))
+                (:tag @me) (to-attrs (:attrs @me))
                 (map toHtml (md-get me :kids)))]
       ;;(println :genned h)
       h)))
 
-(defn toAttrs [attrs]
+(defn to-attrs [attrs]
   ;;(println :toattrs (partition 2 attrs))
   (let [j (str/join " "
             (map (fn [[k v]]

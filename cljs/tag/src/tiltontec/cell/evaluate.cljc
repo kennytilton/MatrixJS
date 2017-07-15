@@ -257,7 +257,7 @@
                   ;;
                   (rmap-setf [:value c] new-value)
                   (rmap-setf [:state c] :awake)
-                  #_(trx :new-vlue-installed (c-slot c) 
+                  (trx :new-vlue-installed (c-slot c) 
                        new-value
                        (:value c))
                   ;; 
@@ -415,7 +415,7 @@ then clear our record of them."
 
   [c prior-value callers]
 
-  (trx nil :propagate (:slot @c))
+  (trx :propagate (:slot @c))
 
   (cond
    *one-pulse?* (when *custom-propagater*
@@ -445,10 +445,11 @@ then clear our record of them."
              (not-to-be ownee))))
 
        (propagate-to-callers c callers)
-       (trx nil :obs-chkpulse!!!!!!!! @+pulse+ (c-pulse-observed c))
+       (trx :obs-chkpulse!!!!!!!! @+pulse+ (c-pulse-observed c))
        (when (or (> @+pulse+ (c-pulse-observed c))
                  (some #{(c-lazy c)}
                        [:once-asked :always true])) ;; messy: these can get setfed/propagated twice in one pulse+
+          (println :observing!!!!!!!!!!! (c-slot-name c) (c-value c))
          (c-observe c prior-value :propagate))
        
        ;;

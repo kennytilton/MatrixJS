@@ -197,6 +197,7 @@
   "The moral equivalent of a Common Lisp SETF, and indeed
 in the CL version of Cells SETF itself is the change API dunction."
   (assert c)
+  (println :c-reset new-value)
   (cond
     *defer-changes*
     (throw (#?(:clj Exception. :cljs js/Error.) "c-reset!> change to %s must be deferred by wrapping it in WITH-INTEGRITY"

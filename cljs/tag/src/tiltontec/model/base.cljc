@@ -79,7 +79,7 @@
    (2) call observers of all slots"
   [me]
   (assert me "md-awaken passed nil")
-  (println :md-awaken!!!!!!!!)
+  ;;(println :md-awaken!!!!!!!!)
   (md-awaken-before me)
   (c-assert (= :nascent (md-state me)))
   (rmap-meta-setf [:state me] :awakening)
@@ -100,7 +100,7 @@
                )
              (observe slot me (slot @me) unbound nil))
          :else (do
-                 (pme :md-awaken-awks-cell slot)
+                 ;;(pme :md-awaken-awks-cell slot)
                  (c-awaken c)) ))))
   (rmap-meta-setf [:state me] :awake)
   me)
