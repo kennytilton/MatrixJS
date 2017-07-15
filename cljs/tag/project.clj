@@ -3,6 +3,7 @@
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.671"]
+                 [com.cognitect/transit-cljs "0.8.239"]
                  ;;[rube "0.1.0-SNAPSHOT"]
                  ]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
