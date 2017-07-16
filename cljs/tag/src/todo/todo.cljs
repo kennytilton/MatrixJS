@@ -11,13 +11,11 @@
 (def TODO_LS_PREFIX "TagCLJS.TodoMVC.")
 
 (defn todo-to-map [todo]		
-	(into {}
-	 (for [k [:db-key :created :title :completed :deleted]]
-		[k (md-get todo k)])))
+	(into {} (for [k [:db-key :created :title :completed :deleted]]
+				[k (md-get todo k)])))
 
 (defn todo-to-json [todo]
-	(map-to-json
-		(todo-to-map todo)))
+	(map-to-json (todo-to-map todo)))
 
 (defn todo-upsert [todo]
 	(io-upsert (:db-key @todo) 
