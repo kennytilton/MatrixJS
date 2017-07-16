@@ -1,5 +1,6 @@
 (ns todo.core
-  (:require [tiltontec.cell.base :refer [unbound ia-type]]
+  (:require [cljs.pprint :as pp]
+  			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.observer :refer [+observe-default-handler+]]
   			[tiltontec.cell.core :refer-macros [c?]]
   			[tiltontec.model.core :refer [make md-reset! md-get]]
@@ -22,6 +23,40 @@
 	  		(println :todo-upserted!!!!! slot (= :todo.todo/todo (ia-type me)) (ia-type me) new-val old-val))
 	  	))
 
+(declare todoDelete)
+
+  	
+#_ ;; OK
+(defn landing []
+	"<h2 onclick=\"alert('booya')\">See console</h2>")
+
+#_ ;; OK
+(defn landing []
+	"<h2 onclick=\"return todo.core.booya2(event)\">see console</h2>")
+
+#_ ;; OK
+(defn landing []
+	"<h2 onclick=\"(function () { todo.core.booya2(event)})()\">See console</h2>")
+
+(def on-event-attr-template
+	"(function () { ~a(event)})()")
+
+#_ ;; OK
+(defn landing []
+	(pp/cl-format nil
+		"<h1 onclick=~s>Click me</h1>"
+		(pp/cl-format nil on-event-attr-template "todo.core.booya2")))
+
+(defn on-evt [fn-name]
+	(pp/cl-format nil on-event-attr-template fn-name))
+
+#_
+(defn landing []
+	(println :reso (str (resolve 'booya2)))
+	(pp/cl-format nil
+		"<h1 onclick=~s>Click me</h1>"
+		(on-evt "todo.core.booya2")))
+
 (defn landing []
 	;;"<h2>See console</h2>"
 	(reset! +observe-default-handler+ todo-handler)
@@ -39,8 +74,9 @@
 	(pln :loadedtodos (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
-
-	(let [bits [(section (:class "todoapp")
+	
+	(let [bits ;;[(h1 (:onclick (on-evt "todo.core.booya2"))"Hi,   Mom")]
+				[(section (:class "todoapp")
                 	(header (:class "header")
                    		(h1 () "todos")
 	                   	(input (:class "new-todo"
@@ -58,13 +94,16 @@
 										(input (:class "toggle" :type "checkbox" ;; :checked true
 												))
 										(label () (md-get td :title))
-										(button (:class "destroy")))
+										(button (:class "destroy" 
+												:onclick (on-evt "todo.core.booya2"))))
 									(input (:class "edit" :value "Create a TodoMVC template")))))))
 
               	(footer (:class"info")
 					(p () "Double-click to edit a todo")
 					(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
 					(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>"))]]
-    ;;"<h2>bam234</h2>"
-    (apply str (map toHtml bits))
-    ))
+    (apply str (map toHtml bits))))
+
+ (defn ^:export booya2 [e]
+ 	(pln :booya2 e))
+
