@@ -8,7 +8,10 @@
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
             [todo.todo :refer [TODO_LS_PREFIX make-todo todo-to-map
-            					todo-to-json todo-load todo-upsert]]))
+            					todo-to-json todo-load todo-upsert
+            					load-all-todos]]))
+
+(def gTodo (atom nil))
 
 (defn todo-handler [slot me new-val old-val c]
 	(when-not (= old-val unbound)
@@ -24,7 +27,26 @@
   
 	(io-truncate TODO_LS_PREFIX)
 
-	(let [td (make-todo {:title "lose weight"})]
+	(let [td (make-todo {:title "lose weight"})
+		  td2 (make-todo {:title "find job"})]
+		(pln :todos (io-find TODO_LS_PREFIX))
+		(reset! gTodo (load-all-todos))
+		(pln :raw (map #(md-get % :title)
+					 (md-get @gTodo :items-raw)))
+		(pln :items (map #(md-get % :title)
+					 (md-get @gTodo :items)))
+		(md-reset! (first (md-get @gTodo :items)) :deleted (now))
+		(pln :del-stored? (todo-to-map
+				(todo-load (:db-key @td))))
+		(pln :items-post-delet (map #(map (fn [slot] (md-get % slot)) [:title :deleted])
+					 				(md-get @gTodo :items)))
+		(md-reset! @gTodo :items-raw (conj (md-get @gTodo :items-raw)
+											(make-todo {:title "have snack"})))
+		(pln :items-post-new (map #(map (fn [slot] (md-get % slot)) [:title :deleted])
+					 				(md-get @gTodo :items)))
+					)
+
+	#_ (let [td (make-todo {:title "lose weight"})]
 		(pln :td (:db-key @td))
 		(pln :td-json (todo-to-map td))
 		(pln :td-raw @td)

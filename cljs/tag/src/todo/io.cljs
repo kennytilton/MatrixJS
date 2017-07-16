@@ -11,12 +11,12 @@
 ;;; --- localStorage io implementation --------------------------------
 
 (defn io-upsert [key val]
-  (pln :io-upsert key val)
+  ;(pln :io-upsert key val)
   (.setItem (.-localStorage js/window) key val))
 
 (defn io-read [key]
   (let [raw (.getItem (.-localStorage js/window) key)]
-  	(pln :raw-read key raw)
+  	;(pln :raw-read key raw)
   	raw))
 
 (defn io-delete [key val]

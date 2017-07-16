@@ -43,7 +43,7 @@
   (:name @me))
 
 (defn md-get [me slot]
-  ;;(trx :md-get slot me)
+  ;; (trx :md-get slot me)
   (if-let [c  (md-cell me slot)]
     (c-get c)
     (slot @me)))
@@ -60,7 +60,7 @@
 ;;; --- accessors ----
 
 (defn md-reset! [me slot new-value]
-  (println :md-reset slot new-value)
+  ;; (println :md-reset slot new-value)
   (if-let [c  (md-cell me slot)]
     (c-reset! c new-value)
     (do

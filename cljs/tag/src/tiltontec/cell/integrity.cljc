@@ -6,7 +6,7 @@
             [tiltontec.util.core
              :refer [ensure-vec err pln fifo-add fifo-peek fifo-pop cl-find]]
             #?(:cljs [tiltontec.cell.base
-                      :refer-macros [un-stopped]
+                      :refer-macros [pcell un-stopped]
                       :refer [+pulse+ c-pulse c-optimized-away?
                               +client-q-handler+ c-stopped
                               *within-integrity* *defer-changes*
@@ -34,6 +34,8 @@
   (= (c-pulse c) @+pulse+))
 
 (defn c-pulse-update [c key]
+  ;(pcell :pulse-upd c)
+  ;(println :pulse-upd-opti (c-optimized-away? c))
   (when-not (c-optimized-away? c)
     (assert (>= @+pulse+ (c-pulse c)))
     (#?(:clj alter :cljs swap!) c assoc :pulse @+pulse+)))

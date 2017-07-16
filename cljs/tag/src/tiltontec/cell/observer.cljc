@@ -73,7 +73,7 @@ call parameters: slot, me, new, old, and c."
    (if-let [me (c-model c)]
      (pme :c-observe!!!! (c-slot c) why @+pulse+ (nil? (:obs @c)))
      (trx :c-observe-no-me!!!! (c-slot c) why @+pulse+ (nil? (:obs @c))))
-   (trx :c-obs-value! why (c-slot c) (c-model c) (c-value c) prior-value c)
+   ;;(trx :c-obs-value! why (c-slot c) (c-model c) (c-value c) prior-value c)
    ((or (:obs @c) observe)
     (c-slot c)(c-model c)(c-value c) prior-value c)))
 

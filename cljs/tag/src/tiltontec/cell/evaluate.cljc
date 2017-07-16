@@ -96,9 +96,11 @@
     (or (not (c-valid? c))
       (loop [[used & urest] (seq (c-useds c))]
         (when used
-          (pcell :cnset-evicing used)
+          ;;(pcell :cnset-evicing used)
+          ;;(pcell :cnset-user c)
           (ensure-value-is-current used :nested c)
           ;; now see if it actually changed
+          ;; (println :pulses (c-pulse-last-changed used)(c-pulse c))
           (or (> (c-pulse-last-changed used)(c-pulse c))
             (recur urest)))))
     (do ;; we seem to need update, but...
@@ -121,7 +123,7 @@
   notices if a standalone  cell has never been observed."
 
   [c]
-  #_(println :cget-entry (c-slot c) (ia-type (c-model c)) 
+  #_ (println :cget-entry (c-slot c) (ia-type (c-model c)) 
     (if *depender* (c-slot *depender*) :nodepender))
   (cond
     (c-ref? c) (prog1
@@ -257,7 +259,7 @@
                   ;;
                   (rmap-setf [:value c] new-value)
                   (rmap-setf [:state c] :awake)
-                  (trx :new-vlue-installed (c-slot c) 
+                  #_ (trx :new-vlue-installed (c-slot c) 
                        new-value
                        (:value c))
                   ;; 
@@ -415,7 +417,7 @@ then clear our record of them."
 
   [c prior-value callers]
 
-  (trx :propagate (:slot @c))
+  ;; (trx :propagate (:slot @c))
 
   (cond
    *one-pulse?* (when *custom-propagater*
@@ -423,6 +425,7 @@ then clear our record of them."
    ;; ----------------------------------
    :else
    (do
+     ;;(println :upd-pulse-last-chg-to @+pulse+ c)
      (rmap-setf [:pulse-last-changed c] @+pulse+)
      
      (binding [*depender* nil
@@ -445,11 +448,11 @@ then clear our record of them."
              (not-to-be ownee))))
 
        (propagate-to-callers c callers)
-       (trx :obs-chkpulse!!!!!!!! @+pulse+ (c-pulse-observed c))
+       ;(trx :obs-chkpulse!!!!!!!! @+pulse+ (c-pulse-observed c))
        (when (or (> @+pulse+ (c-pulse-observed c))
                  (some #{(c-lazy c)}
                        [:once-asked :always true])) ;; messy: these can get setfed/propagated twice in one pulse+
-          (println :observing!!!!!!!!!!! (c-slot-name c) (c-value c))
+          ;(println :observing!!!!!!!!!!! (c-slot-name c) (c-value c))
          (c-observe c prior-value :propagate))
        
        ;;
