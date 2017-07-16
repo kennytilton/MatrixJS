@@ -28,7 +28,7 @@
 	;; (io-clear-storage)
 
   
-	;; (io-truncate TODO_LS_PREFIX)
+	(io-truncate TODO_LS_PREFIX)
 
 	(make-todo {:title "move North"})
 	(make-todo {:title "find job"})
@@ -41,32 +41,27 @@
 
 
 	(let [bits [(section (:class "todoapp")
-                	#_(header (:class "header")
+                	(header (:class "header")
                    		(h1 () "todos")
 	                   	(input (:class "new-todo"
                    				:placeholder "What needs to be done?"
                    				:autofocus true)))
                    	(section (:class "main"
-                   				:hidden false ;; (c? (zero? (count (md-get @gTodo :items))))
+                   				:hidden nil ;; (c? (zero? (count (md-get @gTodo :items))))
                    				)
                    		(input (:id "toggle-all" :class "toggle-all" :type "checkbox"))
-                   		(label (:for "toggle-all")
-                   			"Mark all as complete")
+                   		(label (:for "toggle-all") "Mark all as complete")
                    		(ul (:class "todo-list")
-							(li (:class "completed")
-								(div (:class "view")
-									(input (:class "toggle" :type "checkbox" :checked true))
-									(label () "Taste JavaScript")
-									(button (:class "destroy")))
-								(input (:class "edit" :value "Create a TodoMVC template")))
-							(li ()
-								(div (:class "view")
-									(input (:class "toggle" :type "checkbox"))
-									(label () "Wash dishes")
-									(button (:class "destroy")))
-								(input (:class "edit" :value "Create a TodoMVC template"))))))
+                   			(for [td (md-get @gTodo :items)]
+								(li () ;; :class "completed"
+									(div (:class "view")
+										(input (:class "toggle" :type "checkbox" ;; :checked true
+												))
+										(label () (md-get td :title))
+										(button (:class "destroy")))
+									(input (:class "edit" :value "Create a TodoMVC template")))))))
 
-              	#_(footer (:class"info")
+              	(footer (:class"info")
 					(p () "Double-click to edit a todo")
 					(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
 					(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>"))]]
