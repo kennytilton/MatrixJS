@@ -1,9 +1,11 @@
 (ns todo.core
   (:require [tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.observer :refer [+observe-default-handler+]]
+  			[tiltontec.cell.core :refer-macros [c?]]
   			[tiltontec.model.core :refer [make md-reset! md-get]]
             [tag.html :refer [toHtml]]
-            [tag.gen :refer-macros [section header h1 input footer p]]
+            [tag.gen :refer-macros [section header h1 input footer p
+            						label ul li div button]]
             [todo.util :refer [pln json-to-map map-to-json uuidv4 now]]
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
@@ -23,75 +25,51 @@
 (defn landing []
 	;;"<h2>See console</h2>"
 	(reset! +observe-default-handler+ todo-handler)
-	(io-clear-storage)
+	;; (io-clear-storage)
+
   
-	(io-truncate TODO_LS_PREFIX)
+	;; (io-truncate TODO_LS_PREFIX)
 
-	(let [td (make-todo {:title "lose weight"})
-		  td2 (make-todo {:title "find job"})]
-		(pln :todos (io-find TODO_LS_PREFIX))
-		(reset! gTodo (load-all-todos))
-		(pln :raw (map #(md-get % :title)
-					 (md-get @gTodo :items-raw)))
-		(pln :items (map #(md-get % :title)
-					 (md-get @gTodo :items)))
-		(md-reset! (first (md-get @gTodo :items)) :deleted (now))
-		(pln :del-stored? (todo-to-map
-				(todo-load (:db-key @td))))
-		(pln :items-post-delet (map #(map (fn [slot] (md-get % slot)) [:title :deleted])
-					 				(md-get @gTodo :items)))
-		(md-reset! @gTodo :items-raw (conj (md-get @gTodo :items-raw)
-											(make-todo {:title "have snack"})))
-		(pln :items-post-new (map #(map (fn [slot] (md-get % slot)) [:title :deleted])
-					 				(md-get @gTodo :items)))
-					)
+	(make-todo {:title "move North"})
+	(make-todo {:title "find job"})
+	(pln :todos (io-find TODO_LS_PREFIX))
 
-	#_ (let [td (make-todo {:title "lose weight"})]
-		(pln :td (:db-key @td))
-		(pln :td-json (todo-to-map td))
-		(pln :td-raw @td)
-		(pln :setting-completed!!!!!!!!!!!!!!!!!!!!!)
-		(md-reset! td :completed (now))
-		(assert (md-get td :completed))
-		(pln :compl-mem (md-get td :completed))
-		(pln :e-td (todo-to-map
-				(todo-load (:db-key @td)))))
+	(reset! gTodo (load-all-todos))
 
-	#_ (let [m1 {:a "Aa" :b 42 :c (uuidv4)}
-		j (map-to-json m1)]
-		(pln :m1 m1)
-		(pln :j j)
-		(pln :j$ (.stringify js/JSON j))
-		(pln :jmap (json-to-map j)))
+	(pln :loadedtodos (count (md-get @gTodo :items-raw)))
+	(pln :loadedtodos (count (md-get @gTodo :items)))
 
-	#_
-	(let [td (make-todo {:title "lose weight"})
-		 td2 (make-todo {:title "find job"})]
-		(pln :td (:db-key @td))
-		(pln :td-json (todo-to-json td))
-		(pln :all (io-all-keys))
-		(pln :todos (io-find TODO_LS_PREFIX))
-		(let [tdj (io-read (:db-key @td))
-			  tdm (json-to-map
-						(.parse js/JSON tdj))]
-			(pln :td-json tdm)
-			(let [rtd (make-todo tdm)]
-				(pln :rtd (json-to-map (todo-to-json rtd)))
-				(pln :ird @rtd)))
-		(pln (todo-to-map
-				(todo-load (:db-key @td2)))))
 
-  #_
-  (let [bits [(section (:class "todoapp")
-                (header (:class "header")
-                   (h1 () "todos")
-                   (input (:class "new-todo"
-                   			:placeholder "What needs to be done?"
-                   			:autofocus true))))
-              (footer (:class"info")
-				(p () "Double-click to edit a todo")
-				(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
-				(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>"))]]
+	(let [bits [(section (:class "todoapp")
+                	#_(header (:class "header")
+                   		(h1 () "todos")
+	                   	(input (:class "new-todo"
+                   				:placeholder "What needs to be done?"
+                   				:autofocus true)))
+                   	(section (:class "main"
+                   				:hidden false ;; (c? (zero? (count (md-get @gTodo :items))))
+                   				)
+                   		(input (:id "toggle-all" :class "toggle-all" :type "checkbox"))
+                   		(label (:for "toggle-all")
+                   			"Mark all as complete")
+                   		(ul (:class "todo-list")
+							(li (:class "completed")
+								(div (:class "view")
+									(input (:class "toggle" :type "checkbox" :checked true))
+									(label () "Taste JavaScript")
+									(button (:class "destroy")))
+								(input (:class "edit" :value "Create a TodoMVC template")))
+							(li ()
+								(div (:class "view")
+									(input (:class "toggle" :type "checkbox"))
+									(label () "Wash dishes")
+									(button (:class "destroy")))
+								(input (:class "edit" :value "Create a TodoMVC template"))))))
+
+              	#_(footer (:class"info")
+					(p () "Double-click to edit a todo")
+					(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
+					(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>"))]]
     ;;"<h2>bam234</h2>"
     (apply str (map toHtml bits))
     ))

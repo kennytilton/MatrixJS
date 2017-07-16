@@ -23,7 +23,11 @@
   ;;(println :toattrs (partition 2 attrs))
   (let [j (str/join " "
             (map (fn [[k v]]
-                   (pp/cl-format nil "~a='~a'" (name k) v))
+                  (println :k k :v v)
+                  (if (some #{k} [:hidden])
+                   (do (println :hidden!!!!!!!!!! v (nil? v))
+                      (if v (name k) ""))
+                   (pp/cl-format nil "~a='~a'" (name k) v)))
                  (partition 2 attrs)))]
-      ;;(println :jttrs j)
+      (println :jttrs j)
       (or j "")))

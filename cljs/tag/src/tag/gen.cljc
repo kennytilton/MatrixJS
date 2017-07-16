@@ -20,6 +20,12 @@
      :attrs [~@attrs]
      :kids (tiltontec.model.core/c?kids ~@kids)))
 
+(defmacro label [[& attrs] & kids]
+  `(tiltontec.model.core/make
+     :tag "label"
+     :attrs [~@attrs]
+     :kids (tiltontec.model.core/c?kids ~@kids)))
+
 (defmacro footer [[& attrs] & kids]
   `(tiltontec.model.core/make
      :tag "footer"
@@ -29,6 +35,32 @@
 (defmacro p [[& attrs] & kids]
   `(tiltontec.model.core/make
      :tag "p"
+     :attrs [~@attrs]
+     :kids (tiltontec.model.core/c?kids ~@kids)))
+
+
+(defmacro ul [[& attrs] & kids]
+  `(tiltontec.model.core/make
+     :tag "ul"
+     :attrs [~@attrs]
+     :kids (tiltontec.model.core/c?kids ~@kids)))
+
+
+(defmacro li [[& attrs] & kids]
+  `(tiltontec.model.core/make
+     :tag "li"
+     :attrs [~@attrs]
+     :kids (tiltontec.model.core/c?kids ~@kids)))
+
+(defmacro div [[& attrs] & kids]
+  `(tiltontec.model.core/make
+     :tag "div"
+     :attrs [~@attrs]
+     :kids (tiltontec.model.core/c?kids ~@kids)))
+     
+(defmacro button [[& attrs] & kids]
+  `(tiltontec.model.core/make
+     :tag "button"
      :attrs [~@attrs]
      :kids (tiltontec.model.core/c?kids ~@kids)))
 
