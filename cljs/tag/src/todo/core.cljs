@@ -81,12 +81,21 @@
 				:action (c? (if (some (complement completed) (gTodo-items))
 								:complete :uncomplete))
 				 :checked (c? (= (md-get me :action) :uncomplete))))
-		(label (:for "toggle-all")() "Mark all as complete")
+		(label (:for "toggle-all"
+				:onclick (on-evt "todo.core.todo_toggle_all"))
+			"Mark all as complete")
 		(ul (:class "todo-list"
 				:kid-values (c? (md-get @gTodo :items))
 					:kid-key #(md-get % :todo)
 					:kid-factory mk-todo-item)
 				(kid-values-kids me cache))))
+
+(defn todo-toggle-all [event]
+	(println :toggle-all!!! event)
+	(let [action (if (some (complement completed) (gTodo-items))
+					:complete :uncomplete)]
+		(doseq [td (gTodo-items)]
+			(md-reset! td :completed (= action :complete)))))
 
 (defn mk-dashboard []
 	(footer (:class "footer" :hidden  (c? (zero? (count (gTodo-items))))) 
@@ -112,7 +121,7 @@
 		 :display "block") ;; getto filtersnmatch
 		(div (:class "view")
 			(input (:class "toggle" :input-type "checkbox"
-					:checked false ;; (c? (md-get td :completed))
+					:checked (c? (md-get td :completed))
 					:onclick (on-evt "todo.todo.todo_toggle_completed" 
 								(md-get td :db-key))))
 			(label () (md-get td :title))
