@@ -242,5 +242,3 @@ execution as soon as the current change is manifested."
     (#?(:cljs do :clj dosync)
      (c-value-assume c new-value nil))))
 
-:cells-ok
-

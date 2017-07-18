@@ -27,6 +27,13 @@
      :cljs (or (when-let [m (meta x)]
                  (:type m))
                (type x))))
+               
+
+(defmulti observe-by-type (fn [slot-name me new-val old-val c]
+                    [(type-cljc me)]))
+
+(defmethod observe-by-type :default [slot me new-val old-val c]
+  (println :obs-by-typefallthru slot me new-val))        
 
 (defmulti observe (fn [slot-name me new-val old-val c]
                     [slot-name (type-cljc me)]))
@@ -39,7 +46,7 @@
   (if-let [obs @+observe-default-handler+]
     (do ;; (println :app-def-obs!!!)
         (obs slot me new-val old-val c))
-    #_(println :obs-fall-thru  slot (type-cljc me))))
+    (observe-by-type slot me new-val old-val c)))
 
 (defmacro defobserver [slot types params & body]
      (assert (keyword? slot) "defobserver> slot should be a keyword.")

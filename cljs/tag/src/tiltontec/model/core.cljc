@@ -60,15 +60,28 @@
 ;;; --- accessors ----
 
 (defn md-reset! [me slot new-value]
-  ;; (println :md-reset slot new-value)
+  (println :md-reset slot new-value)
   (if-let [c  (md-cell me slot)]
     (c-reset! c new-value)
     (do
-      ;; (println :meta (meta me))      (println :cz (:cz (meta me)))
+      (println :meta (meta me)) 
+       (println :cz (:cz (meta me)))
       (if (contains? @me slot)
         (err str "change not mediated by cell " slot "/" (ia-type me))
-        (err str "change to slot not mediated by cell and map lacks slot" slot)))))
-  ;;(rmap-setf [slot me] new-value))))
+        (err str "change to slot not mediated by cell and map lacks slot "
+         slot "
+         ;; but has " (str (keys @me))
+         )))))
+
+;;(rmap-setf [slot me] new-value))))
+
+(defn backdoor-reset!? [me slot new-value]
+  (if-let [c  (md-cell me slot)]
+    (c-reset! c new-value)
+    (rmap-setf [slot me] new-value)))
+
+(defn backdoor-reset! [me slot new-value]
+  (rmap-setf [slot me] new-value))
 
 (defn make [& arg-list]
   ;;(println :md-make!!!!!!!!!!! arg-list)
@@ -187,4 +200,16 @@
 (defmacro c?kids [& tree]
   `(c? (the-kids ~@tree)))
 
+(defn kid-values-kids [me x-kids]
+  (let [x-kids (if (= x-kids unbound) [] x-kids)
+      k-key (md-get me :kid-key)
+        k-factory (md-get me :kid-factory)]
+    (assert (and k-key ))
+    (assert (and  k-factory))
+    (for [kid-value (md-get me :kid-values)]
+      (or (some (fn [x-kid] (when (= kid-value (k-key x-kid))
+                  ;; (println :re-using-kid!!! (tag x-kid) (title x-kid))
+                   x-kid)) x-kids)
+         (do ;; (println :kvk-new!!! kid-value)
+          (k-factory me kid-value))))))
 
