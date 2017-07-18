@@ -15,7 +15,7 @@
       root (.getElementById doc "tagroot")
       landing (landing)]
   ;(println :cool doc body)
-  ;(println :landing landing)
+  (println :landing landing)
   (set! (.-innerHTML root) landing))
 
 

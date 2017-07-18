@@ -1,7 +1,7 @@
 (ns todo.todo
 	(:require
 		[clojure.string :as str]
-		[tiltontec.cell.base :refer [ia-type]]
+		[tiltontec.cell.base :refer [unbound ia-type]]
 		[tiltontec.cell.core
              :refer-macros [c? c?+ c-reset-next! c?once c?n]
              :refer [c-in c-reset! make-cell make-c-formula]]
@@ -36,8 +36,8 @@
 						:created (now)}
 						islots
 						{:title (c-in (:title islots))
-						 :completed (c-in (:completed islots))
-						 :deleted (or (:deleted islots) (c-in nil))})
+						 :completed (c-in (:completed islots false))
+						 :deleted (:deleted islots (c-in nil))})
 		todo (apply md/make (flatten (into [] net-slots)))]
 		;(pln :islots islots)
 		;(pln :netslots!!!!! net-slots)
@@ -55,7 +55,10 @@
 		(todo-upsert me)))
 
 (defn title [me]
-	(md-get me :title))	
+	(md-get me :title))
+	
+(defn completed [me]
+	(md-get me :completed))
 
 (defn todo-from-json [json]
 	;;(pln :td-from-json json)
@@ -83,8 +86,14 @@
 						(pln :undeleted-now= (count new))
 						new))))
 
-(defn todo-delete [todo]
-	(md-reset! todo :deleted (now)))
+(defn todo-delete [td]
+	(md-reset! td :deleted (now)))
+
+(defn todo-toggle-completed [event db-key]
+	(let [td (some (fn [td] (when (= db-key (md-get td :db-key)) td))
+					(md-get @gTodo :items))]
+		(assert td (str "todo-toggle-completed cannot find " db-key))
+		(md-reset! td :completed (not (completed td)))))
 
 (defn todo-delete-by-key [event db-key]
 	(let [td (some (fn [td] (when (= db-key (md-get td :db-key)) td))

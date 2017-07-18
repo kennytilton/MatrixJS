@@ -1,6 +1,7 @@
 (ns todo.core
   (:require [cljs.pprint :as pp]
   			[clojure.string :as str]
+  			[tiltontec.util.core :refer [pln]]
   			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.core :refer-macros [c? c?n]]
   			[tiltontec.model.core :refer [make md-reset! md-get kid-values-kids]]
@@ -12,8 +13,9 @@
             				io-read io-clear-storage]]
 
             [todo.todo :refer [gTodo TODO_LS_PREFIX make-todo todo-to-map
-            					title todo-to-json todo-load todo-upsert
+            					title completed todo-to-json todo-load todo-upsert
             					todo-dump load-all-todos gTodo-items]]))
+
 
 (declare todoDelete mk-todo-item mk-main mk-info
 	mk-dashboard mk-todo-entry)
@@ -21,26 +23,27 @@
 (defn landing []
 	;; (io-clear-storage)
 
-    ;; (todo-dump "landing entry")
+    (todo-dump "landing entry")
 
-	(comment
+	(do ;; comment
+		(pln :truncating!!!!! TODO_LS_PREFIX)
 		(io-truncate TODO_LS_PREFIX)
 
 		(make-todo {:title "move North"})
-		;;(make-todo {:title "find job"})
-		(pln :todos (io-find TODO_LS_PREFIX))
+		(make-todo {:title "find job"})
+		(make-todo {:title "buy jetski"})
 
-		(todo-dump "post build"))
+		(pln :todos-at-start (count (io-find TODO_LS_PREFIX)))
+
+		;;(todo-dump "post build")
+		)
 
 	(reset! gTodo (load-all-todos))
 
-	(pln :loadedtodos (count (md-get @gTodo :items-raw)))
+	(pln :loadedtodos-eaw (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
-	(pln :make-gen (macroexpand-1 '(section (:class "kkk") "himom")))
-
-	(let [bits ;;[(h1 (:onclick (on-evt "todo.core.booya2"))"Hi,   Mom")]
-			[(section (:class "todoapp")
+	(let [bits [(section (:class "todoapp")
             	(mk-todo-entry)
             	(mk-main)
 				(mk-dashboard))
@@ -65,7 +68,7 @@
 		(pln :enter!!! e (.-target e) (.-value (.-target e)))
 		(let [title (str/trim (.-value (.-target e)))]
 			(if (= title "")
-				(.alert js/window "A reminder to do nothing? We may not be relaxing yet. So, no.")
+				(.alert js/window "A reminder to do nothing? No sure we are relaxing yet. So, no.")
 				(md-reset! @gTodo :items-raw
 					(conj (md-get @gTodo :items-raw)
 						(make-todo {:title title}))))
@@ -74,7 +77,10 @@
 (defn mk-main []
 	(section (:class "main"
                	:hidden (c? (zero? (count (md-get @gTodo :items)))))
-		(input (:id "toggle-all" :class "toggle-all" :type "checkbox"))
+		(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
+				:action (c? (if (some (complement completed) (gTodo-items))
+								:complete :uncomplete))
+				 :checked (c? (= (md-get me :action) :uncomplete))))
 		(label (:for "toggle-all")() "Mark all as complete")
 		(ul (:class "todo-list"
 				:kid-values (c? (md-get @gTodo :items))
@@ -83,9 +89,10 @@
 				(kid-values-kids me cache))))
 
 (defn mk-dashboard []
-	(footer (:class "footer" :hidden (c? (zero? (count (gTodo-items)))))
-		(span (:class "todo-count")
-		   "<strong>0</strong> items left")
+	(footer (:class "footer" :hidden  (c? (zero? (count (gTodo-items))))) 
+		(span (:class "todo-count"
+				:content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" 
+									(count (remove completed (gTodo-items)))))))
 		(ul (:class "filters")
 		 	(li () (a (:class "selected" :href "#/") "All"))
 		 	(li () (a (:href "#/active") "Active"))
@@ -101,12 +108,13 @@
 
 (defn mk-todo-item [me td]
 	(li (:todo td
-		 :class (c? (if (md-get td :completed) "completed" ""))
+		 :class (c? (if (completed td) "completed" ""))
 		 :display "block") ;; getto filtersnmatch
 		(div (:class "view")
-			(input (:class "toggle" :type "checkbox"
-						;;; :checked (c? (md-get td :completed))
-						))
+			(input (:class "toggle" :input-type "checkbox"
+					:checked false ;; (c? (md-get td :completed))
+					:onclick (on-evt "todo.todo.todo_toggle_completed" 
+								(md-get td :db-key))))
 			(label () (md-get td :title))
 			(button (:class "destroy" 
 						:onclick (on-evt "todo.todo.todo_delete_by_key" 

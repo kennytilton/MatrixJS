@@ -2,7 +2,6 @@
   (:require
     [clojure.string :as str]
     [cljs.pprint :as pp]
-    [tiltontec.util.core :refer [pln]]
     [tiltontec.cell.base :refer [unbound]]
     [tiltontec.cell.observer :refer [observe observe-by-type]]
     [tiltontec.model.core
@@ -15,25 +14,32 @@
 
 (defn to-html [me]
   (if (string? me) me
-  (let [h (pp/cl-format nil "<~a ~a>~{~a~}</~0@*~a>"
+  (let [h (pp/cl-format nil "<~a ~a>~@[~a~]~{~a~}</~0@*~a>"
                 (:tag @me) (to-attrs me)
+                (md-get me :content)
                 (map to-html (md-get me :kids)))]
       ;;(println :genned h)
       h)))
 
+(def +true-html+ {:input-type "type"})
+
+(defn true-html [keyword]
+  (or (keyword +true-html+)
+    (name keyword)))
+
 (defn to-attrs [me]
-  (let [attr-keys [:class :hidden :placeholder
-                  :autofocus :href :display :type :for
+  (let [attr-keys [:class :hidden :placeholder :checked :disabled
+                  :autofocus :href :display :input-type :for
                   :onclick :onkeypress :id]]
     ;;(println :toattrs (keys @me))
     (let [j (str/join " "
               (for [[k v] (select-keys @me attr-keys)]
                 (do ;; (println :k k :v v)
-                  (if (some #{k} [:hidden])
+                  (if (some #{k} [:hidden :checked :disabled :autofocus])
                     (do
-                      ;;(println :hidden!!!!!!!!!! v (nil? v))
+                      (println :hidden!!!!!!!!!! v (nil? v))
                       (if v (name k) ""))
-                    (pp/cl-format nil "~a='~a'" (name k) v)))))]
+                    (pp/cl-format nil "~a='~a'" (true-html k) v)))))]
       ;;(println :jttrs j)
       (or j ""))))
 
@@ -79,6 +85,18 @@
               (when priork (.-nextSibling (dom priork))))))
         (recur newkr newk)))))
 
+(def +global-attr+ (set [:class :checked :hidden]))
+
+
 (defmethod observe-by-type [::tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
-    (println :tag-obs!!!!!!!!!! slot (tag me) newv)))
+    (println :tag-obs-entry slot newv)
+    (cond
+      (= slot :content) (set! (.-innerHTML (dom me)) newv)
+      (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
+                              (case slot
+                              :class (set! (.-className (dom me)) newv)
+                              :checked (set! (.-checked (dom me)) newv)))
+      :default (println :oby-type-punt slot (tag me) newv))))
+
+

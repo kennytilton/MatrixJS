@@ -6,7 +6,7 @@
       :clj  [tiltontec.util.base
              :refer :all])
    [tiltontec.util.core
-    :refer [any-ref? type-of err rmap-setf rmap-meta-setf]]
+    :refer [any-ref? type-of err rmap-setf rmap-meta-setf pln]]
    #?(:clj [tiltontec.cell.base :refer :all :as cty]
       :cljs [tiltontec.cell.base
              :refer-macros [without-c-dependency]

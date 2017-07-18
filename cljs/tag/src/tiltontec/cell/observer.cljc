@@ -27,13 +27,14 @@
      :cljs (or (when-let [m (meta x)]
                  (:type m))
                (type x))))
-               
+
 
 (defmulti observe-by-type (fn [slot-name me new-val old-val c]
                     [(type-cljc me)]))
 
 (defmethod observe-by-type :default [slot me new-val old-val c]
-  (println :obs-by-typefallthru slot me new-val))        
+  (when (not= old-val unbound)
+    (println :obs-by-typefallthru slot (type-cljc me) new-val)))    
 
 (defmulti observe (fn [slot-name me new-val old-val c]
                     [slot-name (type-cljc me)]))
