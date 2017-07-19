@@ -30,8 +30,8 @@
 		(io-truncate TODO_LS_PREFIX)
 
 		(make-todo {:title "move North"})
-		(make-todo {:title "find job"})
-		(make-todo {:title "buy jetski"})
+		;(make-todo {:title "find job"})
+		;(make-todo {:title "buy jetski"})
 
 		(pln :todos-at-start (count (io-find TODO_LS_PREFIX)))
 
@@ -40,7 +40,7 @@
 
 	(reset! gTodo (load-all-todos))
 
-	(pln :loadedtodos-eaw (count (md-get @gTodo :items-raw)))
+	(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
 	(let [bits [(section (:class "todoapp")
@@ -86,33 +86,9 @@
 			"Mark all as complete")
 		(ul (:class "todo-list"
 				:kid-values (c? (md-get @gTodo :items))
-					:kid-key #(md-get % :todo)
-					:kid-factory mk-todo-item)
-				(kid-values-kids me cache))))
-
-(defn todo-toggle-all [event]
-	(println :toggle-all!!! event)
-	(let [action (if (some (complement completed) (gTodo-items))
-					:complete :uncomplete)]
-		(doseq [td (gTodo-items)]
-			(md-reset! td :completed (= action :complete)))))
-
-(defn mk-dashboard []
-	(footer (:class "footer" :hidden  (c? (zero? (count (gTodo-items))))) 
-		(span (:class "todo-count"
-				:content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" 
-									(count (remove completed (gTodo-items)))))))
-		(ul (:class "filters")
-		 	(li () (a (:class "selected" :href "#/") "All"))
-		 	(li () (a (:href "#/active") "Active"))
-		 	(li () (a (:href "#/completed") "Completed")))
-		(button (:class "clear-completed") "Clear completed")))
-
-(defn mk-info []
-	(footer (:class"info")
-		(p () "Double-click to edit a todo")
-		(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
-		(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>")))
+				:kid-key #(md-get % :todo)
+				:kid-factory mk-todo-item)
+			(kid-values-kids me cache))))
 
 
 (defn mk-todo-item [me td]
@@ -124,9 +100,50 @@
 					:checked (c? (md-get td :completed))
 					:onclick (on-evt "todo.todo.todo_toggle_completed" 
 								(md-get td :db-key))))
-			(label () (md-get td :title))
+			(label (:ondblclick (on-evt "todo.core.todo_start_editing"))
+				(md-get td :title))
 			(button (:class "destroy" 
 						:onclick (on-evt "todo.todo.todo_delete_by_key" 
 										(md-get td :db-key)))))
 		(input (:class "edit" :value (c?n (md-get td :title))))))
+
+(defn todo-start-editing [e]
+	(let [dom (.-target e)]
+		(println :start-edt!! dom (.-parentNode dom))))
+
+(defn todo-toggle-all [event]
+	(println :toggle-all!!! event)
+	(let [action (if (some (complement completed) (gTodo-items))
+					:complete :uncomplete)]
+		(doseq [td (gTodo-items)]
+			(md-reset! td :completed (= action :complete)))))
+
+(defn mk-dashboard []
+	(footer (:class "footer"
+			 :hidden  (c? (zero? (count (gTodo-items))))) 
+		(span (:class "todo-count"
+				:content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" 
+									(count (remove completed (gTodo-items)))))))
+		(ul (:class "filters")
+		 	(li () (a (:class "selected" :href "#/") "All"))
+		 	(li () (a (:href "#/active") "Active"))
+		 	(li () (a (:href "#/completed") "Completed")))
+		(button (:class "clear-completed"
+				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
+				 :onclick (on-evt "todo.core.todo_clear_completed"))
+			"Clear completed")))
+
+
+(defn todo-clear-completed [e]
+	(println :boom e)
+	(let [comp (filter completed (gTodo-items))]
+		(println :complteed!!! comp)
+		(doseq [td comp]
+			(md-reset! td :deleted (now)))))	
+
+(defn mk-info []
+	(footer (:class"info")
+		(p () "Double-click to edit a todo")
+		(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
+		(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>")))
 

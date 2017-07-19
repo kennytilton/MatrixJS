@@ -30,14 +30,14 @@
 (defn to-attrs [me]
   (let [attr-keys [:class :hidden :placeholder :checked :disabled
                   :autofocus :href :display :input-type :for
-                  :onclick :onkeypress :id]]
+                  :onclick :ondblclick :onkeypress :id]]
     ;;(println :toattrs (keys @me))
     (let [j (str/join " "
               (for [[k v] (select-keys @me attr-keys)]
                 (do ;; (println :k k :v v)
                   (if (some #{k} [:hidden :checked :disabled :autofocus])
                     (do
-                      (println :hidden!!!!!!!!!! v (nil? v))
+                      ;;(println :attr-boolean!! k v (nil? v))
                       (if v (name k) ""))
                     (pp/cl-format nil "~a='~a'" (true-html k) v)))))]
       ;;(println :jttrs j)
@@ -94,7 +94,9 @@
     (cond
       (= slot :content) (set! (.-innerHTML (dom me)) newv)
       (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
+                              (println :attr-newv newv)
                               (case slot
+                              :hidden (set! (.-hidden (dom me)) newv)
                               :class (set! (.-className (dom me)) newv)
                               :checked (set! (.-checked (dom me)) newv)))
       :default (println :oby-type-punt slot (tag me) newv))))
