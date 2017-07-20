@@ -4,6 +4,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.671"]
                  [com.cognitect/transit-cljs "0.8.239"]
+                 [funcool/bide "1.5.0"]
                  ;;[rube "0.1.0-SNAPSHOT"]
                  ]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]

@@ -1,6 +1,7 @@
 (ns todo.core
   (:require [cljs.pprint :as pp]
   			[clojure.string :as str]
+  			[bide.core :as r]
   			[tiltontec.util.core :refer [pln]]
   			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.core :refer-macros [c? c?n]]
@@ -28,7 +29,7 @@
 	;; (io-clear-storage)
 	;; (todo-dump "landing entry")
 
-	(do ;; comment
+	(comment
 		(pln :truncating!!!!! TODO_LS_PREFIX)
 		(io-truncate TODO_LS_PREFIX)
 
