@@ -156,6 +156,7 @@
 			
 			(= (.-key e) "Escape")
 			(do (println :ESCAPING!!!!!)
+				(set! (.-value edom) (md-get td :title))
 				(.remove (.-classList li-dom) "editing")))))
 
 (defn todo-start-editing [e]
