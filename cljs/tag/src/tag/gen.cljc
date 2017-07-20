@@ -20,7 +20,7 @@
 
 (defn dom-tag [dom]
   (let [tag (get @id-js (.-id dom))]
-    (println :tags (keys @id-js))
+    ;;(println :tags (keys @id-js))
     (assert tag (str "dom-tag did not find js for id " (.-id dom)
                   " of dom " dom))
     tag))
@@ -35,7 +35,7 @@
                 (conj attrs
                   :id dom-sid
                   :kids c?kids))]
-      (println :storing-id-js dom-sid js-obj)
+      ;; (println :storing-id-js dom-sid js-obj)
       (swap! id-js assoc (str dom-sid) js-obj)
       js-obj))
 

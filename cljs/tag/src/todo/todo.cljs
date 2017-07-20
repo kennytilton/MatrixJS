@@ -17,6 +17,12 @@
 (defn gTodo-items []
  (md-get @gTodo :items))
 
+(defn gTodo-lookup [db-key]
+	(let [td (some (fn [td] (when (= db-key (md-get td :db-key)) td))
+					(md-get @gTodo :items))]
+		(assert td (str "gTodo-lookup cannot find " db-key))
+		td))
+
 (defn todo-to-map [todo]		
 	(into {} (for [k [:db-key :created :title :completed :deleted]]
 				[k (md-get todo k)])))
@@ -97,7 +103,4 @@
 		(md-reset! td :completed (not (completed td)))))
 
 (defn todo-delete-by-key [event db-key]
-	(let [td (some (fn [td] (when (= db-key (md-get td :db-key)) td))
-					(md-get @gTodo :items))]
-		(assert td (str "td-del-key cannot find " db-key))
-		(todo-delete td)))
+	(todo-delete (gTodo-lookup db-key)))

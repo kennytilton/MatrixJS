@@ -6,7 +6,8 @@
   			[tiltontec.cell.core :refer-macros [c? c?n]]
   			[tiltontec.model.core
   			 :refer [fget fasc make md-reset! md-get kid-values-kids]]
-            [tag.html :refer [tag to-html on-evt tag-dom]]
+            [tag.html :refer [tag to-html on-evt tag-dom
+            				dom-has-class]]
             [tag.gen :refer-macros [section header h1 input footer p a
             						span label ul li div button]
             		:refer [dom-tag]]
@@ -14,9 +15,10 @@
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
 
-            [todo.todo :refer [gTodo TODO_LS_PREFIX make-todo todo-to-map
-            					title completed todo-to-json todo-load todo-upsert
-            					todo-dump load-all-todos gTodo-items]]))
+            [todo.todo :refer
+             	[gTodo gTodo-lookup TODO_LS_PREFIX make-todo
+             	todo-to-map title completed todo-to-json todo-load todo-upsert
+            	todo-dump todo-delete  load-all-todos gTodo-items]]))
 
 
 (declare todoDelete mk-todo-item mk-main mk-info
@@ -31,7 +33,7 @@
 		(io-truncate TODO_LS_PREFIX)
 
 		(make-todo {:title "move North"})
-		;(make-todo {:title "find job"})
+		(make-todo {:title "find job"})
 		;(make-todo {:title "buy jetski"})
 
 		(pln :todos-at-start (count (io-find TODO_LS_PREFIX)))
@@ -44,15 +46,15 @@
 	(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
+	;; todo functionalize
 	(let [bits [(section (:class "todoapp")
-            	(mk-todo-entry)
-            	(mk-main)
-				(mk-dashboard))
-          	(mk-info)]]
-
-	(let [b$ (map to-html bits)]
-		;;(pln (count bits) :b$ b$)
-    	(apply str b$))))
+            		(mk-todo-entry)
+            		(mk-main)
+					(mk-dashboard))
+          		(mk-info)]
+		b$ (to-html bits)]
+		(pln (count bits) :b$ b$)
+    	b$))
 
 ;;; --- new todo entry, validation, and storage ------------------------------------
 
@@ -81,10 +83,12 @@
 		(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
 				:action (c? (if (some (complement completed) (gTodo-items))
 								:complete :uncomplete))
-				 :checked (c? (= (md-get me :action) :uncomplete))))
+				:checked (c? (= (md-get me :action) :uncomplete))))
+
 		(label (:for "toggle-all"
 				:onclick (on-evt "todo.core.todo_toggle_all"))
 			"Mark all as complete")
+
 		(ul (:class "todo-list"
 				:kid-values (c? (md-get @gTodo :items))
 				:kid-key #(md-get % :todo)
@@ -95,42 +99,75 @@
 	(li (:todo td
 		 :class (c? (if (completed td) "completed" ""))
 		 :display "block") ;; getto filtersnmatch
+
 		(div (:class "view")
 			(input (:class "toggle" :input-type "checkbox"
 					:checked (c? (md-get td :completed))
 					:onclick (on-evt "todo.todo.todo_toggle_completed" 
 								(md-get td :db-key))))
+
 			(label (:ondblclick (on-evt "todo.core.todo_start_editing"))
 				(md-get td :title))
+
 			(button (:class "destroy" 
 						:onclick (on-evt "todo.todo.todo_delete_by_key" 
 										(md-get td :db-key)))))
-		(input (:class "edit" :value (c?n (md-get td :title))))))
+
+		(input (:class "edit" :value (c?n (md-get td :title))
+				:onblur (on-evt "todo.core.todo_edit" (md-get td :db-key))
+				:onkeydown (on-evt "todo.core.todo_edit" (md-get td :db-key))
+				:onkeypress (on-evt "todo.core.todo_edit" (md-get td :db-key))))))
+
+(defn dom-ancestor-by-class [dom class]
+	(when dom
+		(let [pn (.-parentNode dom)]
+			(println :dabc (.-tagName dom) class pn)
+			(when pn
+				(println :checking (.-tagName pn)
+				(if (dom-has-class pn class)
+					pn
+					(dom-ancestor-by-class pn class)))))))
+
+(defn dom-ancestor-by-tag [dom tag]
+	(when dom
+		(println :dabtag (.-tagName dom) tag)
+		(let [pn (.-parentNode dom)]
+			(when pn
+				(println :checking (.-tagName pn))
+				(if (= (.-tagName pn) (str/upper-case tag))
+					pn
+					(dom-ancestor-by-tag pn tag))))))
+
+(defn todo-edit [e td-key]
+	(println :edit!!!!!!! (.-tagName (.-target e)))
+	(let [edom (.-target e)
+		  title (.-value edom)
+		  td (gTodo-lookup td-key)
+		  li-dom (dom-ancestor-by-tag edom "li")]
+		(println (.-tagName edom) (.-type e) :key (.-key e) :lidom li-dom)
+		(cond
+			(or (= (.-type e) "blur")
+				(= (.-key e) "Enter"))
+			(do	(if (= title "")
+					(todo-delete td)
+					(md-reset! td :title title))
+				(.remove (.-classList li-dom) "editing"))
+			
+			(= (.-key e) "Escape")
+			(.remove (.-classList li-dom) "editing"))))
 
 (defn todo-start-editing [e]
 	(let [dom (.-target e)
 		  lbl (dom-tag dom)
 		  li (fasc (fn [me]
-		  			(println :fli-visits (:id @me)(:tag @me))
+		  			;;(println :fli-visits (:id @me)(:tag @me))
 		  			(= "li" (:tag @me)))
 		  		 lbl)
 		  edt-doms (.getElementsByClassName (tag-dom li) "edit")
-		  edom (.item edt-doms 0)
-		  ]
-		(println :start-edt-lbl!! (.-id dom) dom)
-		(println :edoms edt-doms)
-		(println :edom (.item edt-doms 0))
-		(println :li-dom3 (tag-dom li))
+		  edom (.item edt-doms 0)]
 		(.add (.-classList (tag-dom li)) "editing")
 		(.focus edom)
 		(.setSelectionRange edom 0 (.-length (.-value edom)))))
-
-;let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
-;	, edt = li.fmDown('myEditor'); // NAVIG
-;edt.dom.li = li; // save a little navigation later
-;li.dom.classList.add("editing");
-;edt.dom.focus();
-;edt.dom.setSelectionRange(0, edt.dom.value.length);
 
 (defn todo-toggle-all [event]
 	(let [action (if (some (complement completed) (gTodo-items))

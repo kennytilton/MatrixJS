@@ -10,16 +10,29 @@
              :as md]
     ))
 
+(defn dom-has-class [dom class]
+  (when dom
+    (let [cs (.-classList dom)]
+      (println :d-has-c (.-tagName dom) cs)
+      (when cs
+        (.contains (.-classList dom) class)))))
+
 (declare to-attrs)
 
+;; todo -- make this multifn and test tag type in default
 (defn to-html [me]
-  (if (string? me) me
-  (let [h (pp/cl-format nil "<~a ~a>~@[~a~]~{~a~}</~0@*~a>"
+  (cond
+    (string? me) me
+    (coll? me) (let [b$ (map to-html me)]
+                  (println :to-html-coll!!!!! (count me) :b$ b$)
+                  (apply str b$))
+    :default 
+      (let [h (pp/cl-format nil "<~a ~a>~@[~a~]~{~a~}</~0@*~a>"
                 (:tag @me) (to-attrs me)
                 (md-get me :content)
                 (map to-html (md-get me :kids)))]
-      ;;(println :genned h)
-      h)))
+        ;;(println :genned h)
+        h))) 
 
 (def +true-html+ {:input-type "type"})
 
@@ -30,7 +43,8 @@
 (defn to-attrs [me]
   (let [attr-keys [:class :hidden :placeholder :checked :disabled
                   :autofocus :href :display :input-type :for
-                  :onclick :ondblclick :onkeypress :id :value]]
+                  :onclick :ondblclick :onkeypress :onblur
+                  :onkeydown :id :value]]
     ;;(println :toattrs (keys @me))
     (let [j (str/join " "
               (for [[k v] (select-keys @me attr-keys)]
@@ -44,10 +58,10 @@
       (or j ""))))
 
 (defn tag-dom [me]
-  (println :domgo me)
+  ;;(println :domgo me)
   (let [id (md-get me :id)]
     (assert id)
-    (println :dom-uding-id id)
+    ;;(println :dom-uding-id id)
     (or (md-get me :dom-cache)
       (let [dom (.getElementById js/document id)]
         (assert dom)
@@ -64,27 +78,36 @@
 
 (defmethod observe [:kids ::tag.html/tag] [_ me newv oldv _]
   (when-not (= oldv unbound)
-    (println :tag-kids-obs!!! (md-get me :tag) (count newv)(count oldv))
-    (doseq [oldk oldv]
-      ;;(println :stillinnewv (some #{oldk} newv))
-      (when-not (some #{oldk} newv)
-        ;;(println :obskids-del!!!! (md-get oldk :tag))
-        (let [kdom (tag-dom oldk)]
-            (assert kdom "no kdom oldk")
-            (.removeChild (.-parentNode kdom) kdom))))
+    (cond
+      (some #{(.-tagName (tag-dom me))} ["LABEL"])
+      (do (println :bam-html!!! (tag-dom me))
+          (set! (.-innerHTML (tag-dom me))
+            (to-html newv)))
 
-    (println :installing-any-new-kids!!!!)
-    
-    (loop [[newk & newkr] newv
-          priork nil]
-      (when newk
-        (when-not (some #{newk} oldv)
-          (let [incubator (.createElement js/document "div")]
-            (set! (.-innerHTML incubator) (to-html newk))
-            (backdoor-reset! newk :dom-cache (.-firstChild incubator))
-            (.insertBefore (tag-dom me) (tag-dom newk)
-              (when priork (.-nextSibling (tag-dom priork))))))
-        (recur newkr newk)))))
+      :default
+      (do
+        (println :tag-kids-obs!!! (md-get me :tag) (count newv)(count oldv))
+        (doseq [oldk oldv]
+          (when-not (string? oldk)
+            (println :stillinnewv oldk (some #{oldk} newv))
+            (when-not (some #{oldk} newv)
+              (println :obskids-del!!!! oldk (md-get oldk :tag))
+              (let [kdom (tag-dom oldk)]
+                  (assert kdom "no kdom oldk")
+                  (.removeChild (.-parentNode kdom) kdom)))))
+
+        (println :installing-any-new-kids!!!!)
+        
+        (loop [[newk & newkr] newv
+              priork nil]
+          (when newk
+            (when-not (some #{newk} oldv)
+              (let [incubator (.createElement js/document "div")]
+                (set! (.-innerHTML incubator) (to-html newk))
+                (backdoor-reset! newk :dom-cache (.-firstChild incubator))
+                (.insertBefore (tag-dom me) (tag-dom newk)
+                  (when priork (.-nextSibling (tag-dom priork))))))
+            (recur newkr newk)))))))
 
 (def +global-attr+ (set [:class :checked :hidden]))
 
