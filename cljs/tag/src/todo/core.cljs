@@ -21,7 +21,6 @@
              	todo-to-map title completed todo-to-json todo-load todo-upsert
             	todo-dump todo-delete  load-all-todos gTodo-items]]))
 
-
 (declare todoDelete mk-todo-item mk-main mk-info
 	mk-dashboard mk-todo-entry)
   	
@@ -30,7 +29,7 @@
 	;; (todo-dump "landing entry")
 
 	(comment
-		(pln :truncating!!!!! TODO_LS_PREFIX)
+		(pln :truncating!!! TODO_LS_PREFIX)
 		(io-truncate TODO_LS_PREFIX)
 
 		(make-todo {:title "move North"})
@@ -47,15 +46,11 @@
 	(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
-	;; todo functionalize
-	(let [bits [(section (:class "todoapp")
+	(to-html [(section (:class "todoapp")
             		(mk-todo-entry)
             		(mk-main)
 					(mk-dashboard))
-          		(mk-info)]
-		b$ (to-html bits)]
-		(pln (count bits) :b$ b$)
-    	b$))
+          		(mk-info)]))
 
 ;;; --- new todo entry, validation, and storage ------------------------------------
 
