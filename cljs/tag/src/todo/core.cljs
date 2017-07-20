@@ -144,9 +144,10 @@
 		  title (.-value edom)
 		  td (gTodo-lookup td-key)
 		  li-dom (dom-ancestor-by-tag edom "li")]
-		(println (.-tagName edom) (.-type e) :key (.-key e) :lidom li-dom)
+		(println :edit-two!!!!! (.-tagName edom) (.-type e) :key (.-key e) :lidom li-dom)
 		(cond
-			(or (= (.-type e) "blur")
+			(or (and (= (.-type e) "blur")
+					(dom-has-class li-dom "editing"))
 				(= (.-key e) "Enter"))
 			(do	(if (= title "")
 					(todo-delete td)
@@ -154,7 +155,8 @@
 				(.remove (.-classList li-dom) "editing"))
 			
 			(= (.-key e) "Escape")
-			(.remove (.-classList li-dom) "editing"))))
+			(do (println :ESCAPING!!!!!)
+				(.remove (.-classList li-dom) "editing")))))
 
 (defn todo-start-editing [e]
 	(let [dom (.-target e)
