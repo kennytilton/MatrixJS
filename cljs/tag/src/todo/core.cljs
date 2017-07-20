@@ -4,10 +4,12 @@
   			[tiltontec.util.core :refer [pln]]
   			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.core :refer-macros [c? c?n]]
-  			[tiltontec.model.core :refer [make md-reset! md-get kid-values-kids]]
-            [tag.html :refer [tag to-html on-evt]]
+  			[tiltontec.model.core
+  			 :refer [fget fasc make md-reset! md-get kid-values-kids]]
+            [tag.html :refer [tag to-html on-evt tag-dom]]
             [tag.gen :refer-macros [section header h1 input footer p a
-            						span label ul li div button]]
+            						span label ul li div button]
+            		:refer [dom-tag]]
             [todo.util :refer [pln json-to-map map-to-json uuidv4 now]]
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
@@ -22,8 +24,7 @@
   	
 (defn landing []
 	;; (io-clear-storage)
-
-    (todo-dump "landing entry")
+	;; (todo-dump "landing entry")
 
 	(do ;; comment
 		(pln :truncating!!!!! TODO_LS_PREFIX)
@@ -90,7 +91,6 @@
 				:kid-factory mk-todo-item)
 			(kid-values-kids me cache))))
 
-
 (defn mk-todo-item [me td]
 	(li (:todo td
 		 :class (c? (if (completed td) "completed" ""))
@@ -108,11 +108,31 @@
 		(input (:class "edit" :value (c?n (md-get td :title))))))
 
 (defn todo-start-editing [e]
-	(let [dom (.-target e)]
-		(println :start-edt!! dom (.-parentNode dom))))
+	(let [dom (.-target e)
+		  lbl (dom-tag dom)
+		  li (fasc (fn [me]
+		  			(println :fli-visits (:id @me)(:tag @me))
+		  			(= "li" (:tag @me)))
+		  		 lbl)
+		  edt-doms (.getElementsByClassName (tag-dom li) "edit")
+		  edom (.item edt-doms 0)
+		  ]
+		(println :start-edt-lbl!! (.-id dom) dom)
+		(println :edoms edt-doms)
+		(println :edom (.item edt-doms 0))
+		(println :li-dom3 (tag-dom li))
+		(.add (.-classList (tag-dom li)) "editing")
+		(.focus edom)
+		(.setSelectionRange edom 0 (.-length (.-value edom)))))
+
+;let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
+;	, edt = li.fmDown('myEditor'); // NAVIG
+;edt.dom.li = li; // save a little navigation later
+;li.dom.classList.add("editing");
+;edt.dom.focus();
+;edt.dom.setSelectionRange(0, edt.dom.value.length);
 
 (defn todo-toggle-all [event]
-	(println :toggle-all!!! event)
 	(let [action (if (some (complement completed) (gTodo-items))
 					:complete :uncomplete)]
 		(doseq [td (gTodo-items)]
@@ -132,7 +152,6 @@
 				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
 				 :onclick (on-evt "todo.core.todo_clear_completed"))
 			"Clear completed")))
-
 
 (defn todo-clear-completed [e]
 	(println :boom e)

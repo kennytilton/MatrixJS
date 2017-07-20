@@ -147,6 +147,22 @@
     :else (do ;; (trx :fget=-else! seek)
               (= seek poss))))
 
+(defn fasc [what where & options]
+  (when (and where what)
+    (let [options (merge {:me? false
+                          , :wocd? true ;; without-c-dependency
+                          } (apply hash-map options))]
+      (binding [*depender* (if (:wocd? options) nil *depender*)]
+        (or (and (:me? options)
+                 (fget= what where)
+                 where)
+
+            (when-let [par (:par @where)]
+                   (fasc what par
+                         :me? true))
+
+            (when (:must? options)
+              (err :fasc-must-failed what where options)))))))
 
 (defn fget [what where & options]
   (when (and where what)

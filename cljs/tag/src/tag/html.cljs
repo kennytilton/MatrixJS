@@ -30,7 +30,7 @@
 (defn to-attrs [me]
   (let [attr-keys [:class :hidden :placeholder :checked :disabled
                   :autofocus :href :display :input-type :for
-                  :onclick :ondblclick :onkeypress :id]]
+                  :onclick :ondblclick :onkeypress :id :value]]
     ;;(println :toattrs (keys @me))
     (let [j (str/join " "
               (for [[k v] (select-keys @me attr-keys)]
@@ -43,10 +43,11 @@
       ;;(println :jttrs j)
       (or j ""))))
 
-(defn dom [me]
+(defn tag-dom [me]
+  (println :domgo me)
   (let [id (md-get me :id)]
     (assert id)
-
+    (println :dom-uding-id id)
     (or (md-get me :dom-cache)
       (let [dom (.getElementById js/document id)]
         (assert dom)
@@ -68,7 +69,7 @@
       ;;(println :stillinnewv (some #{oldk} newv))
       (when-not (some #{oldk} newv)
         ;;(println :obskids-del!!!! (md-get oldk :tag))
-        (let [kdom (dom oldk)]
+        (let [kdom (tag-dom oldk)]
             (assert kdom "no kdom oldk")
             (.removeChild (.-parentNode kdom) kdom))))
 
@@ -81,8 +82,8 @@
           (let [incubator (.createElement js/document "div")]
             (set! (.-innerHTML incubator) (to-html newk))
             (backdoor-reset! newk :dom-cache (.-firstChild incubator))
-            (.insertBefore (dom me) (dom newk)
-              (when priork (.-nextSibling (dom priork))))))
+            (.insertBefore (tag-dom me) (tag-dom newk)
+              (when priork (.-nextSibling (tag-dom priork))))))
         (recur newkr newk)))))
 
 (def +global-attr+ (set [:class :checked :hidden]))
@@ -92,13 +93,13 @@
   (when (not= oldv unbound)
     (println :tag-obs-entry slot newv)
     (cond
-      (= slot :content) (set! (.-innerHTML (dom me)) newv)
+      (= slot :content) (set! (.-innerHTML (tag-dom me)) newv)
       (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
                               (println :attr-newv newv)
                               (case slot
-                              :hidden (set! (.-hidden (dom me)) newv)
-                              :class (set! (.-className (dom me)) newv)
-                              :checked (set! (.-checked (dom me)) newv)))
+                              :hidden (set! (.-hidden (tag-dom me)) newv)
+                              :class (set! (.-className (tag-dom me)) newv)
+                              :checked (set! (.-checked (tag-dom me)) newv)))
       :default (println :oby-type-punt slot (tag me) newv))))
 
 

@@ -40,8 +40,8 @@
 						 :deleted (or (:deleted islots)
 						 			 (c-in nil))})
 		todo (apply md/make (flatten (into [] net-slots)))]
-		(pln :islots islots)
-		(pln :netslots!!!!! net-slots)
+		;(pln :islots islots)
+		;(pln :netslots!!!!! net-slots)
 		;(pln :title (:title @todo))
 		;(pln :todo-new (todo-to-map todo))
 		(when-not (:db-key islots)
