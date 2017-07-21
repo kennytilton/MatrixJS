@@ -8,11 +8,11 @@
   								:refer [c-in]]
   			[tiltontec.model.core
   			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
-            [tag.html :refer [tag to-html on-evt tag-dom
-            				dom-has-class]]
+            [tag.html :refer [tag  to-html on-evt tag-dom
+            				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class]]
             [tag.gen :refer-macros [section header h1 input footer p a
             						span label ul li div button]
-            		:refer [dom-tag]]
+            		:refer [tagfo dom-tag]]
             [todo.util :refer [pln json-to-map map-to-json uuidv4 now]]
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
@@ -26,10 +26,33 @@
 	mk-dashboard mk-todo-entry)
 
 (def router
-  (r/router [["/" :todo/all]
-             ["/active" :todo/active]
-             ["/completed" :todo/completed]]))
+  (r/router [["/" :All]
+             ["/active" :Active]
+             ["/completed" :Completed]]))
 
+(def app (atom nil))                  
+(def iroute (atom nil))
+
+(defn on-navigate
+  "A function which will be called on each route change."
+  [route params query]
+  (println "Route change to!!!!!!!!!!!!!!!!!: " route (tag (first @app)))
+  (cond 
+  	@app (let [f (fget (fn [v]
+  						(when (any-ref? v)
+  							(when (= "filters" (:class @v))
+  								(println :bam-filters)
+  								true)))
+  						(first @app)
+  						:inside? true
+  						 :up? false
+  						 :must? true)]
+  			(println :f f)
+  			(when f (md-reset! f :selection (name route))))
+  	:default (reset! iroute (name route))))
+
+(r/start! router {:default :todo/all
+                  :on-navigate on-navigate})
 
 (defn landing []
 	;; (io-clear-storage)
@@ -53,11 +76,12 @@
 	(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
-	(to-html [(section (:class "todoapp" :par :top)
+	(reset! app [(section (:class "todoapp" :par :top)
             		(mk-todo-entry)
             		(mk-main)
 					(mk-dashboard))
-          		#_ (mk-info)]))
+          		(mk-info)])
+	(to-html @app))
 
 ;;; --- new todo entry, validation, and storage ------------------------------------
 
@@ -152,26 +176,6 @@
 							(xor (= sel "Active") (md-get td :completed))))
 				"block" "none")))))
 
-(defn dom-ancestor-by-class [dom class]
-	(when dom
-		(let [pn (.-parentNode dom)]
-			(println :dabc (.-tagName dom) class pn)
-			(when pn
-				(println :checking (.-tagName pn)
-				(if (dom-has-class pn class)
-					pn
-					(dom-ancestor-by-class pn class)))))))
-
-(defn dom-ancestor-by-tag [dom tag]
-	(when dom
-		(println :dabtag (.-tagName dom) tag)
-		(let [pn (.-parentNode dom)]
-			(when pn
-				(println :checking (.-tagName pn))
-				(if (= (.-tagName pn) (str/upper-case tag))
-					pn
-					(dom-ancestor-by-tag pn tag))))))
-
 (defn todo-edit [e td-key]
 	(println :edit!!!!!!! (.-tagName (.-target e)))
 	(let [edom (.-target e)
@@ -193,13 +197,16 @@
 				(set! (.-value edom) (md-get td :title))
 				(.remove (.-classList li-dom) "editing")))))
 
+(defn fm-asc-tag [me tag]
+	(fasc (fn [visited]
+		  		;; (println :fli-visits tag (:tag @visited) (= (:par @visited) nil))
+		  		(= tag (:tag @visited)))
+		  	 me))
+
 (defn todo-start-editing [e]
 	(let [dom (.-target e)
 		  lbl (dom-tag dom)
-		  li (fasc (fn [me]
-		  			;;(println :fli-visits (:id @me)(:tag @me))
-		  			(= "li" (:tag @me)))
-		  		 lbl)
+		  li (fm-asc-tag lbl "li")
 		  edt-doms (.getElementsByClassName (tag-dom li) "edit")
 		  edom (.item edt-doms 0)]
 		(.add (.-classList (tag-dom li)) "editing")
@@ -211,29 +218,32 @@
 					:complete :uncomplete)]
 		(doseq [td (gTodo-items)]
 			(md-reset! td :completed (= action :complete)))))
-
+		
 (defn mk-dashboard []
 	(footer (:class "footer"
 			 :hidden  (c? (zero? (count (gTodo-items))))) 
 		(span (:class "todo-count"
 				:content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" 
 									(count (remove completed (gTodo-items)))))))
+
 		(ul (:class "filters"
-			 :selection (c-in "All"))
-		 	(li () (a (:href "#/") "All"))
-		 	(li () (a (:class "selected" :href "#/active") "Active"))
-		 	(li () (a (:href "#/completed") "Completed")))
+			 :selection (c-in (or @iroute "All")))
+		  (doall
+			(for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
+				(li () (a (:href route
+							:selected (c? (println :comping (:selector @me)
+													(md-get (fm-asc-tag me "ul") :selection))
+								(= (:selector @me)
+											(md-get (fm-asc-tag me "ul") :selection)))
+							:class (c? (let [new (if (:selected @me) "selected" "")]
+											(println :liclass (:selector @me) new :old cache)
+											new))
+							:selector label) label)))))
+
 		(button (:class "clear-completed"
 				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
-				 :onclick (on-evt "todo.core.todo_clear_completed"))
+				 :onclick (on-evt "todo.clear_completed"))
 			"Clear completed")))
-
-(defn todo-clear-completed [e]
-	(println :boom e)
-	(let [comp (filter completed (gTodo-items))]
-		(println :complteed!!! comp)
-		(doseq [td comp]
-			(md-reset! td :deleted (now)))))	
 
 (defn mk-info []
 	(footer (:class"info")

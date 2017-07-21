@@ -17,6 +17,26 @@
       (when cs
         (.contains (.-classList dom) class)))))
 
+(defn dom-ancestor-by-class [dom class]
+  (when dom
+    (let [pn (.-parentNode dom)]
+      (println :dabc (.-tagName dom) class pn)
+      (when pn
+        (println :checking (.-tagName pn)
+        (if (dom-has-class pn class)
+          pn
+          (dom-ancestor-by-class pn class)))))))
+
+(defn dom-ancestor-by-tag [dom tag]
+  (when dom
+    (println :dabtag (.-tagName dom) tag)
+    (let [pn (.-parentNode dom)]
+      (when pn
+        (println :checking (.-tagName pn))
+        (if (= (.-tagName pn) (str/upper-case tag))
+          pn
+          (dom-ancestor-by-tag pn tag))))))
+
 (declare to-attrs)
 
 ;; todo -- make this multifn and test tag type in default
@@ -74,8 +94,9 @@
     (assert id)
     ;;(println :dom-uding-id id)
     (or (md-get me :dom-cache)
-      (let [dom (.getElementById js/document id)]
+      (let [dom (.getElementById js/document (str id))]
         (assert dom (str "tag-dom failed on id " id))
+        (println :tag-dom-succeeds!!!!!!!!!!! id)
         (backdoor-reset! me :dom-cache dom)))))
 
 (def on-event-attr-template
@@ -121,7 +142,7 @@
             (recur newkr newk)))))))
 
 (def +global-attr+ (set [:class :checked :hidden]))
-
+(def +inline-css+ (set [:display]))
 
 (defmethod observe-by-type [::tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
@@ -129,11 +150,14 @@
     (cond
       (= slot :content) (set! (.-innerHTML (tag-dom me)) newv)
       (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
-                              (println :attr-newv newv)
+                              ;;(println :attr-newv newv)
                               (case slot
-                              :hidden (set! (.-hidden (tag-dom me)) newv)
-                              :class (set! (.-className (tag-dom me)) newv)
-                              :checked (set! (.-checked (tag-dom me)) newv)))
+                                :hidden (set! (.-hidden (tag-dom me)) newv)
+                                :class (set! (.-className (tag-dom me)) newv)
+                                :checked (set! (.-checked (tag-dom me)) newv)))
+      (+inline-css+ slot) (do (println :obs-inline-css!!! slot)
+                            (case slot
+                                :display (set! (.-display (tag-dom me)) newv)))
       :default (println :oby-type-punt slot (tag me) newv))))
 
 

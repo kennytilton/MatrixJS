@@ -62,6 +62,7 @@
 
 (defn md-reset! [me slot new-value]
   (println :md-reset slot new-value)
+  (assert me)
   (if-let [c  (md-cell me slot)]
     (c-reset! c new-value)
     (do
@@ -139,17 +140,21 @@
   (:par @me))
 
 (defn fget= [seek poss]
-  ;;(assert (any-ref? poss) (str "poss not ref " (string? poss)))
+  (assert (or (any-ref? poss) (string? poss))
+        (str "poss not ref " (string? poss)))
+  ;; (println :fget= (fn? seek) (keyword? seek))
   (cond
     (not (any-ref? poss)) ;; string child of html label?
-    false
+    (do (println :fget=bailnotref poss)
+      false)
 
-    (fn? seek) (seek poss)
+    (fn? seek) (do ;; (println :trying-fn)
+                (seek poss))
     (keyword? seek)(do
                      ;; (trx :fget=sees seek (:name @poss) (ia-type poss))
                      (or (= seek (:name @poss))
                        (isa? (ia-type poss) seek)))
-    :else (do ;; (trx :fget=-else! seek)
+    :else (do (trx :fget=-else-pplain=! seek)
               (= seek poss))))
 
 (defn fasc [what where & options]
@@ -169,16 +174,20 @@
               (err :fasc-must-failed what where options)))))))
 
 (defn fget [what where & options]
+  ;;(println :fget-entry (if (any-ref? where) [(:tag @where)(:class @where)] where) (any-ref? where))
   (when (and where what (any-ref? where))
+    ;(println :w)
     (let [options (merge {:me? false
                           , :inside? false
                           , :up? true
                           , :wocd? true ;; without-c-dependency
                           } (apply hash-map options))]
-      ;; (println :fget-opts options)
+      ;;(println :fget-opts options)
+      ;(println :T)
       (binding [*depender* (if (:wocd? options) nil *depender*)]
 
         (when (any-ref? where)
+          ;(println :f)
           (or (and (:me? options)
                    (fget= what where)
                    where)
@@ -233,10 +242,13 @@
         k-factory (md-get me :kid-factory)]
     (assert (and k-key ))
     (assert (and  k-factory))
-    (for [kid-value (md-get me :kid-values)]
-      (or (some (fn [x-kid] (when (= kid-value (k-key x-kid))
-                  ;; (println :re-using-kid!!! (tag x-kid) (title x-kid))
-                   x-kid)) x-kids)
-         (binding [*par* me] ;; do ;; (println :kvk-new!!! kid-value)
-          (k-factory me kid-value))))))
+    (doall
+      (for [kid-value (md-get me :kid-values)]
+      (or (some (fn [x-kid]
+                  (when (= kid-value (k-key x-kid))
+                    (println :re-using-kid!!! (:id @me) (:tag @x-kid))
+                    x-kid)) x-kids)
+         (binding [*par* me]
+          (println :kvk-new!!! (:id @me) (:title @kid-value))
+          (k-factory me kid-value)))))))
 
