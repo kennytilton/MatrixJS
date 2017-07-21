@@ -58,7 +58,6 @@
 
 (defmethod observe-by-type [::todo.todo/todo] [slot me new-val old-val c]
 	(when-not (= old-val unbound)
-		(pln :todo-obs-upsert!!! (or (ia-type me) me) (:tag @me) slot new-val)
 		(todo-upsert me)))
 
 (defn title [me]
@@ -89,11 +88,7 @@
 		:par :todo-42-top
 		;; todo: sort by created
 		:items-raw (c?n (doall (map todo-load (io-find TODO_LS_PREFIX))))
-		:items (c? ;;(pln :computing-items!!!!!!)
-					(let [new (doall
-							(remove #(md-get % :deleted) (md-get me :items-raw)))]
-						(pln :undeleted-now= (count new))
-						new))))
+		:items (c? (remove #(md-get % :deleted) (md-get me :items-raw)))))
 
 (defn todo-delete [td]
 	(md-reset! td :deleted (now)))

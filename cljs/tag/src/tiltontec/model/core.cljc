@@ -61,7 +61,7 @@
 ;;; --- accessors ----
 
 (defn md-reset! [me slot new-value]
-  (println :md-reset slot new-value)
+  ;;(println :md-reset slot new-value)
   (assert me)
   (if-let [c  (md-cell me slot)]
     (c-reset! c new-value)
@@ -109,7 +109,7 @@
                        {:state :nascent}
                        (select-keys iargs [:type])))]
        (assert (meta me))
-        (when-not (:par @me)
+        #_(when-not (:par @me)
           (println :no-par!!!!!!!!!!! me))
        (rmap-meta-setf
         [:cz me]
@@ -246,7 +246,7 @@
       (for [kid-value (md-get me :kid-values)]
       (or (some (fn [x-kid]
                   (when (= kid-value (k-key x-kid))
-                    (println :re-using-kid!!! (:id @me) (:tag @x-kid))
+                    ;;(println :re-using-kid!!! (:id @me) (:tag @x-kid))
                     x-kid)) x-kids)
          (binding [*par* me]
           ;;(println :kvk-new!!! (:id @me) (:title @kid-value))

@@ -33,7 +33,7 @@
                     [(type-cljc me)]))
 
 (defmethod observe-by-type :default [slot me new-val old-val c]
-  (when (not= old-val unbound)
+  #_ (when (not= old-val unbound)
     (println :obs-by-typefallthru slot (type-cljc me) new-val)))    
 
 (defmulti observe (fn [slot-name me new-val old-val c]

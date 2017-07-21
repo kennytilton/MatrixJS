@@ -36,19 +36,18 @@
 (defn on-navigate
   "A function which will be called on each route change."
   [route params query]
-  (println "Route change to!!!!!!!!!!!!!!!!!: " route (tag (first @app)))
+  ;;(println "Route change to!!!!!!!!!!!!!!!!!: " route (tag (first @app)))
   (cond 
   	@app (let [f (fget (fn [v]
   						(when (any-ref? v)
   							(when (= "filters" (:class @v))
-  								(println :bam-filters)
+  								;;(println :bam-filters)
   								true)))
   						(first @app)
   						:inside? true
   						 :up? false
   						 :must? true)]
-  			(println :f f)
-  			(when f (md-reset! f :selection (name route))))
+  			(md-reset! f :selection (name route)))
   	:default (reset! iroute (name route))))
 
 (r/start! router {:default :todo/all
@@ -73,8 +72,8 @@
 
 	(reset! gTodo (load-all-todos))
 
-	(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
-	(pln :loadedtodos (count (md-get @gTodo :items)))
+	;;(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
+	;;(pln :loadedtodos (count (md-get @gTodo :items)))
 
 	(reset! app [(section (:class "todoapp" :par :top)
             		(mk-todo-entry)
@@ -95,7 +94,7 @@
 
 (defn todo-process-on-enter [e]
 	(when (= (.-key e) "Enter")
-		(pln :enter!!! e (.-target e) (.-value (.-target e)))
+		;;(pln :enter!!! e (.-target e) (.-value (.-target e)))
 		(let [title (str/trim (.-value (.-target e)))]
 			(if (= title "")
 				(.alert js/window "A reminder to do nothing? No sure we are relaxing yet. So, no.")
@@ -177,12 +176,12 @@
 				"block" "none")))))
 
 (defn todo-edit [e td-key]
-	(println :edit!!!!!!! (.-tagName (.-target e)))
+	;(println :edit!!!!!!! (.-tagName (.-target e)))
 	(let [edom (.-target e)
 		  title (.-value edom)
 		  td (gTodo-lookup td-key)
 		  li-dom (dom-ancestor-by-tag edom "li")]
-		(println :edit-two!!!!! (.-tagName edom) (.-type e) :key (.-key e) :lidom li-dom)
+		;(println :edit-two!!!!! (.-tagName edom) (.-type e) :key (.-key e) :lidom li-dom)
 		(cond
 			(or (and (= (.-type e) "blur")
 					(dom-has-class li-dom "editing"))
@@ -193,7 +192,7 @@
 				(.remove (.-classList li-dom) "editing"))
 			
 			(= (.-key e) "Escape")
-			(do (println :ESCAPING!!!!!)
+			(do ;;(println :ESCAPING!!!!!)
 				(set! (.-value edom) (md-get td :title))
 				(.remove (.-classList li-dom) "editing")))))
 
@@ -231,12 +230,12 @@
 		  (doall	
 			(for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
 				(li () (a (:href route
-							:selected (c? (println :comping (:selector @me)
+							:selected (c? #_ (println :comping (:selector @me)
 													(md-get (fm-asc-tag me "ul") :selection))
 								(= (:selector @me)
 											(md-get (fm-asc-tag me "ul") :selection)))
 							:class (c? (let [new (if (md-get me :selected) "selected" "")]
-											(println :liclass (:selector @me) new :old cache)
+											;;(println :liclass (:selector @me) new :old cache)
 											new))
 							:selector label) label)))))
 

@@ -82,7 +82,7 @@
       
       (let [fa (pp/cl-format nil "~@[~a~]~@[ style='~a'~]"
                       (unblank ga)(unblank css))]
-        (when (= (:name @me) :todo-li) #_ (pos? (count fa))
+        #_(when (= (:name @me) :todo-li) #_ (pos? (count fa))
           (println :attrs!!!! fa (string? fa) (count fa)))
         fa)
         #_
@@ -96,7 +96,7 @@
     (or (md-get me :dom-cache)
       (let [dom (.getElementById js/document (str id))]
         (assert dom (str "tag-dom failed on id " id))
-        (println :tag-dom-succeeds!!!!!!!!!!! id)
+        ;;(println :tag-dom-succeeds!!!!!!!!!!! id)
         (backdoor-reset! me :dom-cache dom)))))
 
 (def on-event-attr-template
@@ -118,17 +118,17 @@
 
       :default
       (do
-        (println :tag-kids-obs!!! (md-get me :tag) (count newv)(count oldv))
+        ;;(println :tag-kids-obs!!! (md-get me :tag) (count newv)(count oldv))
         (doseq [oldk oldv]
           (when-not (string? oldk)
-            (println :stillinnewv oldk (some #{oldk} newv))
+            ;;(println :stillinnewv oldk (some #{oldk} newv))
             (when-not (some #{oldk} newv)
-              (println :obskids-del!!!! oldk (tagfo oldk))
+              ;;(println :obskids-del!!!! oldk (tagfo oldk))
               (let [kdom (tag-dom oldk)]
                   (assert kdom "no kdom oldk")
                   (.removeChild (.-parentNode kdom) kdom)))))
 
-        (println :installing-any-new-kids!!!!)
+        ;; (println :installing-any-new-kids!!!!)
         
         (loop [[newk & newkr] newv
               priork nil]
@@ -146,7 +146,7 @@
 
 (defmethod observe-by-type [::tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
-    (println :tag-obs-entry slot newv)
+    ;(println :tag-obs-entry slot newv)
     (cond
       (= slot :content) (set! (.-innerHTML (tag-dom me)) newv)
       (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
@@ -155,9 +155,10 @@
                                 :hidden (set! (.-hidden (tag-dom me)) newv)
                                 :class (set! (.-className (tag-dom me)) newv)
                                 :checked (set! (.-checked (tag-dom me)) newv)))
-      (+inline-css+ slot) (do (println :obs-inline-css!!! slot)
+      (+inline-css+ slot) (do ;; (println :obs-inline-css!!! slot)
                             (case slot
                                 :display (set! (.-display (.-style (tag-dom me))) newv)))
-      :default (println :oby-type-punt slot (tag me) newv))))
+      ;; :default (println :oby-type-punt slot (tag me) newv)
+      )))
 
 
