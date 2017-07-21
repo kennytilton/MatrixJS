@@ -62,7 +62,7 @@
       
       (let [fa (pp/cl-format nil "~@[~a~]~@[ style='~a'~]"
                       (unblank ga)(unblank css))]
-        #_ (when (pos? (count fa))
+        (when (= (:name @me) :todo-li) #_ (pos? (count fa))
           (println :attrs!!!! fa (string? fa) (count fa)))
         fa)
         #_

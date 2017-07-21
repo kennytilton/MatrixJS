@@ -57,7 +57,7 @@
             		(mk-todo-entry)
             		(mk-main)
 					(mk-dashboard))
-          		(mk-info)]))
+          		#_ (mk-info)]))
 
 ;;; --- new todo entry, validation, and storage ------------------------------------
 
@@ -104,6 +104,7 @@
 	(assert me "no me into mk-tofo-it")
 	;;(println :cool-mktoto (:id @me) (any-ref? *par*))
 	(li (:todo td
+		:name :todo-li
 		 :class (c? (if (completed td) "completed" ""))
 		 :display (todo-item-display-rule))
 
@@ -149,7 +150,7 @@
 						(let [td (md-get me :todo)]
 							(assert td)
 							(xor (= sel "Active") (md-get td :completed))))
-				"block" "hidden")))))
+				"block" "none")))))
 
 (defn dom-ancestor-by-class [dom class]
 	(when dom
@@ -218,7 +219,7 @@
 				:content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" 
 									(count (remove completed (gTodo-items)))))))
 		(ul (:class "filters"
-			 :selection (c-in "Active"))
+			 :selection (c-in "All"))
 		 	(li () (a (:href "#/") "All"))
 		 	(li () (a (:class "selected" :href "#/active") "Active"))
 		 	(li () (a (:href "#/completed") "Completed")))
