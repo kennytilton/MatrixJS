@@ -36,7 +36,7 @@
                 (conj attrs
                   :id dom-sid
                   :kids c?kids))]
-      (println :storing-id-js dom-sid tag)
+      ;; (println :storing-id-js dom-sid tag)
       (swap! id-js assoc (str dom-sid) js-obj)
       js-obj))
 

@@ -104,7 +104,7 @@
 		(assert td (str "todo-toggle-completed cannot find " db-key))
 		(md-reset! td :completed (not (completed td)))))
 
-(defn todo-clear-completed [e]
+(defn clear-completed [e]
 	(doall
 		(map todo-delete  (filter completed (gTodo-items)))))
 		

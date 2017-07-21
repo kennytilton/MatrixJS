@@ -157,7 +157,7 @@
                                 :checked (set! (.-checked (tag-dom me)) newv)))
       (+inline-css+ slot) (do (println :obs-inline-css!!! slot)
                             (case slot
-                                :display (set! (.-display (tag-dom me)) newv)))
+                                :display (set! (.-display (.-style (tag-dom me))) newv)))
       :default (println :oby-type-punt slot (tag me) newv))))
 
 

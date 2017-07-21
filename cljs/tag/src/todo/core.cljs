@@ -228,26 +228,26 @@
 
 		(ul (:class "filters"
 			 :selection (c-in (or @iroute "All")))
-		  (doall
+		  (doall	
 			(for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
 				(li () (a (:href route
 							:selected (c? (println :comping (:selector @me)
 													(md-get (fm-asc-tag me "ul") :selection))
 								(= (:selector @me)
 											(md-get (fm-asc-tag me "ul") :selection)))
-							:class (c? (let [new (if (:selected @me) "selected" "")]
+							:class (c? (let [new (if (md-get me :selected) "selected" "")]
 											(println :liclass (:selector @me) new :old cache)
 											new))
 							:selector label) label)))))
 
 		(button (:class "clear-completed"
 				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
-				 :onclick (on-evt "todo.clear_completed"))
+				 :onclick (on-evt "todo.todo.clear_completed"))
 			"Clear completed")))
 
 (defn mk-info []
 	(footer (:class"info")
-		(p (:display "none") "Double-click to edit a todo")
+		(p () "Double-click to edit a todo")
 		(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
 		(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>")))
 
