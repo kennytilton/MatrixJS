@@ -57,18 +57,7 @@
 	;; (io-clear-storage)
 	;; (todo-dump "landing entry")
 
-	(comment
-		(pln :truncating!!! TODO_LS_PREFIX)
-		(io-truncate TODO_LS_PREFIX)
 
-		(make-todo {:title "move North"})
-		(make-todo {:title "find job"})
-		;(make-todo {:title "buy jetski"})
-
-		(pln :todos-at-start (count (io-find TODO_LS_PREFIX)))
-
-		;;(todo-dump "post build")
-		)
 
 	(reset! gTodo (load-all-todos))
 

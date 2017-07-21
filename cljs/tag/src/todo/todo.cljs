@@ -46,10 +46,7 @@
 						 :deleted (or (:deleted islots)
 						 			 (c-in nil))})
 		todo (apply md/make (flatten (into [] net-slots)))]
-		;(pln :islots islots)
-		;(pln :netslots!!!!! net-slots)
-		;(pln :title (:title @todo))
-		;(pln :todo-new (todo-to-map todo))
+
 		(when-not (:db-key islots)
 			;; this is not being instantiated from localStorage
 			(pln :make-todo-upsert-new!! (:db-key @todo))
@@ -88,9 +85,10 @@
 		:par :todo-42-top
 		;; todo: sort by created
 		:items-raw (c?n (doall (map todo-load (io-find TODO_LS_PREFIX))))
-		:items (c? (remove #(md-get % :deleted) (md-get me :items-raw)))))
+		:items (c? (doall (remove #(md-get % :deleted) (md-get me :items-raw))))))
 
 (defn todo-delete [td]
+	(println :deleting (:db-key @td))
 	(md-reset! td :deleted (now)))
 
 (defn todo-toggle-completed [event db-key]
@@ -104,4 +102,5 @@
 		(map todo-delete  (filter completed (gTodo-items)))))
 		
 (defn todo-delete-by-key [event db-key]
+	(println :del-by-key db-key event)
 	(todo-delete (gTodo-lookup db-key)))
