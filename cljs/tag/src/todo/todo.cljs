@@ -69,7 +69,8 @@
 
 (defn todo-from-json [json]
 	;;(pln :td-from-json json)
-	(make-todo (json-to-map json)))
+	(make-todo (assoc (json-to-map json)
+					:par :todo-42)))
 
 (defn todo-load [db-key]
 	(todo-from-json
@@ -85,6 +86,7 @@
 
 (defn load-all-todos []
 	(md/make ::todo-list
+		:par :todo-42-top
 		;; todo: sort by created
 		:items-raw (c?n (doall (map todo-load (io-find TODO_LS_PREFIX))))
 		:items (c? ;;(pln :computing-items!!!!!!)

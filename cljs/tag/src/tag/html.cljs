@@ -8,7 +8,7 @@
              :refer-macros [the-kids mdv!]
              :refer [md-get  fm! make md-reset! backdoor-reset!]
              :as md]
-    ))
+    [tag.gen :refer [tagfo]]))
 
 (defn dom-has-class [dom class]
   (when dom
@@ -24,7 +24,7 @@
   (cond
     (string? me) me
     (coll? me) (let [b$ (map to-html me)]
-                  (println :to-html-coll!!!!! (count me) :b$ b$)
+                  ;; (println :to-html-coll!!!!! (count me) :b$ b$)
                   (apply str b$))
     :default 
       (let [h (pp/cl-format nil "<~a ~a>~@[~a~]~{~a~}</~0@*~a>"
@@ -41,21 +41,32 @@
     (name keyword)))
 
 (defn to-attrs [me]
-  (let [attr-keys [:class :hidden :placeholder :checked :disabled
-                  :autofocus :href :display :input-type :for
+  (let [unblank (fn [s] (when (pos? (count s)) s))
+        attr-keys [:class :hidden :placeholder :checked :disabled
+                  :autofocus :href :input-type :for
                   :onclick :ondblclick :onkeypress :onblur
-                  :onkeydown :id :value]]
+                  :onkeydown :id :value]
+        style-keys [:display]]
     ;;(println :toattrs (keys @me))
-    (let [j (str/join " "
+    (let [ga (str/join " "
               (for [[k v] (select-keys @me attr-keys)]
-                (do ;; (println :k k :v v)
                   (if (some #{k} [:hidden :checked :disabled :autofocus])
                     (do
                       ;;(println :attr-boolean!! k v (nil? v))
                       (if v (name k) ""))
-                    (pp/cl-format nil "~a='~a'" (true-html k) v)))))]
-      ;;(println :jttrs j)
-      (or j ""))))
+                    (pp/cl-format nil "~a='~a'" (true-html k) v))))
+          css (str/join ";"
+                (for [[k v] (select-keys @me style-keys)]
+                  (pp/cl-format nil "~a:~a" (name k) v)))]
+      ;; (println :gas ga css (string? css))
+      
+      (let [fa (pp/cl-format nil "~@[~a~]~@[ style='~a'~]"
+                      (unblank ga)(unblank css))]
+        #_ (when (pos? (count fa))
+          (println :attrs!!!! fa (string? fa) (count fa)))
+        fa)
+        #_
+      (or ga ""))))
 
 (defn tag-dom [me]
   ;;(println :domgo me)
@@ -64,7 +75,7 @@
     ;;(println :dom-uding-id id)
     (or (md-get me :dom-cache)
       (let [dom (.getElementById js/document id)]
-        (assert dom)
+        (assert dom (str "tag-dom failed on id " id))
         (backdoor-reset! me :dom-cache dom)))))
 
 (def on-event-attr-template
@@ -91,7 +102,7 @@
           (when-not (string? oldk)
             (println :stillinnewv oldk (some #{oldk} newv))
             (when-not (some #{oldk} newv)
-              (println :obskids-del!!!! oldk (md-get oldk :tag))
+              (println :obskids-del!!!! oldk (tagfo oldk))
               (let [kdom (tag-dom oldk)]
                   (assert kdom "no kdom oldk")
                   (.removeChild (.-parentNode kdom) kdom)))))

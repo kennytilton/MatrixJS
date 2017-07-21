@@ -25,6 +25,7 @@
                   " of dom " dom))
     tag))
 
+
 (defn make-tag [tag attrs c?kids]
   ;; (println :mtag (count attrs))
 
@@ -38,6 +39,9 @@
       ;; (println :storing-id-js dom-sid js-obj)
       (swap! id-js assoc (str dom-sid) js-obj)
       js-obj))
+
+(defn tagfo [me]
+  (select-keys @me [:id :tag :class :name]))      
 
 (defmacro section [[& attrs] & kids]
   `(tag.gen/make-tag "section" [~@attrs]

@@ -44,9 +44,10 @@
 
 (defn md-get [me slot]
   ;; (trx :md-get slot me)
-  (if-let [c  (md-cell me slot)]
-    (c-get c)
-    (slot @me)))
+  (when (any-ref? me)
+    (if-let [c  (md-cell me slot)]
+      (c-get c)
+      (slot @me))))
 
 (defn md-getx [tag me slot]
   (md-get me slot)
@@ -107,7 +108,8 @@
                        {:state :nascent}
                        (select-keys iargs [:type])))]
        (assert (meta me))
-         
+        (when-not (:par @me)
+          (println :no-par!!!!!!!!!!! me))
        (rmap-meta-setf
         [:cz me]
         (->> arg-list
@@ -137,8 +139,11 @@
   (:par @me))
 
 (defn fget= [seek poss]
-  (assert (any-ref? poss))
+  ;;(assert (any-ref? poss) (str "poss not ref " (string? poss)))
   (cond
+    (not (any-ref? poss)) ;; string child of html label?
+    false
+
     (fn? seek) (seek poss)
     (keyword? seek)(do
                      ;; (trx :fget=sees seek (:name @poss) (ia-type poss))
@@ -149,9 +154,8 @@
 
 (defn fasc [what where & options]
   (when (and where what)
-    (let [options (merge {:me? false
-                          , :wocd? true ;; without-c-dependency
-                          } (apply hash-map options))]
+    (let [options (merge {:me? false :wocd? true}
+                         (apply hash-map options))]
       (binding [*depender* (if (:wocd? options) nil *depender*)]
         (or (and (:me? options)
                  (fget= what where)
@@ -165,19 +169,22 @@
               (err :fasc-must-failed what where options)))))))
 
 (defn fget [what where & options]
-  (when (and where what)
+  (when (and where what (any-ref? where))
     (let [options (merge {:me? false
                           , :inside? false
                           , :up? true
                           , :wocd? true ;; without-c-dependency
                           } (apply hash-map options))]
+      ;; (println :fget-opts options)
       (binding [*depender* (if (:wocd? options) nil *depender*)]
-        (or (and (:me? options)
-                 (fget= what where)
-                 where)
 
-            (and (:inside? options)
-                 (if-let [kids (md-get where :kids)]
+        (when (any-ref? where)
+          (or (and (:me? options)
+                   (fget= what where)
+                   where)
+
+              (and (:inside? options)
+                  (if-let [kids (md-get where :kids)]
                    (do
                      (trx nil :inside-kids!!! (:name @where))
                      (if-let [netkids (remove #{(:skip options)} kids)]
@@ -189,7 +196,7 @@
                        (trx nil :no-net-kids)))
                    (trx nil :inside-no-kids (:name @where))))
 
-            (and (:up? options)
+              (and (:up? options)
                  (when-let [par (:par @where)]
                    (fget what par
                          :up? true
@@ -197,8 +204,8 @@
                          :skip where
                          :inside? true)))
 
-            (when (:must? options)
-              (err :fget-must-failed what where options)))))))
+              (when (:must? options)
+                (err :fget-must-failed what where options))))))))
 
 (defn fm! [what where]
   (fget what where :me? false :inside? true :must? true :up? true))
@@ -211,10 +218,14 @@
 
 (defmacro the-kids [& tree]
   `(binding [*par* ~'me]
-     (remove nil? (flatten (list ~@tree)))))
+      (assert *par*)
+      ;;(println :bingo-par (any-ref? *par*))
+      (remove nil? (flatten (list ~@tree)))))
 
 (defmacro c?kids [& tree]
-  `(c? (the-kids ~@tree)))
+  `(c? (assert ~'me "no me for c?kids")
+    ;;(print :c?kids-me!!! (:id (deref ~'me)))
+    (the-kids ~@tree)))
 
 (defn kid-values-kids [me x-kids]
   (let [x-kids (if (= x-kids unbound) [] x-kids)
@@ -226,6 +237,6 @@
       (or (some (fn [x-kid] (when (= kid-value (k-key x-kid))
                   ;; (println :re-using-kid!!! (tag x-kid) (title x-kid))
                    x-kid)) x-kids)
-         (do ;; (println :kvk-new!!! kid-value)
+         (binding [*par* me] ;; do ;; (println :kvk-new!!! kid-value)
           (k-factory me kid-value))))))
 

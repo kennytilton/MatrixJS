@@ -2,11 +2,12 @@
   (:require [cljs.pprint :as pp]
   			[clojure.string :as str]
   			[bide.core :as r]
-  			[tiltontec.util.core :refer [pln]]
+  			[tiltontec.util.core :refer [pln any-ref?]]
   			[tiltontec.cell.base :refer [unbound ia-type]]
-  			[tiltontec.cell.core :refer-macros [c? c?n]]
+  			[tiltontec.cell.core :refer-macros [c? c?n]
+  								:refer [c-in]]
   			[tiltontec.model.core
-  			 :refer [fget fasc make md-reset! md-get kid-values-kids]]
+  			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
             [tag.html :refer [tag to-html on-evt tag-dom
             				dom-has-class]]
             [tag.gen :refer-macros [section header h1 input footer p a
@@ -23,7 +24,13 @@
 
 (declare todoDelete mk-todo-item mk-main mk-info
 	mk-dashboard mk-todo-entry)
-  	
+
+(def router
+  (r/router [["/" :todo/all]
+             ["/active" :todo/active]
+             ["/completed" :todo/completed]]))
+
+
 (defn landing []
 	;; (io-clear-storage)
 	;; (todo-dump "landing entry")
@@ -46,7 +53,7 @@
 	(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
 	(pln :loadedtodos (count (md-get @gTodo :items)))
 
-	(to-html [(section (:class "todoapp")
+	(to-html [(section (:class "todoapp" :par :top)
             		(mk-todo-entry)
             		(mk-main)
 					(mk-dashboard))
@@ -91,10 +98,14 @@
 				:kid-factory mk-todo-item)
 			(kid-values-kids me cache))))
 
+(declare todo-item-display-rule)
+
 (defn mk-todo-item [me td]
+	(assert me "no me into mk-tofo-it")
+	;;(println :cool-mktoto (:id @me) (any-ref? *par*))
 	(li (:todo td
 		 :class (c? (if (completed td) "completed" ""))
-		 :display "block") ;; getto filtersnmatch
+		 :display (todo-item-display-rule))
 
 		(div (:class "view")
 			(input (:class "toggle" :input-type "checkbox"
@@ -113,6 +124,32 @@
 				:onblur (on-evt "todo.core.todo_edit" (md-get td :db-key))
 				:onkeydown (on-evt "todo.core.todo_edit" (md-get td :db-key))
 				:onkeypress (on-evt "todo.core.todo_edit" (md-get td :db-key))))))
+
+
+(defn xor [a b]
+	(or (and a (not b))
+		(and b (not a))))
+
+(defn todo-item-display-rule []
+	(c? (assert (:par @me))
+		;;(println :starting-filters-search!!!!!!!!!!!!!)
+		(let [f (fget (fn [x]
+						;;(println :visiting (tag x)(md-get x :class)(md-get x :id))
+						(when (= (md-get x :class) "filters")
+							;;(println :found!!!!!!!!)
+							true)) me
+						:upp? true
+						:must? true)]
+			;;(println :in-rule me f)
+			(assert f)
+			(let [sel (md-get f :selection)]
+				(assert (string? sel))
+				;;(print :sel!!!!!!!!!! sel)
+				(if (or (= sel "All")
+						(let [td (md-get me :todo)]
+							(assert td)
+							(xor (= sel "Active") (md-get td :completed))))
+				"block" "hidden")))))
 
 (defn dom-ancestor-by-class [dom class]
 	(when dom
@@ -180,9 +217,10 @@
 		(span (:class "todo-count"
 				:content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" 
 									(count (remove completed (gTodo-items)))))))
-		(ul (:class "filters")
-		 	(li () (a (:class "selected" :href "#/") "All"))
-		 	(li () (a (:href "#/active") "Active"))
+		(ul (:class "filters"
+			 :selection (c-in "Active"))
+		 	(li () (a (:href "#/") "All"))
+		 	(li () (a (:class "selected" :href "#/active") "Active"))
 		 	(li () (a (:href "#/completed") "Completed")))
 		(button (:class "clear-completed"
 				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
@@ -198,7 +236,7 @@
 
 (defn mk-info []
 	(footer (:class"info")
-		(p () "Double-click to edit a todo")
+		(p (:display "none") "Double-click to edit a todo")
 		(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
 		(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>")))
 
