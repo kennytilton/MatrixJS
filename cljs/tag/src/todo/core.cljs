@@ -105,20 +105,20 @@
 			(input (:class "toggle" :input-type "checkbox"
 					:checked (c? (md-get td :completed))
 					:onclick (on-evt "todo.todo.todo_toggle_completed" 
-								(md-get td :db-key))))
+								(md-get td :id))))
 
 			(label (:ondblclick (on-evt "todo.core.todo_start_editing"))
 				(md-get td :title))
 
 			(button (:class "destroy" 
 						:onclick (on-evt "todo.todo.todo_delete_by_key" 
-										(md-get td :db-key)))))
+										(md-get td :id)))))
 
 		(input (:class "edit"
 				:value (c?n (md-get td :title))
-				:onblur (on-evt "todo.core.todo_edit" (md-get td :db-key))
-				:onkeydown (on-evt "todo.core.todo_edit" (md-get td :db-key))
-				:onkeypress (on-evt "todo.core.todo_edit" (md-get td :db-key))))))
+				:onblur (on-evt "todo.core.todo_edit" (md-get td :id))
+				:onkeydown (on-evt "todo.core.todo_edit" (md-get td :id))
+				:onkeypress (on-evt "todo.core.todo_edit" (md-get td :id))))))
 
 (defn todo-start-editing [e]
 	(let [dom (.-target e)

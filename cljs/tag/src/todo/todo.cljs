@@ -10,35 +10,35 @@
 		[todo.util :as util :refer [pln uuidv4 now map-to-json json-to-map]]
 		[todo.io :refer [io-upsert io-read io-find]]))
 
-(def TODO_LS_PREFIX "TagCLJS.TodoMVC.")
+(def TODO_LS_PREFIX "todos-HotJS.")
 
 (def gTodo (atom nil))
 
 (defn gTodo-items []
  (md-get @gTodo :items))
 
-(defn gTodo-lookup [db-key]
-	(let [td (some (fn [td] (when (= db-key (md-get td :db-key)) td))
+(defn gTodo-lookup [id]
+	(let [td (some (fn [td] (when (= id (md-get td :id)) td))
 					(md-get @gTodo :items))]
-		(assert td (str "gTodo-lookup cannot find " db-key))
+		(assert td (str "gTodo-lookup cannot find " id))
 		td))
 
 (defn todo-to-map [todo]		
-	(into {} (for [k [:db-key :created :title :completed :deleted]]
+	(into {} (for [k [:id :created :title :completed :deleted]]
 				[k (md-get todo k)])))
 
 (defn todo-to-json [todo]
 	(map-to-json (todo-to-map todo)))
 
 (defn todo-upsert [todo]
-	(io-upsert (:db-key @todo) 
+	(io-upsert (:id @todo) 
 		(.stringify js/JSON
 			(todo-to-json todo))))
 
 (defn make-todo [islots]
 	(let [net-slots (merge
 						{:type ::todo
-						 :db-key (str TODO_LS_PREFIX (uuidv4))
+						 :id (str TODO_LS_PREFIX (uuidv4))
 						 :created (now)}
 						islots
 						{:title (c-in (:title islots))
@@ -47,9 +47,9 @@
 						 			 (c-in nil))})
 		todo (apply md/make (flatten (into [] net-slots)))]
 
-		(when-not (:db-key islots)
+		(when-not (:id islots)
 			;; this is not being instantiated from localStorage
-			(pln :make-todo-upsert-new!! (:db-key @todo))
+			(pln :make-todo-upsert-new!! (:id @todo))
 			(todo-upsert todo))
 		todo))
 
@@ -68,10 +68,10 @@
 	(make-todo (assoc (json-to-map json)
 					:par :todo-42)))
 
-(defn todo-load [db-key]
+(defn todo-load [id]
 	(todo-from-json
 		(.parse js/JSON
-			(io-read db-key))))
+			(io-read id))))
 
 (defn todo-dump [banner]
 	(pln :todos banner)
@@ -88,19 +88,19 @@
 		:items (c? (doall (remove #(md-get % :deleted) (md-get me :items-raw))))))
 
 (defn todo-delete [td]
-	(println :deleting (:db-key @td))
+	(println :deleting (:id @td))
 	(md-reset! td :deleted (now)))
 
-(defn todo-toggle-completed [event db-key]
-	(let [td (some (fn [td] (when (= db-key (md-get td :db-key)) td))
+(defn todo-toggle-completed [event id]
+	(let [td (some (fn [td] (when (= id (md-get td :id)) td))
 					(md-get @gTodo :items))]
-		(assert td (str "todo-toggle-completed cannot find " db-key))
+		(assert td (str "todo-toggle-completed cannot find " id))
 		(md-reset! td :completed (not (completed td)))))
 
 (defn clear-completed [e]
 	(doall
 		(map todo-delete  (filter completed (gTodo-items)))))
 		
-(defn todo-delete-by-key [event db-key]
-	(println :del-by-key db-key event)
-	(todo-delete (gTodo-lookup db-key)))
+(defn todo-delete-by-key [event id]
+	(println :del-by-key id event)
+	(todo-delete (gTodo-lookup id)))
