@@ -4,8 +4,7 @@
   			[bide.core :as r]
   			[tiltontec.util.core :refer [pln any-ref? xor]]
   			[tiltontec.cell.base :refer [unbound ia-type]]
-  			[tiltontec.cell.core :refer-macros [c? c?n]
-  								:refer [c-in]]
+  			[tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
   			[tiltontec.model.core
   			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
             [tag.html :refer [tag  to-html on-evt tag-dom fm-asc-tag
@@ -16,9 +15,7 @@
             [todo.util :refer [pln json-to-map map-to-json uuidv4 now]]
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
-
-            [todo.todo :refer
-             	[gTodo gTodo-lookup TODO_LS_PREFIX make-todo
+            [todo.todo :refer [gTodo gTodo-lookup TODO_LS_PREFIX make-todo
              	todo-to-map title completed todo-to-json todo-load todo-upsert
             	todo-dump todo-delete  load-all-todos gTodo-items]]))
 
@@ -85,10 +82,10 @@
 	(when (= (.-key e) "Enter")
 		;;(pln :enter!!! e (.-target e) (.-value (.-target e)))
 		(let [raw (.-value (.-target e))
-				title (str/trim raw)]
+			  title (str/trim raw)]
 			(if (= title "")
 				(when (pos? (count raw))
-					(.alert js/window "A reminder to do nothing? No sure we are relaxing yet. So, no."))
+					(.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
 				(md-reset! @gTodo :items-raw
 					(conj (md-get @gTodo :items-raw)
 						(make-todo {:title title}))))
@@ -118,9 +115,7 @@
 										(md-get td :db-key)))))
 
 		(input (:class "edit"
-				:value (c?n (let [tdt (md-get td :title)]
-								(println :editval-1 tdt)
-								tdt))
+				:value (c?n (md-get td :title))
 				:onblur (on-evt "todo.core.todo_edit" (md-get td :db-key))
 				:onkeydown (on-evt "todo.core.todo_edit" (md-get td :db-key))
 				:onkeypress (on-evt "todo.core.todo_edit" (md-get td :db-key))))))
@@ -131,17 +126,14 @@
 		  li (fm-asc-tag lbl "li")
 		  edt-doms (.getElementsByClassName (tag-dom li) "edit")
 		  edom (.item edt-doms 0)]
-		(println :edom-starting (.-value edom))
 		(.add (.-classList (tag-dom li)) "editing")
 		(.focus edom)
 		(.setSelectionRange edom 0 (.-length (.-value edom)))))
 
 (defn todo-item-display-rule []
-	(c? (let [f (fget (fn [x]
-						(when (= (md-get x :class) "filters")
+	(c? (let [f (fget (fn [x] (when (= (md-get x :class) "filters")
 							true)) me
-						:upp? true
-						:must? true)]
+						:upp? true)]
 			(let [sel (md-get f :selection)]
 				(if (or (= sel "All")
 						(let [td (md-get me :todo)]
@@ -150,7 +142,7 @@
 
 (defn todo-edit [e td-key]
 	(let [edom (.-target e)
-		  title (.-value edom)
+		  title (str/trim (.-value edom))
 		  td (gTodo-lookup td-key)
 		  li-dom (dom-ancestor-by-tag edom "li")]
 		(cond
@@ -184,14 +176,11 @@
 		  (doall	
 			(for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
 				(li () (a (:href route
-							:selected (c? #_ (println :comping (:selector @me)
-													(md-get (fm-asc-tag me "ul") :selection))
-								(= (:selector @me)
-											(md-get (fm-asc-tag me "ul") :selection)))
-							:class (c? (let [new (if (md-get me :selected) "selected" "")]
-											;;(println :liclass (:selector @me) new :old cache)
-											new))
-							:selector label) label)))))
+							:selector label
+							:selected (c? (= (:selector @me)
+											 (md-get (fm-asc-tag me "ul") :selection)))
+							:class (c? (if (md-get me :selected) "selected" "")))
+						 label)))))
 
 		(button (:class "clear-completed"
 				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
