@@ -31,7 +31,7 @@
 
   (let [dom-sid (swap! tag-dom-sid inc)
         js-obj (apply make 
-                :type :tag.html/tag
+                :type :tiltontec.tag.html/tag
                 :tag tag
                 (conj attrs
                   :id dom-sid

@@ -65,7 +65,9 @@
 							"Mark all as complete")
 
 						(ul (:class "todo-list"
-							:kid-values (c? (md-get @gTodo :items))
+							:kid-values (c? (let [tds (md-get @gTodo :items)]
+												(println :tds-now!!!! (count tds))
+												tds))
 							:kid-key #(md-get % :todo)
 							:kid-factory mk-todo-item)
 						(kid-values-kids me cache)))

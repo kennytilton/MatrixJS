@@ -98,7 +98,8 @@
 		:par :todo-42-top
 		;; todo: sort by created
 		:items-raw (c?n (doall (map todo-load (io-find TODO_LS_PREFIX))))
-		:items (c? (doall (remove #(md-get % :deleted) (md-get me :items-raw))))))
+		:items (c? (println :computing-items!!!!!!!!!!)
+					(doall (remove #(md-get % :deleted) (md-get me :items-raw))))))
 
 (defn todo-delete [td]
 	(println :deleting (:id @td))
