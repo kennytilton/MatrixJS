@@ -8,7 +8,7 @@
         [tiltontec.cell.observer :refer [observe-by-type]]
 		[tiltontec.model.core :as md :refer [make md-get md-reset!]]
 		[tiltontec.util.core :as util :refer [pln now map-to-json json-to-map]]
-		[todo.io :refer [io-upsert io-read io-find]]))
+		[tiltontec.tag.html :refer [io-upsert io-read io-find]]))
 
 (def TODO_LS_PREFIX "todos-HotJS.")
 

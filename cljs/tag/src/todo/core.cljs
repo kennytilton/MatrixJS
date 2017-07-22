@@ -9,12 +9,13 @@
   			[tiltontec.model.core
   			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
             [tiltontec.tag.html :refer [tag  to-html on-evt tag-dom fm-asc-tag tagfo
-            				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class]]
+            				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class
+            				io-all-keys io-truncate io-find io-upsert
+            				io-read io-clear-storage]]
             [tiltontec.tag.gen :refer-macros [section header h1 input footer p a
             						make-tag span label ul li div button]
             		:refer [dom-tag]]
-            [todo.io :refer [io-all-keys io-truncate io-find io-upsert
-            				io-read io-clear-storage]]
+
             [todo.todo :refer [gTodo gTodo-lookup TODO_LS_PREFIX make-todo
              	todo-to-map title completed todo-to-json todo-load todo-upsert
             	todo-dump todo-delete  load-all-todos gTodo-items]]))
@@ -70,7 +71,7 @@
 												tds))
 							:kid-key #(md-get % :todo)
 							:kid-factory mk-todo-item)
-						(kid-values-kids me cache)))
+							(kid-values-kids me cache)))
 					(mk-dashboard))
           		 (footer (:class"info")
 		           (p () "Double-click to edit a todo")
