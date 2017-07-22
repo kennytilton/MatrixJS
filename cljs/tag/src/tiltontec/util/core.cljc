@@ -7,6 +7,10 @@
 
 (defn type-of [x] (type x))
 
+(defn xor [a b]
+  (or (and a (not b))
+    (and b (not a))))
+
 (defn set-ify [x]
   (cond
    (nil? x) #{}

@@ -45,7 +45,7 @@
 (defn md-get [me slot]
   ;; (trx :md-get slot me)
   (when (any-ref? me)
-    (if-let [c  (md-cell me slot)]
+    (if-let [c (md-cell me slot)]
       (c-get c)
       (slot @me))))
 

@@ -6,33 +6,33 @@
     [tiltontec.cell.observer :refer [observe observe-by-type]]
     [tiltontec.model.core
              :refer-macros [the-kids mdv!]
-             :refer [md-get  fm! make md-reset! backdoor-reset!]
+             :refer [md-get fasc fm! make md-reset! backdoor-reset!]
              :as md]
     [tag.gen :refer [tagfo]]))
+
+(defn fm-asc-tag [me tag]
+  (fasc (fn [visited]
+          ;; (println :fli-visits tag (:tag @visited) (= (:par @visited) nil))
+          (= tag (:tag @visited))) me))
 
 (defn dom-has-class [dom class]
   (when dom
     (let [cs (.-classList dom)]
-      (println :d-has-c (.-tagName dom) cs)
       (when cs
         (.contains (.-classList dom) class)))))
 
 (defn dom-ancestor-by-class [dom class]
   (when dom
     (let [pn (.-parentNode dom)]
-      (println :dabc (.-tagName dom) class pn)
       (when pn
-        (println :checking (.-tagName pn)
         (if (dom-has-class pn class)
           pn
-          (dom-ancestor-by-class pn class)))))))
+          (dom-ancestor-by-class pn class))))))
 
 (defn dom-ancestor-by-tag [dom tag]
   (when dom
-    (println :dabtag (.-tagName dom) tag)
     (let [pn (.-parentNode dom)]
       (when pn
-        (println :checking (.-tagName pn))
         (if (= (.-tagName pn) (str/upper-case tag))
           pn
           (dom-ancestor-by-tag pn tag))))))
@@ -51,7 +51,8 @@
                 (:tag @me) (to-attrs me)
                 (md-get me :content)
                 (map to-html (md-get me :kids)))]
-        ;;(println :genned h)
+        #_ (when (= (:tag @me) "input")
+          (println :genned h))
         h))) 
 
 (def +true-html+ {:input-type "type"})
@@ -69,7 +70,10 @@
         style-keys [:display]]
     ;;(println :toattrs (keys @me))
     (let [ga (str/join " "
-              (for [[k v] (select-keys @me attr-keys)]
+              (for [[k v] (remove nil?
+                            (for [k attr-keys]
+                              (let [v (md-get me k)]
+                                (when v [k v])))) #_ (select-keys @me attr-keys)]
                   (if (some #{k} [:hidden :checked :disabled :autofocus])
                     (do
                       ;;(println :attr-boolean!! k v (nil? v))

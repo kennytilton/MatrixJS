@@ -2,13 +2,13 @@
   (:require [cljs.pprint :as pp]
   			[clojure.string :as str]
   			[bide.core :as r]
-  			[tiltontec.util.core :refer [pln any-ref?]]
+  			[tiltontec.util.core :refer [pln any-ref? xor]]
   			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.core :refer-macros [c? c?n]
   								:refer [c-in]]
   			[tiltontec.model.core
   			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
-            [tag.html :refer [tag  to-html on-evt tag-dom
+            [tag.html :refer [tag  to-html on-evt tag-dom fm-asc-tag
             				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class]]
             [tag.gen :refer-macros [section header h1 input footer p a
             						span label ul li div button]
@@ -22,8 +22,7 @@
              	todo-to-map title completed todo-to-json todo-load todo-upsert
             	todo-dump todo-delete  load-all-todos gTodo-items]]))
 
-(declare todoDelete mk-todo-item mk-main mk-info
-	mk-dashboard mk-todo-entry)
+(declare todoDelete mk-todo-item mk-dashboard)
 
 (def router
   (r/router [["/" :All]
@@ -33,20 +32,14 @@
 (def app (atom nil))                  
 (def iroute (atom nil))
 
-(defn on-navigate
-  "A function which will be called on each route change."
-  [route params query]
-  ;;(println "Route change to!!!!!!!!!!!!!!!!!: " route (tag (first @app)))
+(defn on-navigate [route params query]
   (cond 
   	@app (let [f (fget (fn [v]
-  						(when (any-ref? v)
-  							(when (= "filters" (:class @v))
-  								;;(println :bam-filters)
-  								true)))
+  							(when (any-ref? v)
+  								(= "filters" (:class @v))))
   						(first @app)
   						:inside? true
-  						 :up? false
-  						 :must? true)]
+  						:up? false)]
   			(md-reset! f :selection (name route)))
   	:default (reset! iroute (name route))))
 
@@ -54,61 +47,52 @@
                   :on-navigate on-navigate})
 
 (defn landing []
-	;; (io-clear-storage)
-	;; (todo-dump "landing entry")
-
-
 
 	(reset! gTodo (load-all-todos))
 
-	;;(pln :loadedtodos-raw (count (md-get @gTodo :items-raw)))
-	;;(pln :loadedtodos (count (md-get @gTodo :items)))
-
 	(reset! app [(section (:class "todoapp" :par :top)
-            		(mk-todo-entry)
-            		(mk-main)
+            		(header (:class "header")
+	       				(h1 () "todos")
+	       				(input (:class "new-todo"
+	        					:placeholder "What needs to be done?"
+	            				:autofocus true
+	            				:onkeypress (on-evt "todo.core.todo_process_on_enter"))))
+            		(section (:class "main"
+               					:hidden (c? (zero? (count (md-get @gTodo :items)))))
+						(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
+								:action (c? (if (some (complement completed) (gTodo-items))
+								:complete :uncomplete))
+								:checked (c? (= (md-get me :action) :uncomplete))))
+						(label (:for "toggle-all"
+								:onclick (on-evt "todo.core.todo_toggle_all"))
+							"Mark all as complete")
+
+						(ul (:class "todo-list"
+							:kid-values (c? (md-get @gTodo :items))
+							:kid-key #(md-get % :todo)
+							:kid-factory mk-todo-item)
+						(kid-values-kids me cache)))
 					(mk-dashboard))
-          		(mk-info)])
+          		 (footer (:class"info")
+		           (p () "Double-click to edit a todo")
+		           (p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
+		           (p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>"))])
 	(to-html @app))
 
 ;;; --- new todo entry, validation, and storage ------------------------------------
 
-(defn mk-todo-entry []
-	(header (:class "header")
-       	(h1 () "todos")
-       	(input (:class "new-todo"
-        	:placeholder "What needs to be done?"
-            :autofocus true
-            :onkeypress (on-evt "todo.core.todo_process_on_enter")))))
-
 (defn todo-process-on-enter [e]
 	(when (= (.-key e) "Enter")
 		;;(pln :enter!!! e (.-target e) (.-value (.-target e)))
-		(let [title (str/trim (.-value (.-target e)))]
+		(let [raw (.-value (.-target e))
+				title (str/trim raw)]
 			(if (= title "")
-				(.alert js/window "A reminder to do nothing? No sure we are relaxing yet. So, no.")
+				(when (pos? (count raw))
+					(.alert js/window "A reminder to do nothing? No sure we are relaxing yet. So, no."))
 				(md-reset! @gTodo :items-raw
 					(conj (md-get @gTodo :items-raw)
 						(make-todo {:title title}))))
 			(set! (.-value (.-target e)) ""))))
-
-(defn mk-main []
-	(section (:class "main"
-               	:hidden (c? (zero? (count (md-get @gTodo :items)))))
-		(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
-				:action (c? (if (some (complement completed) (gTodo-items))
-								:complete :uncomplete))
-				:checked (c? (= (md-get me :action) :uncomplete))))
-
-		(label (:for "toggle-all"
-				:onclick (on-evt "todo.core.todo_toggle_all"))
-			"Mark all as complete")
-
-		(ul (:class "todo-list"
-				:kid-values (c? (md-get @gTodo :items))
-				:kid-key #(md-get % :todo)
-				:kid-factory mk-todo-item)
-			(kid-values-kids me cache))))
 
 (declare todo-item-display-rule)
 
@@ -133,44 +117,42 @@
 						:onclick (on-evt "todo.todo.todo_delete_by_key" 
 										(md-get td :db-key)))))
 
-		(input (:class "edit" :value (c?n (md-get td :title))
+		(input (:class "edit"
+				:value (c?n (let [tdt (md-get td :title)]
+								(println :editval-1 tdt)
+								tdt))
 				:onblur (on-evt "todo.core.todo_edit" (md-get td :db-key))
 				:onkeydown (on-evt "todo.core.todo_edit" (md-get td :db-key))
 				:onkeypress (on-evt "todo.core.todo_edit" (md-get td :db-key))))))
 
-
-(defn xor [a b]
-	(or (and a (not b))
-		(and b (not a))))
+(defn todo-start-editing [e]
+	(let [dom (.-target e)
+		  lbl (dom-tag dom)
+		  li (fm-asc-tag lbl "li")
+		  edt-doms (.getElementsByClassName (tag-dom li) "edit")
+		  edom (.item edt-doms 0)]
+		(println :edom-starting (.-value edom))
+		(.add (.-classList (tag-dom li)) "editing")
+		(.focus edom)
+		(.setSelectionRange edom 0 (.-length (.-value edom)))))
 
 (defn todo-item-display-rule []
-	(c? (assert (:par @me))
-		;;(println :starting-filters-search!!!!!!!!!!!!!)
-		(let [f (fget (fn [x]
-						;;(println :visiting (tag x)(md-get x :class)(md-get x :id))
+	(c? (let [f (fget (fn [x]
 						(when (= (md-get x :class) "filters")
-							;;(println :found!!!!!!!!)
 							true)) me
 						:upp? true
 						:must? true)]
-			;;(println :in-rule me f)
-			(assert f)
 			(let [sel (md-get f :selection)]
-				(assert (string? sel))
-				;;(print :sel!!!!!!!!!! sel)
 				(if (or (= sel "All")
 						(let [td (md-get me :todo)]
-							(assert td)
 							(xor (= sel "Active") (md-get td :completed))))
-				"block" "none")))))
+					"block" "none")))))
 
 (defn todo-edit [e td-key]
-	;(println :edit!!!!!!! (.-tagName (.-target e)))
 	(let [edom (.-target e)
 		  title (.-value edom)
 		  td (gTodo-lookup td-key)
 		  li-dom (dom-ancestor-by-tag edom "li")]
-		;(println :edit-two!!!!! (.-tagName edom) (.-type e) :key (.-key e) :lidom li-dom)
 		(cond
 			(or (and (= (.-type e) "blur")
 					(dom-has-class li-dom "editing"))
@@ -181,25 +163,8 @@
 				(.remove (.-classList li-dom) "editing"))
 			
 			(= (.-key e) "Escape")
-			(do ;;(println :ESCAPING!!!!!)
-				(set! (.-value edom) (md-get td :title))
+			(do (set! (.-value edom) (md-get td :title))
 				(.remove (.-classList li-dom) "editing")))))
-
-(defn fm-asc-tag [me tag]
-	(fasc (fn [visited]
-		  		;; (println :fli-visits tag (:tag @visited) (= (:par @visited) nil))
-		  		(= tag (:tag @visited)))
-		  	 me))
-
-(defn todo-start-editing [e]
-	(let [dom (.-target e)
-		  lbl (dom-tag dom)
-		  li (fm-asc-tag lbl "li")
-		  edt-doms (.getElementsByClassName (tag-dom li) "edit")
-		  edom (.item edt-doms 0)]
-		(.add (.-classList (tag-dom li)) "editing")
-		(.focus edom)
-		(.setSelectionRange edom 0 (.-length (.-value edom)))))
 
 (defn todo-toggle-all [event]
 	(let [action (if (some (complement completed) (gTodo-items))
@@ -233,9 +198,5 @@
 				 :onclick (on-evt "todo.todo.clear_completed"))
 			"Clear completed")))
 
-(defn mk-info []
-	(footer (:class"info")
-		(p () "Double-click to edit a todo")
-		(p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
-		(p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>")))
+
 
