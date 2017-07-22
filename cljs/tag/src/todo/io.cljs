@@ -5,7 +5,7 @@
              :refer-macros [c? c?+ c-reset-next! c?once c?n]
              :refer [c-in c-reset! make-cell make-c-formula]]
 		[tiltontec.model.core :as md :refer [make md-get md-reset!]]
-		[todo.util :as util :refer [pln uuidv4 now]]
+		[tiltontec.util.core :as util :refer [pln now]]
 		))
 
 ;;; --- localStorage io implementation --------------------------------

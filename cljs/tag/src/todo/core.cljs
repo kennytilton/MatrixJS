@@ -2,17 +2,17 @@
   (:require [cljs.pprint :as pp]
   			[clojure.string :as str]
   			[bide.core :as r]
-  			[tiltontec.util.core :refer [pln any-ref? xor]]
+  			[tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json  now]]
+
   			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
   			[tiltontec.model.core
   			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
-            [tag.html :refer [tag  to-html on-evt tag-dom fm-asc-tag
+            [tiltontec.tag.html :refer [tag  to-html on-evt tag-dom fm-asc-tag tagfo
             				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class]]
-            [tag.gen :refer-macros [section header h1 input footer p a
-            						span label ul li div button]
-            		:refer [tagfo dom-tag]]
-            [todo.util :refer [pln json-to-map map-to-json uuidv4 now]]
+            [tiltontec.tag.gen :refer-macros [section header h1 input footer p a
+            						make-tag span label ul li div button]
+            		:refer [dom-tag]]
             [todo.io :refer [io-all-keys io-truncate io-find io-upsert
             				io-read io-clear-storage]]
             [todo.todo :refer [gTodo gTodo-lookup TODO_LS_PREFIX make-todo

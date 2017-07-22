@@ -1,4 +1,4 @@
-(ns tag.html
+(ns tiltontec.tag.html
   (:require
     [clojure.string :as str]
     [cljs.pprint :as pp]
@@ -7,8 +7,10 @@
     [tiltontec.model.core
              :refer-macros [the-kids mdv!]
              :refer [md-get fasc fm! make md-reset! backdoor-reset!]
-             :as md]
-    [tag.gen :refer [tagfo]]))
+             :as md]))
+
+(defn tagfo [me]
+  (select-keys @me [:id :tag :class :name]))    
 
 (defn fm-asc-tag [me tag]
   (fasc (fn [visited]
@@ -88,9 +90,7 @@
                       (unblank ga)(unblank css))]
         #_(when (= (:name @me) :todo-li) #_ (pos? (count fa))
           (println :attrs!!!! fa (string? fa) (count fa)))
-        fa)
-        #_
-      (or ga ""))))
+        fa))))
 
 (defn tag-dom [me]
   ;;(println :domgo me)
@@ -112,7 +112,7 @@
 (defn tag [me]
   (md-get me :tag))
 
-(defmethod observe [:kids ::tag.html/tag] [_ me newv oldv _]
+(defmethod observe [:kids ::tiltontec.tag.html/tag] [_ me newv oldv _]
   (when-not (= oldv unbound)
     (cond
       (some #{(.-tagName (tag-dom me))} ["LABEL"])
@@ -148,7 +148,7 @@
 (def +global-attr+ (set [:class :checked :hidden]))
 (def +inline-css+ (set [:display]))
 
-(defmethod observe-by-type [::tag.html/tag] [slot me newv oldv _]
+(defmethod observe-by-type [::tiltontec.tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
     ;(println :tag-obs-entry slot newv)
     (cond

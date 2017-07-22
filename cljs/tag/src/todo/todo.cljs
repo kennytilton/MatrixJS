@@ -7,10 +7,23 @@
              :refer [c-in c-reset! make-cell make-c-formula]]
         [tiltontec.cell.observer :refer [observe-by-type]]
 		[tiltontec.model.core :as md :refer [make md-get md-reset!]]
-		[todo.util :as util :refer [pln uuidv4 now map-to-json json-to-map]]
+		[tiltontec.util.core :as util :refer [pln now map-to-json json-to-map]]
 		[todo.io :refer [io-upsert io-read io-find]]))
 
 (def TODO_LS_PREFIX "todos-HotJS.")
+
+(defn uuidv4 []
+  (letfn [(hex [] (.toString (rand-int 16) 16))]
+    (let [rhex (.toString (bit-or 0x8 (bit-and 0x3 (rand-int 16))) 16)]
+      (uuid
+        (str (hex) (hex) (hex) (hex)
+             (hex) (hex) (hex) (hex) "-"
+             (hex) (hex) (hex) (hex) "-"
+             "4"   (hex) (hex) (hex) "-"
+             rhex  (hex) (hex) (hex) "-"
+             (hex) (hex) (hex) (hex)
+             (hex) (hex) (hex) (hex)
+             (hex) (hex) (hex) (hex))))))
 
 (def gTodo (atom nil))
 

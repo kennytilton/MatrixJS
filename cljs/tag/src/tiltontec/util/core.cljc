@@ -1,5 +1,6 @@
 (ns tiltontec.util.core
   (:require [clojure.string :as $]
+            #?(:cljs [cognitect.transit :as trx])
             #?(:cljs [tiltontec.util.base :as utm
                       :refer-macros [prog1 b-when wtrx]]
                :clj  [tiltontec.util.base :as utm
@@ -116,3 +117,26 @@
 (defn pln [& r]
   (when (some #{(first r)} []) ;; [:qxme :addk])
     (println (pr-str r))))
+
+(defn now []
+  #?(:clj (System/currentTimeMillis)
+    :cljs (.getTime (js/Date.))))
+
+;;; --- json -----------------------------
+#?(:cljs
+  (defn map-to-json [map]
+    (trx/write (trx/writer :json) map)))
+
+#?(:cljs
+  (defn json-to-map [json]
+    (trx/read (trx/reader :json) json)))
+
+
+
+
+
+
+
+
+
+    
