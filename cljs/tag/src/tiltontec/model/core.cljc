@@ -223,7 +223,14 @@
   (let [me (or me 'me)]
     `(md-get (tiltontec.model.core/fm! ~what ~me) ~slot)))
 
-;; (macroexpand-1 '(mdv! :aa :aa3))
+(defn fmu-w-class [where class]
+  (fget #(= class (md-get % :class))
+      where :me? false :up? true))
+
+(defn fmi-w-class [where class]
+  (fget #(when (any-ref? %)
+                (= class (md-get % :class)))
+        where :inside? true :up? false))
 
 (defmacro the-kids [& tree]
   `(binding [*par* ~'me]

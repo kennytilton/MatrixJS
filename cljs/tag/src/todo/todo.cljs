@@ -27,6 +27,9 @@
 
 (def gTodo (atom nil))
 
+(defn gItems-raw []
+	(md-get @gTodo :items-raw))
+
 (defn gTodo-items []
  (md-get @gTodo :items))
 

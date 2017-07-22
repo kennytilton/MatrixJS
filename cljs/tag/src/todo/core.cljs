@@ -5,9 +5,9 @@
   			[tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json  now]]
 
   			[tiltontec.cell.base :refer [unbound ia-type]]
-  			[tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
-  			[tiltontec.model.core
-  			 :refer [*par* fget fasc make md-reset! md-get kid-values-kids]]
+  			[tiltontec.cell.core :refer-macros [c? c?n ] :refer [c-in]]
+  			[tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get
+  										fmi-w-class fmu-w-class kid-values-kids]]
             [tiltontec.tag.html :refer [tag  to-html on-evt tag-dom fm-asc-tag tagfo
             				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class
             				io-all-keys io-truncate io-find io-upsert
@@ -16,9 +16,9 @@
             						make-tag span label ul li div button]
             		:refer [dom-tag]]
 
-            [todo.todo :refer [gTodo gTodo-lookup TODO_LS_PREFIX make-todo
-             	todo-to-map title completed todo-to-json todo-load todo-upsert
-            	todo-dump todo-delete  load-all-todos gTodo-items]]))
+            [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo
+             			todo-to-map title completed todo-to-json todo-load todo-upsert
+            			todo-dump todo-delete  load-all-todos gTodo-items]]))
 
 (declare todoDelete mk-todo-item mk-dashboard)
 
@@ -32,13 +32,8 @@
 
 (defn on-navigate [route params query]
   (cond 
-  	@app (let [f (fget (fn [v]
-  							(when (any-ref? v)
-  								(= "filters" (:class @v))))
-  						(first @app)
-  						:inside? true
-  						:up? false)]
-  			(md-reset! f :selection (name route)))
+  	@app (md-reset! (fmi-w-class (first @app) "filters")
+  					:selection (name route))
   	:default (reset! iroute (name route))))
 
 (r/start! router {:default :todo/all
@@ -66,12 +61,10 @@
 							"Mark all as complete")
 
 						(ul (:class "todo-list"
-							:kid-values (c? (let [tds (md-get @gTodo :items)]
-												(println :tds-now!!!! (count tds))
-												tds))
+							:kid-values (c? (md-get @gTodo :items))
 							:kid-key #(md-get % :todo)
 							:kid-factory mk-todo-item)
-							(kid-values-kids me cache)))
+						  (kid-values-kids me cache)))
 					(mk-dashboard))
           		 (footer (:class"info")
 		           (p () "Double-click to edit a todo")
@@ -83,14 +76,13 @@
 
 (defn todo-process-on-enter [e]
 	(when (= (.-key e) "Enter")
-		;;(pln :enter!!! e (.-target e) (.-value (.-target e)))
 		(let [raw (.-value (.-target e))
 			  title (str/trim raw)]
 			(if (= title "")
 				(when (pos? (count raw))
 					(.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
 				(md-reset! @gTodo :items-raw
-					(conj (md-get @gTodo :items-raw)
+					(conj (gItems-raw)
 						(make-todo {:title title}))))
 			(set! (.-value (.-target e)) ""))))
 
@@ -98,9 +90,9 @@
 
 (defn mk-todo-item [me td]
 	(assert me "no me into mk-tofo-it")
-	;;(println :cool-mktoto (:id @me) (any-ref? *par*))
+	(println :cool-mktoto (:id @me) (any-ref? *par*))
 	(li (:todo td
-		:name :todo-li
+		 :name :todo-li
 		 :class (c? (if (completed td) "completed" ""))
 		 :display (todo-item-display-rule))
 
@@ -134,14 +126,14 @@
 		(.setSelectionRange edom 0 (.-length (.-value edom)))))
 
 (defn todo-item-display-rule []
-	(c? (let [f (fget (fn [x] (when (= (md-get x :class) "filters")
-							true)) me
-						:upp? true)]
+	(c? (let [f (fmu-w-class me "filters")]
+			(assert f)
 			(let [sel (md-get f :selection)]
+				(assert (string? sel))
 				(if (or (= sel "All")
-						(let [td (md-get me :todo)]
-							(xor (= sel "Active") (md-get td :completed))))
-					"block" "none")))))
+					(let [td (md-get me :todo)]
+						(xor (= sel "Active") (md-get td :completed))))
+				"block" "none")))))
 
 (defn todo-edit [e td-key]
 	(let [edom (.-target e)
