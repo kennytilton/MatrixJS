@@ -253,9 +253,9 @@
       (for [kid-value (md-get me :kid-values)]
       (or (some (fn [x-kid]
                   (when (= kid-value (k-key x-kid))
-                    (println :re-using-kid!!! (:id @me) (:tag @x-kid))
+                    ;;(println :re-using-kid!!! (:id @me) (:tag @x-kid))
                     x-kid)) x-kids)
          (binding [*par* me]
-          (println :kvk-new!!! (:id @me) (:title @kid-value))
+          ;;(println :kvk-new!!! (:id @me) (:title @kid-value))
           (k-factory me kid-value)))))))
 

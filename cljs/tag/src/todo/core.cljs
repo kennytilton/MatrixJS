@@ -54,7 +54,7 @@
                					:hidden (c? (zero? (count (md-get @gTodo :items)))))
 						(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
 								:action (c? (if (some (complement completed) (gTodo-items))
-								:complete :uncomplete))
+												:complete :uncomplete))
 								:checked (c? (= (md-get me :action) :uncomplete))))
 						(label (:for "toggle-all"
 								:onclick (on-evt "todo.core.todo_toggle_all"))
@@ -90,7 +90,7 @@
 
 (defn mk-todo-item [me td]
 	(assert me "no me into mk-tofo-it")
-	(println :cool-mktoto (:id @me) (any-ref? *par*))
+	;;(println :cool-mktoto (:id @me) (any-ref? *par*))
 	(li (:todo td
 		 :name :todo-li
 		 :class (c? (if (completed td) "completed" ""))
@@ -126,14 +126,11 @@
 		(.setSelectionRange edom 0 (.-length (.-value edom)))))
 
 (defn todo-item-display-rule []
-	(c? (let [f (fmu-w-class me "filters")]
-			(assert f)
-			(let [sel (md-get f :selection)]
-				(assert (string? sel))
-				(if (or (= sel "All")
-					(let [td (md-get me :todo)]
-						(xor (= sel "Active") (md-get td :completed))))
-				"block" "none")))))
+	(c? (let [sel (md-get (fmu-w-class me "filters") :selection)]
+			(if (or (= sel "All")
+					(xor (= sel "Active")
+						 (md-get (md-get me :todo) :completed)))
+				"block" "none"))))
 
 (defn todo-edit [e td-key]
 	(let [edom (.-target e)
