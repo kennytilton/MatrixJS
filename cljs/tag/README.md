@@ -8,7 +8,8 @@ More soon. For now: https://github.com/kennytilton/ConnectJS
 
 ## Setup
 
-````cd tag
+````
+cd tag
 scripts/watch
 ````
 Now open index.html in Chrome.
