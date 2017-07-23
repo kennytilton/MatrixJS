@@ -6,23 +6,14 @@
 
   			[tiltontec.cell.base :refer [unbound ia-type]]
   			[tiltontec.cell.core :refer-macros [c? c?n ] :refer [c-in]]
-  			[tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get
-  										fmi-w-class fmu-w-class kid-values-kids]]
-            [tiltontec.tag.html
-            	:refer [tag  to-html tag-dom fm-asc-tag tagfo
-            				dom-ancestor-by-class dom-ancestor-by-tag dom-has-class
-            				io-all-keys io-truncate io-find io-upsert
-            				io-read io-clear-storage]]
-
-            [tiltontec.tag.gen :refer-macros [on-evt section header h1 input footer p a
-            						make-tag span label ul li div button]
+  			[tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
+				[tiltontec.tag.html :refer [tag  to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
+																		dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
+				[tiltontec.tag.gen :refer-macros [on-evt section header h1 input footer p a make-tag span label ul li div button]
             		:refer [dom-tag]]
-
-            [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo
-             			todo-to-map title completed todo-to-json todo-load todo-upsert
-            			todo-dump todo-delete  load-all-todos gTodo-items
-            			clear-completed todo-delete-by-key
-            			todo-toggle-completed]]))
+				[todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo todo-to-map title completed
+													 todo-to-json todo-load todo-upsert todo-dump todo-delete  load-all-todos gTodo-items
+            								clear-completed todo-delete-by-key todo-toggle-completed]]))
 
 (declare todoDelete mk-todo-item mk-dashboard todo-toggle-all)
 
@@ -30,7 +21,7 @@
              ["/active" :Active]
              ["/completed" :Completed]]))
 
-(def app (atom nil))                  
+(def app (atom nil))
 (def iroute (atom nil))
 
 (defn on-navigate [route params query]
@@ -46,43 +37,45 @@
 
 	(reset! gTodo (load-all-todos))
 
-	(reset! app [(section (:class "todoapp" :par :top)
-            		(header (:class "header")
-	       				(h1 () "todos")
-	       				(input (:class "new-todo"
-	        					:placeholder "What needs to be done?"
-	            				:autofocus true
-	            				:onkeypress (on-evt 'todo-process-on-enter))))
+	(reset! app
+    [(section (:class "todoapp" :par :top)
+				(header (:class "header")
+					(h1 () "todos?!")
+					(input (:class "new-todo"
+							:placeholder "What needs to be done?"
+							:autofocus true
+							:onkeypress (on-evt 'todo-process-on-enter))))
 
-            		(section (:class "main"
-               					:hidden (c? (zero? (count (md-get @gTodo :items)))))
+				(section (:class "main"
+										:hidden (c? (zero? (count (md-get @gTodo :items)))))
 
-						(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
-								:action (c? (if (some (complement completed) (gTodo-items))
-												:complete :uncomplete))
-								:checked (c? (= (md-get me :action) :uncomplete))))
+					(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
+									:action (c? (if (some (complement completed) (gTodo-items))
+									:complete :uncomplete))
+									:checked (c? (= (md-get me :action) :uncomplete))))
 
-						(label (:for "toggle-all"
-								:onclick (on-evt 'todo-toggle-all))
-							"Mark all as complete")
+					(label (:for "toggle-all"
+							:onclick (on-evt 'todo-toggle-all))
+						"Mark all as complete")
 
-						(ul (:class "todo-list"
-							:kid-values (c? (md-get @gTodo :items))
-							:kid-key #(md-get % :todo)
-							:kid-factory mk-todo-item)
-						  (kid-values-kids me cache)))
+					(ul (:class "todo-list"
+								:kid-values (c? (md-get @gTodo :items))
+								:kid-key #(md-get % :todo)
+								:kid-factory mk-todo-item)
+						(kid-values-kids me cache)))
 
-					(mk-dashboard))
+				(mk-dashboard))
 
-          		 (footer (:class"info")
-		           (p () "Double-click to edit a todo")
-		           (p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>")
-		           (p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>"))])
+		 (footer (:class"info")
+			 (p () "Double-click a todo to edit it.")
+			 (p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>.")
+			 (p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>."))])
 	(to-html @app))
 
 ;;; --- new todo entry, validation, and storage ------------------------------------
 
 (defn todo-process-on-enter [e]
+	(println :processing e (.-key e))
 	(when (= (.-key e) "Enter")
 		(let [raw (.-value (.-target e))
 			  title (str/trim raw)]
@@ -182,7 +175,7 @@
 
 		(button (:class "clear-completed"
 				 :hidden  (c? (zero? (count (filter completed (gTodo-items)))))
-				 :onclick (on-evt 'clear_completed))
+				 :onclick (on-evt 'clear-completed))
 			"Clear completed")))
 
 

@@ -1,5 +1,6 @@
 (ns tiltontec.tag.gen
-  (:require [tiltontec.model.core :refer [make] :as md]))
+  (:require [tiltontec.model.core :refer [make] :as md]
+            [#?(:cljs cljs.pprint :clj clojure.pprint) :refer [pprint]]))
 
 (def on-event-attr-template
   "(function () { ~a(event~{,~s~})})()")
@@ -51,55 +52,20 @@
       js-obj))
   
 
-(defmacro section [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "section" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
+(defmacro deftag [tag]
+  (let [kids-sym (gensym "kids")
+        attrs-sym (gensym "attrs")]
+  `(defmacro ~tag [[& ~attrs-sym] & ~kids-sym]
+    `(tiltontec.tag.gen/make-tag ~(str '~tag) [~@~attrs-sym]
+      (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
-(defmacro label [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "label" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
+;(deftag section)
+;(deftag label)
+;(deftag header)
 
-(defmacro header [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "header" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
+(defmacro deftags [& tags]
+  `(do ~@(for [tag tags]
+           `(deftag ,tag))))
 
-(defmacro h1 [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "h1" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro input [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "input" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro footer [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "footer" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro p [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "p" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro a [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "a" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro ul [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "ul" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro li [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "li" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro div [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "div" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro span [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "span" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
-(defmacro button [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "button" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))
-
+(deftags section label header h1 footer input p
+         a ul li div)
