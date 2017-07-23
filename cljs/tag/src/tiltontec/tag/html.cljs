@@ -103,12 +103,6 @@
         ;;(println :tag-dom-succeeds!!!!!!!!!!! id)
         (backdoor-reset! me :dom-cache dom)))))
 
-(def on-event-attr-template
-  "(function () { ~a(event~{,~s~})})()")
-
-(defn on-evt [fn-name & cb-args]
-  (pp/cl-format nil on-event-attr-template fn-name cb-args))
-
 (defn tag [me]
   (md-get me :tag))
 
@@ -116,7 +110,7 @@
   (when-not (= oldv unbound)
     (cond
       (some #{(.-tagName (tag-dom me))} ["LABEL"])
-      (do (println :bam-html!!! (tag-dom me))
+      (do ;(println :bam-html!!! (tag-dom me))
           (set! (.-innerHTML (tag-dom me))
             (to-html newv)))
 

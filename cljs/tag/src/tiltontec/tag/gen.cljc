@@ -1,6 +1,16 @@
 (ns tiltontec.tag.gen
   (:require [tiltontec.model.core :refer [make] :as md]))
 
+(def on-event-attr-template
+  "(function () { ~a(event~{,~s~})})()")
+
+(defmacro on-evt [fname & cb-args]
+  `(let [fn-name# (str/replace
+                    (str/replace (subs (str (resolve ~fname)) 2)
+                      \- \_) \/ \.)]
+      ;;;(println :on-evt-calling fn-name# (string? fn-name#))
+      (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
+
 #_
 (defmacro make-gens [& tags]
   (println (type (first tags)))
