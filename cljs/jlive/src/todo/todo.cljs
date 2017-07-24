@@ -1,16 +1,16 @@
 (ns todo.todo
-	(:require
-		[clojure.string :as str]
-		[tiltontec.cell.base :refer [unbound ia-type]]
-		[tiltontec.cell.core
+  (:require
+    [clojure.string :as str]
+    [tiltontec.cell.base :refer [unbound ia-type]]
+    [tiltontec.cell.core
              :refer-macros [c? c?+ c-reset-next! c?once c?n]
              :refer [c-in c-reset! make-cell make-c-formula]]
         [tiltontec.cell.observer :refer [observe-by-type]]
-		[tiltontec.model.core :as md :refer [make md-get md-reset!]]
-		[tiltontec.util.core :as util :refer [pln now map-to-json json-to-map]]
-		[tiltontec.tag.html :refer [io-upsert io-read io-find]]))
+    [tiltontec.model.core :as md :refer [make md-get md-reset!]]
+    [tiltontec.util.core :as util :refer [pln now map-to-json json-to-map]]
+    [tiltontec.tag.html :refer [io-upsert io-read io-find]]))
 
-(def TODO_LS_PREFIX "todos-LiveJS.")
+(def TODO_LS_PREFIX "todos-jLive.")
 
 (defn uuidv4 []
   (letfn [(hex [] (.toString (rand-int 16) 16))]
@@ -28,34 +28,34 @@
 (declare td-upsert)
 
 (defn make-todo [islots]
-	(let [net-slots (merge
-						{:type ::todo
-						 :id (str TODO_LS_PREFIX (uuidv4))
-						 :created (now)}
-						islots
-						{:title (c-in (:title islots))
-						 :completed (c-in (:completed islots false))
-						 :deleted (or (:deleted islots)
-						 			 (c-in nil))})
-		todo (apply md/make (flatten (into [] net-slots)))]
+  (let [net-slots (merge
+            {:type ::todo
+             :id (str TODO_LS_PREFIX (uuidv4))
+             :created (now)}
+            islots
+            {:title (c-in (:title islots))
+             :completed (c-in (:completed islots false))
+             :deleted (or (:deleted islots)
+                   (c-in nil))})
+    todo (apply md/make (flatten (into [] net-slots)))]
 
-		(when-not (:id islots)
-			;; this is not being instantiated from localStorage
-			(pln :make-td-upsert-new!! (:id @todo))
-			(td-upsert todo))
-		todo))
+    (when-not (:id islots)
+      ;; this is not being instantiated from localStorage
+      (pln :make-td-upsert-new!! (:id @todo))
+      (td-upsert todo))
+    todo))
 
 ;;; --- straight accessors (but establishing dependency if hit within formulae)
 ;;;  (use (:some-prop @td) to avoid dependency (at own dataflow risk) -
 
 (defn td-title [td]
-	(md-get td :title))
+  (md-get td :title))
 
 (defn td-id [td]
-	(md-get td :id))
+  (md-get td :id))
 
 (defn td-completed [td]
-	(md-get td :completed))
+  (md-get td :completed))
 
 ;;; --- utilities converting between td, json, and map ----------------
 
@@ -74,9 +74,9 @@
 
 ;; -- new --
 (defn td-upsert [td]
-	(io-upsert (td-id td)
-						 (.stringify js/JSON
-												 (td-to-json td))))
+  (io-upsert (td-id td)
+             (.stringify js/JSON
+                         (td-to-json td))))
 
 ;; -- read --
 (defn td-load [id]
@@ -115,18 +115,18 @@
     td))
 
 (defn td-delete [td]
-	(md-reset! td :deleted (now)))
+  (md-reset! td :deleted (now)))
 
 (defn td-toggle-completed [event id]
-	(let [td (some (fn [td] (when (= id (td-id td)) td))
-					(gTodo-items))]
-		(assert td (str "td-toggle-completed cannot find " id))
-		(md-reset! td :completed (not (td-completed td)))))
+  (let [td (some (fn [td] (when (= id (td-id td)) td))
+          (gTodo-items))]
+    (assert td (str "td-toggle-completed cannot find " id))
+    (md-reset! td :completed (when-not (td-completed td) (now)))))
 
 (defn td-clear-completed [e]
-	(doall
-		(map td-delete  (filter td-completed (gTodo-items)))))
-		
+  (doall
+    (map td-delete  (filter td-completed (gTodo-items)))))
+
 (defn td-delete-by-key [event id]
-	(td-delete (gTodo-lookup id)))
+  (td-delete (gTodo-lookup id)))
 

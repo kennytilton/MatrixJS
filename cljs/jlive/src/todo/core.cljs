@@ -17,7 +17,6 @@
 
 (declare mk-todo-item mk-dashboard td-completed-toggle-all)
 
-
 (def router (r/router [["/" :All]
              ["/active" :Active]
              ["/completed" :Completed]]))
@@ -26,50 +25,50 @@
 (def iroute (atom nil))
 
 (defn on-navigate [route params query]
-  (cond 
+  (cond
   	@app (md-reset! (fmi-w-class (first @app) "filters")
   					:selection (name route))
   	:default (reset! iroute (name route))))
 
 (defn landing-page []
-	(r/start! router {:default :todo/all
-                  :on-navigate on-navigate})
+  (r/start! router {:default :todo/all
+                    :on-navigate on-navigate})
 
-	(reset! gTodo (td-load-all))
+  (reset! gTodo (td-load-all))
 
-	(reset! app
+  (reset! app
     [(section (:class "todoapp" :par :top)
-				(header (:class "header")
-					(h1 () "todos")
-					(input (:class "new-todo" :autofocus true
-              :placeholder "What needs to be done?"
-              :onkeypress (on-evt 'todo-process-on-enter))))
+        (header (:class "header")
+          (h1 () "todos")
+          (input (:class "new-todo" :autofocus true
+                  :placeholder "What needs to be done?"
+                  :onkeypress (on-evt 'todo-process-on-enter))))
 
-				(section (:class "main"
-										:hidden (c? (zero? (count (gTodo-items)))))
+        (section (:class "main"
+                    :hidden (c? (zero? (count (gTodo-items)))))
 
-					(input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
-									:action (c? (if (some (complement td-completed) (gTodo-items))
-									            :complete :uncomplete))
-									:checked (c? (= (md-get me :action) :uncomplete))))
+          (input (:id "toggle-all" :class "toggle-all" :input-type "checkbox"
+                  :action (c? (if (some (complement td-completed) (gTodo-items))
+                                :complete :uncomplete))
+                  :checked (c? (= (md-get me :action) :uncomplete))))
 
-					(label (:for "toggle-all"
-							    :onclick (on-evt 'td-completed-toggle-all))
-						"Mark all as complete")
+          (label (:for "toggle-all"
+                  :onclick (on-evt 'td-completed-toggle-all))
+            "Mark all as complete")
 
-					(ul (:class "todo-list"
-								:kid-values (c? (gTodo-items))
-								:kid-key #(md-get % :todo)
-								:kid-factory mk-todo-item)
-						(kid-values-kids me cache)))
+          (ul (:class "todo-list"
+                :kid-values (c? (gTodo-items))
+                :kid-key #(md-get % :todo)
+                :kid-factory mk-todo-item)
+            (kid-values-kids me cache)))
 
-				(mk-dashboard))
+        (mk-dashboard))
 
-		 (footer (:class"info")
-			 (p () "Double-click a todo to edit it.")
-			 (p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>.")
-			 (p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>."))])
-	(to-html @app))
+     (footer (:class"info")
+       (p () "Double-click a todo to edit it.")
+       (p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>.")
+       (p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>."))])
+  (to-html @app))
 
 ;;; --- page sub-structure breakouts for readabilityy ------------------------------
 
@@ -170,4 +169,4 @@
   (let [input (fmu-w-class (dom-tag (.-target event)) "toggle-all")
         action (md-get input :action)]
     (doseq [td (gTodo-items)]
-      (md-reset! td :completed (= action :complete)))))
+      (md-reset! td :completed (when (= action :complete) (now))))))
