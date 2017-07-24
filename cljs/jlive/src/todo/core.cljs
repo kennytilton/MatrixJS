@@ -1,19 +1,19 @@
 (ns todo.core
   (:require [cljs.pprint :as pp]
-  			[clojure.string :as str]
-  			[bide.core :as r]
-  			[tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json  now]]
+            [clojure.string :as str]
+            [bide.core :as r]
+            [tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json now]]
 
-  			[tiltontec.cell.base :refer [unbound ia-type *within-integrity*]]
-  			[tiltontec.cell.core :refer-macros [c? c?n ] :refer [c-in]]
-  			[tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
-				[tiltontec.tag.html :refer [tag  to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
-																		dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
-						[tiltontec.tag.gen :refer-macros [on-evt section header h1 input footer p a span label ul li div button]
-						 :refer [dom-tag]]
-						[todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
-													 td-to-json td-load td-upsert td-delete  td-load-all gTodo-items
-            							td-id	td-clear-completed td-delete-by-key td-toggle-completed]]))
+            [tiltontec.cell.base :refer [unbound ia-type *within-integrity*]]
+            [tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
+            [tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
+            [tiltontec.tag.html :refer [tag to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
+                                        dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
+            [tiltontec.tag.gen :refer-macros [on-evt section header h1 input footer p a span label ul li div button]
+             :refer [dom-tag]]
+            [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
+                               td-to-json td-load td-upsert td-delete td-load-all gTodo-items
+                               td-id td-clear-completed td-delete-by-key td-toggle-completed]]))
 
 (declare mk-todo-item mk-dashboard td-completed-toggle-all)
 
