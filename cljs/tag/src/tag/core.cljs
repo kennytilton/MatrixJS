@@ -1,4 +1,4 @@
-(ns tiltontec.tag.core
+(ns tag.core
   (:require
     [clojure.browser.repl :as repl]
     [todo.core :refer [landing]]))
@@ -8,7 +8,7 @@
 
 (enable-console-print!)
 
-(println "Hello tag world!")
+;; (println "tag.core now loading...")
 
 (let [doc js/document
       body (.-body doc)
@@ -17,5 +17,3 @@
   ;(println :cool doc body)
   ;(println :landing landing)
   (set! (.-innerHTML root) landing))
-
-

@@ -4,17 +4,15 @@
   			[bide.core :as r]
   			[tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json  now]]
 
-  			[tiltontec.cell.base :refer [unbound ia-type]]
+  			[tiltontec.cell.base :refer [unbound ia-type *within-integrity*]]
   			[tiltontec.cell.core :refer-macros [c? c?n ] :refer [c-in]]
   			[tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
 				[tiltontec.tag.html :refer [tag  to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
 																		dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
-				[tiltontec.tag.gen
-         :refer-macros [on-evt section header h1 input footer
-                        p a span label ul li div button]
-            		:refer [dom-tag]]
-
-        [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
+						[tiltontec.tag.gen :refer-macros [on-evt ]
+						 :refer [dom-tag]]
+						[tiltontec.tag.tag :refer-macros [section   header h1 input footer p a span label ul li div button]]
+						[todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
 													 td-to-json td-load td-upsert td-delete  td-load-all gTodo-items
             							td-id	td-clear-completed td-delete-by-key td-toggle-completed]]))
 
@@ -33,7 +31,10 @@
   					:selection (name route))
   	:default (reset! iroute (name route))))
 
-(defn landing []
+(defn landing-page []
+	(println :damacro!!!)
+	(binding [*print-level* 16]
+		(pp/pprint (macroexpand-1 '(deftag section))))
 	(r/start! router {:default :todo/all
                   :on-navigate on-navigate})
 
@@ -149,22 +150,27 @@
 		(.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
 
 (defn todo-edit [e td-key]
-	(let [edom (.-target e)
-		  title (str/trim (.-value edom))
-		  td (gTodo-lookup td-key)
-		  li-dom (dom-ancestor-by-tag edom "li")]
-		(cond
-			(or (and (= (.-type e) "blur")
-					(dom-has-class li-dom "editing"))
-				(= (.-key e) "Enter"))
-			(do	(if (= title "")
-					(td-delete td)
-					(md-reset! td :title title))
-				(.remove (.-classList li-dom) "editing"))
-			
-			(= (.-key e) "Escape")
-			(do (set! (.-value edom) (td-title td))
-				(.remove (.-classList li-dom) "editing")))))
+	;; (println :todo-edit-entry *within-integrity* (.-type e) (.-key e)(.-target e))
+	(when-not *within-integrity* ;; TODO redo event handler scheme to solve htis generically
+		(let [edom (.-target e)
+					title (str/trim (.-value edom))
+					td (gTodo-lookup td-key)
+					li-dom (dom-ancestor-by-tag edom "li")]
+			(cond
+				(or (and (= (.-type e) "blur")
+						(dom-has-class li-dom "editing"))
+					(= (.-key e) "Enter"))
+				(do
+					(if (= title "")
+						(do (println :te-calls-td-del)
+								(td-delete td))
+						 (md-reset! td :title title))
+					(println :todo-edit-removing-editing)
+					(.remove (.-classList li-dom) "editing"))
+
+				(= (.-key e) "Escape")
+				(do (set! (.-value edom) (td-title td))
+					(.remove (.-classList li-dom) "editing"))))))
 
 (defn td-completed-toggle-all [event]
   (let [input (fmu-w-class (dom-tag (.-target event)) "toggle-all")
