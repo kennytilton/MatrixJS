@@ -9,14 +9,14 @@
   			[tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
 				[tiltontec.tag.html :refer [tag  to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
 																		dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
-						[tiltontec.tag.gen :refer-macros [on-evt ]
+						[tiltontec.tag.gen :refer-macros [on-evt section header h1 input footer p a span label ul li div button]
 						 :refer [dom-tag]]
-						[tiltontec.tag.tag :refer-macros [section   header h1 input footer p a span label ul li div button]]
 						[todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
 													 td-to-json td-load td-upsert td-delete  td-load-all gTodo-items
             							td-id	td-clear-completed td-delete-by-key td-toggle-completed]]))
 
 (declare mk-todo-item mk-dashboard td-completed-toggle-all)
+
 
 (def router (r/router [["/" :All]
              ["/active" :Active]
@@ -32,9 +32,6 @@
   	:default (reset! iroute (name route))))
 
 (defn landing-page []
-	(println :damacro!!!)
-	(binding [*print-level* 16]
-		(pp/pprint (macroexpand-1 '(deftag section))))
 	(r/start! router {:default :todo/all
                   :on-navigate on-navigate})
 
@@ -103,8 +100,7 @@
     (input (:class "edit"
              :value (c?n (td-title td))
              :onblur (on-evt 'todo-edit (td-id td))
-             :onkeydown (on-evt 'todo-edit (td-id td))
-             :onkeypress (on-evt 'todo-edit (td-id td))))))
+             :onkeydown (on-evt 'todo-edit (td-id td))))))
 
 (defn mk-dashboard []
   (footer (:class "footer"
@@ -127,7 +123,6 @@
             "Clear completed")))
 
 ;;; --- event handlers to support the above ------------------------------------
-;;;   (see also todo.cljs for more such)
 
 (defn todo-process-on-enter [e]
 	(when (= (.-key e) "Enter")
@@ -142,6 +137,8 @@
 			(set! (.-value (.-target e)) ""))))
 
 (defn todo-start-editing [e]
+	;; I am tempted to make this more declarative, but leave as is
+	;; as an example of how jLive allows straight JS coding
 	(let [lbl (dom-tag (.-target e))
 		    li (fm-asc-tag lbl "li")
         edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
@@ -150,22 +147,19 @@
 		(.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
 
 (defn todo-edit [e td-key]
-	;; (println :todo-edit-entry *within-integrity* (.-type e) (.-key e)(.-target e))
-	(when-not *within-integrity* ;; TODO redo event handler scheme to solve htis generically
+	(when-not *within-integrity* ;; TODO refactor event handler scheme to solve htis generically
 		(let [edom (.-target e)
 					title (str/trim (.-value edom))
 					td (gTodo-lookup td-key)
 					li-dom (dom-ancestor-by-tag edom "li")]
 			(cond
 				(or (and (= (.-type e) "blur")
-						(dom-has-class li-dom "editing"))
-					(= (.-key e) "Enter"))
+									(dom-has-class li-dom "editing"))
+						(= (.-key e) "Enter"))
 				(do
 					(if (= title "")
-						(do (println :te-calls-td-del)
-								(td-delete td))
-						 (md-reset! td :title title))
-					(println :todo-edit-removing-editing)
+						(td-delete td)
+						(md-reset! td :title title))
 					(.remove (.-classList li-dom) "editing"))
 
 				(= (.-key e) "Escape")

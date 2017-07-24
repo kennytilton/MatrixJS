@@ -29,19 +29,18 @@
 
 (defn make-todo [islots]
 	(let [net-slots (merge
-						{:type ::todo
-						 :id (str TODO_LS_PREFIX (uuidv4))
-						 :created (now)}
-						islots
-						{:title (c-in (:title islots))
-						 :completed (c-in (:completed islots false))
-						 :deleted (or (:deleted islots)
-						 			 (c-in nil))})
+                    {:type ::todo
+                     :id (str TODO_LS_PREFIX (uuidv4))
+                     :created (now)}
+                    islots
+                    {:title (c-in (:title islots))
+                     :completed (c-in (:completed islots false))
+                     :deleted (or (:deleted islots)
+                           (c-in nil))})
 		todo (apply md/make (flatten (into [] net-slots)))]
 
 		(when-not (:id islots)
 			;; this is not being instantiated from localStorage
-			(pln :make-td-upsert-new!! (:id @todo))
 			(td-upsert todo))
 		todo))
 

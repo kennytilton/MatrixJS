@@ -46,25 +46,12 @@
     `(tiltontec.tag.gen/make-tag ~~tag-name [~@~attrs-sym]
       (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
-(defmacro deftag2 [tag]
-  (let [kids-sym (gensym "kids")
-        tag-name (name tag)
-        attrs-sym (gensym "attrs")]
-    `(defmacro ~tag [[& ~attrs-sym] & ~kids-sym]
-       `(tiltontec.tag.gen/make-tag ~~tag-name [~@~attrs-sym]
-                                    (tiltontec.model.core/c?kids ~@~kids-sym)))))
-#_
-(defmacro section [[& attrs] & children]
-  `(tiltontec.tag.gen/make-tag "section" [~@attrs]
-      (tiltontec.model.core/c?kids ~@children)))
-
-;; (deftag section)
-
-(deftag span)
-(deftag button)
-(deftag h1)
+(deftag section)
 (deftag header)
+(deftag span)
 (deftag footer)
+(deftag h1)
+(deftag button)
 (deftag div)
 (deftag label)
 (deftag img)
@@ -74,11 +61,3 @@
 (deftag ul)
 (deftag li)
 
-#_
-(defmacro deftags [& tags]
-  `(do ~@(for [tag tags]
-           `(deftag ,tag))))
-
-#_
-(deftags section label header h1 footer input p
-         a ul li div)

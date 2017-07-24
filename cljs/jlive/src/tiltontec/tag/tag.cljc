@@ -1,12 +1,11 @@
 (ns tiltontec.tag.tag
-  (:require [tiltontec.tag.gen :refer [deftag]]))
+  (:require
+    [#?(:cljs cljs.pprint :clj clojure.pprint) :refer [pprint]]
+    [tiltontec.tag.gen :refer [deftag deftags]]))
+
 
 (deftag section)
-
 (deftag span)
-(deftag button)
-(deftag h1)
-(deftag header)
 (deftag footer)
 (deftag div)
 (deftag label)
