@@ -3,7 +3,6 @@
             [clojure.string :as str]
             [bide.core :as r]
             [tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json now]]
-
             [tiltontec.cell.base :refer [unbound ia-type *within-integrity*]]
             [tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
             [tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
