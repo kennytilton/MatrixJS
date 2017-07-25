@@ -46,6 +46,8 @@
     `(tiltontec.tag.gen/make-tag ~~tag-name [~@~attrs-sym]
       (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
+(declare section  label header footer h1 input p span a img ul li div button)
+
 (deftag section)
 (deftag header)
 (deftag span)

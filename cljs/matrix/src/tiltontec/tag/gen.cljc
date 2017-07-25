@@ -5,27 +5,14 @@
 (def on-event-attr-template
   "(function () { ~a(event~{,~s~})})()")
 
-(defmacro on-evt [fname & cb-args]
+(defmacro on-event [fname & cb-args]
   `(let [fn-name# (str/replace
-                    (str/replace (subs (str (resolve ~fname)) 2)
+                    (str/replace (name '~fname)
                       \- \_) \/ \.)]
-      ;;;(println :on-evt-calling fn-name# (string? fn-name#))
+      ;;;(println :on-event-calling fn-name# (string? fn-name#))
       (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
 
-#_
-(defmacro make-gens [& tags]
-  (println (type (first tags)))
-  `(do ~@(for [tagsym tags]
-          `(defmacro ~tagsym [[& ~'attrs] & ~'kids]
-            `(defmacro section [[& attrs] & kids]
-  `(tiltontec.tag.gen/make-tag "section" [~@attrs]
-     (tiltontec.model.core/c?kids ~@kids)))))))
-
-;; (println :sectcro (macroexpand-1 '(make-gens section)))
-
 (def tag-dom-sid (atom -1))
-
-;; dodo stop making kids formula when there are no kids
 
 (def id-js (atom {}))
 
@@ -35,7 +22,6 @@
     (assert tag (str "dom-tag did not find js for id " (.-id dom)
                   " of dom " dom))
     tag))
-
 
 (defn make-tag [tag attrs c?kids]
   ;; (println :mtag (count attrs))
@@ -54,29 +40,25 @@
 
 (defmacro deftag [tag]
   (let [kids-sym (gensym "kids")
+        tag-name (str tag)
         attrs-sym (gensym "attrs")]
   `(defmacro ~tag [[& ~attrs-sym] & ~kids-sym]
-    `(tiltontec.tag.gen/make-tag ~(str '~tag) [~@~attrs-sym]
+    `(tiltontec.tag.gen/make-tag ~~tag-name [~@~attrs-sym]
       (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
-(defmacro deftags [& tags]
-  `(do ~@(for [tag tags]
-           `(deftag ,tag))))
-
-(declare section  label header footer h1 input p span a ul li div button)
+(declare section  label header footer h1 input img p span a ul li div button)
 
 (deftag section)
-(deftag label)
 (deftag header)
+(deftag span)
 (deftag footer)
 (deftag h1)
+(deftag button)
+(deftag div)
+(deftag label)
+(deftag img)
 (deftag input)
 (deftag p)
-(deftag span)
 (deftag a)
 (deftag ul)
 (deftag li)
-(deftag div)
-(deftag button)
-
-

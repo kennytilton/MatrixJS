@@ -1,0 +1,3 @@
+(start-repl)
+(js/alert "hi mom")
+:cljs/quit
