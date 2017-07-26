@@ -8,7 +8,7 @@
             [tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
             [tiltontec.tag.html :refer [tag to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
                                         dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
-            [tiltontec.tag.gen :refer-macros [on-event section header h1 input footer p a span label ul li div button]
+            [tiltontec.tag.gen :refer-macros [on-event oex section header h1 input footer p a span label ul li div button]
              :refer [dom-tag]]
             [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
                                td-to-json td-load td-upsert td-delete td-load-all gTodo-items
@@ -31,7 +31,15 @@
   					:selection (name route))
   	:default (reset! iroute (name route))))
 
+(declare td  fname)
+
 (defn landing-page []
+  ;;;(println :expando (on-eventx (todo.todo.td-toggle-completed (td-id td))))
+
+  (println :wowowo)
+  (println :oevt (on-event todo.core.todo-process-on-enter))
+  (println :oevt (oex todo.core.todo-process-on-enter))
+
   (r/start! router {:default :todo/all
                     :on-navigate on-navigate})
 
@@ -76,7 +84,6 @@
 (defn mk-todo-item [me td]
   (assert me "no me into mk-tofo-it")
   (li (:todo td
-        :name :todo-li
         :class (c? (if (td-completed td) "completed" ""))
         :display (c? (let [sel (md-get (fmu-w-class me "filters") :selection)]
                        (if (or (= sel "All")

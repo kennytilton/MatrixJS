@@ -38,7 +38,7 @@
   (reset! app
     [(section (:class "todoapp" :par :top)
         (header (:class "header")
-          (h1 () "todos")
+          (h1 () "todos or not to dos")
           (input (:class "new-todo" :autofocus true
                   :placeholder "What needs to be done?"
                   :onkeypress (on-evt 'todo-process-on-enter))))
@@ -63,7 +63,7 @@
 
         (mk-dashboard))
 
-     (footer (:class"info")
+     (footer (:class "info")
        (p () "Double-click a todo to edit it.")
        (p () "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>.")
        (p () "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>."))])
@@ -74,7 +74,6 @@
 (declare todo-start-editing todo-edit)
 
 (defn mk-todo-item [me td]
-  (assert me "no me into mk-tofo-it")
   (li (:todo td
         :name :todo-li
         :class (c? (if (td-completed td) "completed" ""))
@@ -116,9 +115,9 @@
                    label)))))
 
     (button (:class "clear-completed"
-              :hidden  (c? (zero? (count (filter td-completed (gTodo-items)))))
+              :hidden (c? (zero? (count (filter td-completed (gTodo-items)))))
               :onclick (on-evt 'td-clear-completed))
-            "Clear completed")))
+      "Clear completed")))
 
 ;;; --- event handlers to support the above ------------------------------------
 
@@ -145,7 +144,8 @@
 		(.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
 
 (defn todo-edit [e td-key]
-	(when-not *within-integrity* ;; TODO refactor event handler scheme to solve htis generically
+	(if *within-integrity* ;; TODO refactor event handler scheme to solve htis generically
+    (println :event-handler-reentered!!!!!!!!!!!!)
 		(let [edom (.-target e)
 					title (str/trim (.-value edom))
 					td (gTodo-lookup td-key)

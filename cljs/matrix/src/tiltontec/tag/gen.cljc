@@ -12,6 +12,24 @@
       ;;;(println :on-event-calling fn-name# (string? fn-name#))
       (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
 
+(defmacro oex [fname & cb-args]
+  `(let [fn-name# (str/replace
+                    (str/replace (name '~fname)
+                                 \- \_) \/ \.)]
+     ;;;(println :on-event-calling fn-name# (string? fn-name#))
+     (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
+#_
+(defmacro on-eventx [[fname & cb-args]]
+  ;(println :oex!!!!! fname)
+  ;(println :oex!!! (type fname))
+  `(println :himom))
+
+;  (let [fn-name# ,(str/replace
+ ;                     (str/replace (name fname)
+  ;                               \- \_) \/ \.)]
+     ;;(println :on-eventx-calling fn-name# (string? fn-name#))
+   ;  (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
+
 (def tag-dom-sid (atom -1))
 
 (def id-js (atom {}))
@@ -46,7 +64,7 @@
     `(tiltontec.tag.gen/make-tag ~~tag-name [~@~attrs-sym]
       (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
-(declare section  label header footer h1 input img p span a ul li div button)
+(declare section label header footer h1 input img p span a ul li div button)
 
 (deftag section)
 (deftag header)

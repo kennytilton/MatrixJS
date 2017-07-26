@@ -8,7 +8,8 @@
       ;body (.-body doc)
       root (.getElementById doc "tagroot")
       landing (todo/landing-page)]
-  (println :landing landing)
+
+  ;; (println :landing landing)
   (println :root root)
   (set! (.-innerHTML root) landing))
 

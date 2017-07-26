@@ -46,20 +46,12 @@
     `(tiltontec.tag.gen/make-tag ~~tag-name [~@~attrs-sym]
       (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
-(declare section  label header footer h1 input p span a img ul li div button)
 
-(deftag section)
-(deftag header)
-(deftag span)
-(deftag footer)
-(deftag h1)
-(deftag button)
-(deftag div)
-(deftag label)
-(deftag img)
-(deftag input)
-(deftag p)
-(deftag a)
-(deftag ul)
-(deftag li)
+(defmacro deftags [& tags]
+  `(do ~@(for [tag tags]
+           `(deftag ~tag))))
 
+;;; This:
+(declare section label header footer h1 input p span a img ul li div button)
+;;; ... avoids mistaken/benign warnings from this:
+(deftags section label header footer h1 input p span a img ul li div button)

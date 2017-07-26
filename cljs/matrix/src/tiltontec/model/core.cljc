@@ -29,7 +29,6 @@
       :cljs [tiltontec.cell.observer
              :refer [observe]])
 
-
    #?(:cljs [tiltontec.cell.core
              :refer-macros [c? c?+ c-reset-next! c?once c?n]
              :refer [c-in c-reset! make-cell]]

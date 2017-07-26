@@ -92,6 +92,7 @@
 
 ;; -- update --
 ;; regardless of slot that changed, update td instance
+
 (defmethod observe-by-type [::todo.todo/todo] [slot me new-val old-val c]
   (when-not (= old-val unbound)
     (td-upsert me)))
