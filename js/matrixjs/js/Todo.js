@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const TODO_LS_PREFIX = "todos-ConnectJS.";
+const TODO_LS_PREFIX = "todos-MatrixJS.";
 
 /*
 	This class was created so the to-do data could play along with the Cells-driven UI.
