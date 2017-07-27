@@ -25,9 +25,9 @@
 
 (defn on-navigate [route params query]
   (cond
-  	@app (md-reset! (fmi-w-class (first @app) "filters")
-  					:selection (name route))
-  	:default (reset! iroute (name route))))
+    @app (md-reset! (fmi-w-class (first @app) "filters")
+            :selection (name route))
+    :default (reset! iroute (name route))))
 
 (defn landing-page []
   (r/start! router {:default :todo/all
@@ -122,47 +122,47 @@
 ;;; --- event handlers to support the above ------------------------------------
 
 (defn todo-process-on-enter [e]
-	(when (= (.-key e) "Enter")
-		(let [raw (.-value (.-target e))
-			    title (str/trim raw)]
-			(if (= title "")
-				(when (pos? (count raw))
-					(.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
-				(md-reset! @gTodo :items-raw
-					(conj (gItems-raw)
-						(make-todo {:title title}))))
-			(set! (.-value (.-target e)) ""))))
+  (when (= (.-key e) "Enter")
+    (let [raw (.-value (.-target e))
+          title (str/trim raw)]
+      (if (= title "")
+        (when (pos? (count raw))
+          (.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
+        (md-reset! @gTodo :items-raw
+          (conj (gItems-raw)
+            (make-todo {:title title}))))
+      (set! (.-value (.-target e)) ""))))
 
 (defn todo-start-editing [e]
-	;; I am tempted to make this more declarative, but leave as is
-	;; as an example of how jLive allows straight JS coding
-	(let [lbl (dom-tag (.-target e))
-		    li (fm-asc-tag lbl "li")
+  ;; I am tempted to make this more declarative, but leave as is
+  ;; as an example of how jLive allows straight JS coding
+  (let [lbl (dom-tag (.-target e))
+        li (fm-asc-tag lbl "li")
         edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
-		(.add (.-classList (tag-dom li)) "editing")
-		(.focus edt-dom)
-		(.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
+    (.add (.-classList (tag-dom li)) "editing")
+    (.focus edt-dom)
+    (.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
 
 (defn todo-edit [e td-key]
-	(if *within-integrity* ;; TODO refactor event handler scheme to solve htis generically
+  (if *within-integrity* ;; TODO refactor event handler scheme to solve htis generically
     (println :event-handler-reentered!!!!!!!!!!!!)
-		(let [edom (.-target e)
-					title (str/trim (.-value edom))
-					td (gTodo-lookup td-key)
-					li-dom (dom-ancestor-by-tag edom "li")]
-			(cond
-				(or (and (= (.-type e) "blur")
-									(dom-has-class li-dom "editing"))
-						(= (.-key e) "Enter"))
-				(do
-					(if (= title "")
-						(td-delete td)
-						(md-reset! td :title title))
-					(.remove (.-classList li-dom) "editing"))
+    (let [edom (.-target e)
+          title (str/trim (.-value edom))
+          td (gTodo-lookup td-key)
+          li-dom (dom-ancestor-by-tag edom "li")]
+      (cond
+        (or (and (= (.-type e) "blur")
+                  (dom-has-class li-dom "editing"))
+            (= (.-key e) "Enter"))
+        (do
+          (if (= title "")
+            (td-delete td)
+            (md-reset! td :title title))
+          (.remove (.-classList li-dom) "editing"))
 
-				(= (.-key e) "Escape")
-				(do (set! (.-value edom) (td-title td))
-					(.remove (.-classList li-dom) "editing"))))))
+        (= (.-key e) "Escape")
+        (do (set! (.-value edom) (td-title td))
+          (.remove (.-classList li-dom) "editing"))))))
 
 (defn td-completed-toggle-all [event]
   (let [input (fmu-w-class (dom-tag (.-target event)) "toggle-all")
