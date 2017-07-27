@@ -1,11 +1,10 @@
 # MatrixJS
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to MatrixJS and MatrixCLJS, two lightweight but powerful web development frameworks for Javascript and ClojureScript, driven crucially by native ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+Welcome to MatrixJS and MatrixCLJS, two lightweight but powerful web development frameworks for Javascript and ClojureScript, enervated by native ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 
-Lightweight means not having to learn a new framework erected around HTML/JS (requiring tooling or pre-processing). Instead of wrapping JS/HTML from the outside, MatrixJS goes inside Javascript/CLJS to change what happens when we read or set properties.
-
-Powerful means having as much work done as efficiently as possible by MatrixJS. Matrix DOM is specified declaratively and re-executed automagically as conventional event handlers drive the matrix, with Cells providing the motive force to recompute matrix DOM only as necessary given any one event. Behind the scenes, MatrixJS mirrors the changing matrix model to the actual DOM. 
+* Lightweight means not having to learn a new framework erected around HTML/JS (requiring tooling or pre-processing). Instead of wrapping JS/HTML from the outside, MatrixJS goes inside Javascript/CLJS to change what happens when we read or set properties.
+* Powerful means having as much work done as efficiently as possible by MatrixJS. Matrix proxy DOM is specified declaratively and revised automagically as referenced properties change. Changes begin with procedural mutations made by conventional event handlers. Cells provides the motive force to cascade these initial changes throughout the matrix as if it were a spreadsheet. MatrixJS glue then mirrors revised attributes and new/lost proxy DOM to the actual client DOM. 
 
 We build dynamic, efficient interfaces from standard JS/CLJS and thinly-wrapped HTML, free to concentrate on the application.
 
@@ -16,7 +15,7 @@ We have done this before, and built enterprise applications this way. Here is [t
 
  #### Where next?
  This repository contains several proof-of-concept frameworks. For now, all but Qxia have their own version of Cells.
- * In the identically named js/matrixjs you will find a pure Javascript version of Cells and an implementation of TodoMVC.
+ * In the identically named `js/matrixjs` you will find a pure Javascript version of Cells and an implementation of TodoMVC. Even ClojureScript developers should start there.
  * in `cljs/qxia` find a bit-rotten marriage of CLJS Cells and qooxdoo mobile, with random widgets serving no purpose
  * In `cljs/jlive` (soon to be renamed matrixcljs) find a ClojureScript implementation of TodoMVC.
  
