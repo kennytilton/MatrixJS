@@ -1,10 +1,12 @@
 # matrix
 
-MatrixJS for ClojureScript. Head to [the mother page](https://github.com/kennytilton/MatrixJS) for this and the pure JS version to find an overview, including motivation for the name "matrix".
+MatrixJS, a minimal yet powerful and efficient web/mobile framework for ClojureScript built only of CLJS and HTML.
 
 ## Overview
 
-Matrix combines ClojureScript, a thin HTML generator, and the CLJS version of Cells to produce a simple but powerful and efficient CLJS Web/mobile development framework. A sister project of the pure JS [js/matrixjs](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) framework.
+Matrix combines ClojureScript, a thin HTML generator, and the CLJS version of Cells to produce a simple but powerful and efficient CLJS Web/mobile development framework. A sister project of the pure JS [js/matrixjs](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) framework. Head to [the mother page](https://github.com/kennytilton/MatrixJS) of both implementations for an overview, including motivation for the name "matrix".
+
+This project is at once an implemention of the TodoMVC classic and (for now) the official version of both Matrix and Cells for CLJS.
 
 ## Setup 
 
