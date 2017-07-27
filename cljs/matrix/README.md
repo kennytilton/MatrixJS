@@ -1,6 +1,6 @@
 # matrix
 
-[MatrixJS](https://github.com/kennytilton/MatrixJS) for ClojureScript.
+MatrixJS for ClojureScript. Head to [the mother page](https://github.com/kennytilton/MatrixJS) for this and the pure JS version to find an overview, including motivation for the name "matrix".
 
 ## Overview
 
