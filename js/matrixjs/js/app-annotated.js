@@ -1,29 +1,21 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kenneth Tilton.
+ * Copyright 2017 Kenneth Tilton.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 
 /*
- Doc is underway, but for now:
+
+WARNING: This annotated version is not being maintained along with the "live" app.js. It will likely
+go away as I get proper documentation done. For now, maybe just read this without relying on it to
+correspond to what you might encounter running the live version.
+
+ */
+
+/*
+
+ A few brief hints:
 
  - where you see cF(function), the Cells.js engine will evaluate the function (which can see the universe) to provide
  a value, and then re-run that function when its inputs change. Observers (think onchange event handlers) do things like
@@ -32,15 +24,18 @@
  - where you see var=cI(initial value), when procedural code changes var any cF formulaic Cell that read it (directly or
  indirectly via a dynamic call chain) will be re-run.
 
- - https://github.com/kennytilton/ciWeb offers a step-by-step walkthrough of a much simpler example (with qooxdoo
- instead of HTML as the target renderer)
+ - fmTag and its ilk navigate the matrix DOM to locate other DOM on whose properties they depend.
 
  */
 
 /*
- First we load To Do items from localStorage into a Model instance will Cell-powered properties for
+
+ First we load To-Do items from localStorage into a Model instance will Cell-powered properties for
  itemsRaw and items, the lattering filtering out logically deleted items so the UI can pretend
  they do not exist.
+
+ The big takeaway here is that the reactive dataflow covers model as well as view (a false dichotomy, methinks).
+
  */
 
 const Todos = Todo.loadAllItems();
@@ -63,7 +58,11 @@ const Todos = Todo.loadAllItems();
  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
 
  More below on what happens when the "ul" of TDs decides one "li" needs to go, but here is a hint: how does the
- toggle-all image change? We could not get the CSS SVG to work so we changed its implementation to a simple "img".
+ toggle-all image change?
+
+ [FLASH: the CSS/SVG decided to start working so app.js looks a lot different here.]
+
+ We could not get the CSS SVG to work so we changed its implementation to a simple "img".
  The "src" attribute has a formula that reads the (intended) "action" of the widget, an interim property not mirrored
  in the DOM. Here is the code needed to make this work:
 
@@ -294,6 +293,7 @@ function todoMatchesSelect( todo, selection) {
 		|| (selection==='Completed' && todo.completed) // flow:DEPEND
 		|| (selection==='Active' && !todo.completed); // flow:DEPEND
 }
+
 function todoDelete (dom,e) {
 	// in this case we demonstrate navigating about to find the relevant todo instance
 	let todo = dom2js(dom).fmTag('li').todo;
