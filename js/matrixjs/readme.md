@@ -1,12 +1,12 @@
 # MatrixJS
 
-Sailboat designers tell us we can have in one boat only two of the three virtues of speed, comfort, and low cost. 
+Sailboat designers say one boat can have at most two of the three virtues of speed, comfort, and low cost. 
 
-MatrixJS strives for all three of development simplicity, expressive power, and run-time efficiency. The secret sauce? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
+MatrixJS strives for all three of development simplicity, expressive power, and run-time efficiency. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
-The project at this proof-of-concept stage consists of the official version of MatrixJS *and* an implementation of TodoMVC, a do-list app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are functionally conformant, anyway.
+The project at this proof-of-concept stage consists of the official version of MatrixJS *and* an implementation of TodoMVC, a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are functionally conformant, anyway.
 
-## What is *our* matrix?
+## So what do *we* mean by "matrix"?
 We like this definition:
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
@@ -31,21 +31,19 @@ When a cell used in a computation changes in value, any rules that used that cel
 
 When cells change value, programmable observers manifest the changed matrix world to the real world (if only the browser DOM).
 
-> Example: code in an observer on the `clanging` property of a matrix klaxon uses a real device's interface to turn it on or off. A differnt observer on the background-color property executes `*element*.style.background-color = *new-value*`.
+> Example: code in an observer on the `clanging` property of a matrix klaxon uses a real device's interface to turn it on or off. A differnt observer on the background-color property executes `[dashboard].style.backgroundColor = [new-value]`.
 
 ## So why "matrix"?
-This dataflow library provides an environment in which the developer can arrange for a proxy nuclear powerplant to take form. The matrix powerplant runs by itself given declaratively coded connective formulae and glue to feed data from inputs and results back outside the application.
+This dataflow library provides an environment in which the developer can arrange for a proxy nuclear powerplant to take form. The matrix powerplant runs by itself given declaratively coded connective formulae, glue to feed data into the matrix from inputs, and glue to pipe results back out.
 
 Turning to a safer application, the input of a user pressing the Enter key in TodoMVC procedurally extends the list of to-do items with a new item. The matrix proxy of a `UL` list sees the list grow and grows a new matrix `LI`. MatrixJS observers add a new LI to the browser DOM.
 
-The dataflow library is supporting a live proxy version of the web page, one that MatrixJS propagates to -- gives birth to -- the browser. Hence "matrix".
+The dataflow library is supporting a live proxy version of the web page, one that MatrixJS "delivers" continuously and incrementally to the browser. Hence "matrix".
 
 ## Running TodoMVC
 Pretty simple. In a terminal:
 * git clone the [overarching repository](https://github.com/kennytilton/MatrixJS);
-* `cd MatrixJS/js/matrixjs`
-* `scripts/build`
-* now open `index.html` in Chrome or Safari on Mac OS X.
+* open `MatrixJS/js/matrixjs/index.html` in Chrome or Safari on Mac OS X.
 Please advise kentilton at gmail of any difficulties.
 
 ## A Gentle Walkthrough of TodoMVC
