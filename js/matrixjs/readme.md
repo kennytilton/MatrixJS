@@ -12,10 +12,16 @@ We like this definition:
 
 In the movie, the matrix harnessed humans to draw energy from them. In English, a matrix provides the conditions for new things to come to life.
 
+## More practically...
+Let us take a walk through MatrixJS * TodoMVC keeping any eye out for:
+* simplicity
+* expressive power (the declarative/reactive thing)
+* efficient DOM updates
+
 ## The mechanics
 In this particular dataflow/reactive/databinding library, a matrix is just a network of objects arranged pretty much in a simple tree of parents and children where children have just one parent and have a pointer to that parent. 
 
-Properties of these objects can be mediated by so-called "cells" which most usefully allow property values to be expessed as code formulae. These rules take for input the object they qualify (this or self or me) and return a value computed from other properties of the same object or of other objects found by navigating the matrix using the parent and child links. When any property used in a computation changes, the rules that used it are re-run to compue new derived values.
+Properties of these objects can be mediated by so-called "cells" which most usefully allow property values to be expessed as code formulae. These rules take for input the object they qualify and return a value computed from other properties of the same object or of other objects found by navigating the matrix using the parent and child links. When any property used in a computation changes, the rules that used it are re-run to compute new derived values.
 
 > Example: nuclear power plant control room dashboard background color is red or black depending on whether the core temperature reported by a sensor is over or under a billion degrees.
 
