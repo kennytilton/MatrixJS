@@ -17,7 +17,7 @@ function todoMVC() {
                         onkeypress: 'todoAddNewOnEnter'})]),
 
             section({class: "main",
-                     hidden: cF( c => Todos.items.length===0)}, c=> [
+                     hidden: cF( c => Todos.empty)}, c=> [
                 input({ id: "toggle-all", class: "toggle-all", type: "checkbox"}),
                 label({ for: "toggle-all", content: "Mark all as complete"}),
                 ul({ class: "todo-list", name: "todo-list",
@@ -43,17 +43,19 @@ function mkTodoItem( c, todo) {
     return li({ todo: todo,
                 class: cF(c => (todo.completed ? "completed" : "")),
                 display: cF(c => todoMatchesSelect(todo, c.fmUp('filters').selection) ? "block" : "none")}, c => [
+
         div({class: "view"}, c => [
-        input({class: "toggle", type: "checkbox",
-                checked: cF( c=> todo.completed),
-                onclick: 'todoToggleComplete',
-                title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
 
-        label( cF( c => todo.title),
-            { todo: todo,
-              ondblclick: 'todoStartEditing'}),
+            input({class: "toggle", type: "checkbox",
+                    checked: cF( c=> todo.completed),
+                    onclick: 'todoToggleComplete',
+                    title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
 
-        button(null, { class: "destroy", onclick: 'todoDelete'})]),
+            label( cF( c => todo.title),
+                { todo: todo,
+                  ondblclick: 'todoStartEditing'}),
+
+            button(null, { class: "destroy", onclick: 'todoDelete'})]),
 
         input({ name: "myEditor", class: "edit",
                 todo: todo,
@@ -71,7 +73,8 @@ function todoMatchesSelect( todo, selection) {
 
 function mkDashboard () {
     return footer({class: "footer",
-                    hidden: cF( c => Todos.items.length===0)}, c => [
+                    hidden: cF( c => Todos.empty)}, c => [
+
                 span({ class: "todo-count",
                         content: cF(c => {
                     let remCt = Todos.items.filter(todo => !todo.completed).length;

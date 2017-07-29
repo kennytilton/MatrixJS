@@ -17,7 +17,7 @@ class Todo extends Model {
                 completed: todoCompletedRule( islots.completed),
                 deleted: islots.deleted || cI( null)});
 
-        super(null, null, netSlots, false); // flow:GLUE: Model constructor does a *lot*
+        super(null, null, netSlots, false);
 
         if ( !islots.dbKey) { // ie, if not already stored, ie if being instantiated from DB
             this.store();
@@ -42,8 +42,9 @@ class Todo extends Model {
     }
 
     slotObserverResolve(slot) {
-        // identifying to the Cells engine which slot observer to use
-        return Todo.obsTodoChange }
+        // tell the Matrix engine our slot observer
+        return Todo.obsTodoChange
+    }
 
     static loadAllItems() {
         return mkm( null, 'Todo',
@@ -53,6 +54,8 @@ class Todo extends Model {
                                     .sort( (a,b) => a.created < b.created ? -1 : 1) || []),
 
                 items: cF( c => c.md.itemsRaw.filter( td => !td.deleted)),
+
+                empty: cF( c => c.md.items.length === 0),
 
                 txBulkOp: cIe( null)})
     }
