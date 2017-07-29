@@ -10,13 +10,7 @@ The project at this proof-of-concept stage consists of the official version of M
 We like this definition:
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-In the movie, the matrix harnessed humans to draw energy from them. In English, a matrix provides the conditions for new things to come to life.
-
-## More practically...
-Let us take a walk through MatrixJS * TodoMVC keeping any eye out for:
-* simplicity
-* expressive power (the declarative/reactive thing)
-* efficient DOM updates
+In the movie, the matrix harnessed humans to suck energy from them. In English, a matrix provides the conditions for new things to come to life.
 
 ## The mechanics
 In this particular dataflow/reactive/databinding library, a matrix is just a network of objects arranged pretty much in a simple tree of parents and children where children have just one parent and have a pointer to that parent. 
@@ -34,10 +28,18 @@ When cells change value, programmable observers execute procedural code to manif
 > Example: an observer on the `clanging` property of a matrix alarm turns an actual alarm on or off via its interface.
 
 ## So why "matrix"?
-We like the word matrix because the dataflow library provides an environment in which the developer can arrange for a model of, say, a nuclear powerplant to form. The matrix powerplant runs by itself once the developer has written the connective formulae and a minimum of procedural inputs. Valuable outputs such as a deafoning klaxon arise from straightforward change observers doing the obvious with new values.
+We like the word matrix because the dataflow library provides an environment in which the developer can arrange for a proxy nuclear powerplant to take form. The matrix powerplant runs by itself once the developer has written the connective formulae and a minimum of procedural inputs. Valuable outputs such as a deafening klaxon arise from straightforward change observers doing the obvious with new values.
 
-Turning to a safer application, the input from a user press of the Enter key in TodoMVC will procedurally extend the list of to-do items (mediated by an input cell) with a new incomplete one. The matrix model of the `UL` list is watching that cell and will grow a new `LI`, and, thanks to again straightforward observers, so will the real client DOM. The matrix is supporting a matrix version of the web page that gets manifested to -- gives birth to -- the actual browser page.
+Turning to a safer application, the input from a user press of the Enter key in TodoMVC will procedurally extend the list of to-do items with a new incomplete to-do item. The matrix model of a `UL` list is watching that list and will grow a new matrix `LI`. Thanks again to straightforward observers provided by MatrixJS, the real client DOM UL will grow a new LI.
+
+The matrix is supporting a live proxy version of the web page, one that MatrixJS propagates to -- gives birth to -- the browser.
 
 Hence "matrix".
 
 ## A Gentle Walkthrough of TodoMVC
+Let us take a walk through MatrixJS * TodoMVC keeping any eye out for:
+* simplicity
+* expressive power (declarative/reactive and transparent)
+* dataflow/reactivity, transparent and efficient
+* efficient DOM updates
+
