@@ -1,12 +1,12 @@
 # MatrixJS
 
-Sailboat designers say that one boat can have at most two out of the three virtues of speed, comfort, and low cost. 
+Sailboat designers say that one boat can have at most two of the three virtues of speed, comfort, and low cost. 
 
-MatrixJS shoots for all three: run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
+MatrixJS aspires to all three: run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
-The source here consists of (a) the official version of MatrixJS and (b) an implementation of the TodoMVC challenge. TodoMVC is a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are only functionally conformant.
+The source here consists of (a) the official version of MatrixJS and (b) an implementation of the TodoMVC challenge. TodoMVC is a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are only functionally conformant on a couple of browsers.
 
-### So what do *we* mean by "matrix"?
+### So what does matrix *really* mean?
 We like this definition:
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
@@ -15,27 +15,27 @@ In the movie, the matrix harnessed humans to suck energy from them. In English, 
 ### Matrix internals
 [This section is a bit technical. Feel free to skip it and come back as soon as you regret doing so.]
 
-The "matrix" in MatrixJS is just another dataflow/reactive/databinding library. Let's take a look from thirty thousand feet.
+The "matrix" driving MatrixJS is just another dataflow/reactive/databinding library. Let's take a look from thirty thousand feet.
 
-At run-time, a matrix is a simple tree of parent and children objects where children have just one parent and have a link to that parent. Meaning the entire matrix can be navigated starting from any object. It is all connected, as Buddha said.
+A run-time matrix is a simple tree of parent and children objects where children have just one parent and have a link to that parent, so the entire matrix can be navigated starting from any object. It is all connected, as Buddha said, and physicists have proven that a billiards shot can be affected by a quantum event in a different galaxy.
 
-Properties of objects might have fixed values or be mediated by so-called "cells" supplied when objects are specified. That means different objects of the same class can be mediated by different cells (nicely amping class re-use). 
+Properties of objects might have fixed values or be mediated by so-called "cells" supplied to an object constructor. That means different objects of the same class can be mediated by different cells (nicely amping object re-use). 
 
-Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions that take for input the object they qualify. These functions can use other properties of the same object or (by navigating intelligently to other objects) consult any other property in the matrix. Cue Buddha, and yes this flies happily in the face of conventional wisdom on component isolation, separation of concerns, and even the MVC trifurcation itself. Do not get us started.
+Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions. These functions receive one argument: the object they qualify. The function bodies can use other properties of the same object or (by navigating intelligently to other objects) consult any other property in the matrix. Cue Buddha, and yes this flies happily in the face of the conventional wisdom on component isolation, separation of concerns, and even the MVC trifurcation itself. Do not get us started.
 
 > Example: nuclear power plant control room dashboard background color is red or black depending on whether the core temperature reported by a sensor is greater or equal to a billion degrees.
 
-Next. It cannot be formulae all the way down: `input cells` can be assigned to from outside the matrix by, say, event handlers or code monitoring a socket. From the perspective of the matrix, these are inputs.
+Next. It cannot be formulae all the way down: `input cells` can be assigned to from outside the matrix by, say, event handlers or code monitoring a socket. From the perspective of the matrix, these are inputs, hence `input cells`.
 
 > Example: software monitoring an actual thermometer assigns a stream of temperature values to the `temperature` input cell of the matrix object corresponding to the real sensor.
 
-When a cell used in a computation changes in value, any rules that used that cell in their most recent computation are re-run to compute new values. Yes, Virginia, the dependency graph changes dynamically to minimize re-calculation. This propagation cascades recursively, stopping when a cell has no dependents or recomputes the same value as from the prior computation.
+When an input cell is assigned a new value, any formulaic cells that used it *in their most recent computation* are re-run to compute new values. Yes, Virginia, the dependency graph changes dynamically to minimize re-calculation. This propagation cascades recursively to other formulaic cells, stopping when a cell has no dependents or recomputes the same value as before.
 
 > Example (adding an intermediate cell to our example): the `coreStatus` property is "OK" or "not good" depending on the core temperature. The dashboard background color and a klaxon alarm derive their states from `coreStatus`. Suppose we are at one billion degrees and the dashboard is red and the klaxon is sounding. If the temperature increases to one billion and one, the `coreStatus` rule runs to consider the new value but again decides on "not good", so the formulae for the dashboard color and klaxon do not re-run.
 
-Next. When cells change value, we can supply "observer" functions to  manifest the changed matrix world to the outside world (if only to the browser DOM).
+Next. When cells change value, so-called *observer* functions can be supplied as the developer deems fit to  manifest the changed matrix world to the outside world (if only to the browser DOM).
 
-> Example: code in an observer on the `clanging` property of a matrix klaxon uses a real device's interface to turn it on or off. A different observer on the backgroundColor property executes `[dashboard DOM].style.backgroundColor = [new-value]`.
+> Example: code in an observer on the `clanging` property of a matrix klaxon uses a real device's interface to turn the real klaxon off or on. A different observer on the backgroundColor property executes `[dashboard DOM].style.backgroundColor = [new-value]`.
 
 ## So why "matrix"?
 This dataflow library provides an environment in which the developer can arrange for a proxy nuclear powerplant to take form. The matrix powerplant runs by itself given:
@@ -45,14 +45,14 @@ This dataflow library provides an environment in which the developer can arrange
 
 Turning to a safer application, the input of a user pressing the Enter key in TodoMVC procedurally extends the list of to-do items. The matrix proxy of a `UL` list sees the list grow and grows a new matrix `LI`. MatrixJS observers add a new LI to the browser DOM.
 
-Summary: the dataflow library is supporting a live proxy version of a web page, one that MatrixJS "delivers" continuously, transparently, and incrementally to the browser. Hence "matrix".
+Summary: the dataflow library supports a live proxy of a web page, one that MatrixJS delivers continuously, transparently, and incrementally to the browser. Hence "matrix".
 
 ## Running TodoMVC
 Pretty simple. In a terminal:
 * git clone the [overarching repository](https://github.com/kennytilton/MatrixJS);
 * open `MatrixJS/js/matrixjs/index.html` in Chrome or Safari on Mac OS X.
 
-Please advise kentilton at gmail of any difficulties or deviations from [the spec](https://github.com/tastejs/todomvc/blob/master/app-spec.md). Be as brave as you like trying other platforms.
+Please advise kentilton at gmail of any difficulties or deviations from [the spec](https://github.com/tastejs/todomvc/blob/master/app-spec.md). Be as brave as you like trying other platforms, but we use enough ES2015 to make FireFox unhappy. We even make Babel unhappy!
  
 ## A Gentle Walkthrough of TodoMVC
 Let us take a walk through the source of `MatrixJS * TodoMVC` keeping any eye out for:
@@ -141,11 +141,17 @@ So what controls the `items` property? Well, we exceeded the spec and did logica
 ```javascript
 items: cF( c => c.md.itemsEver.filter( td => !td.deleted))
 ```
-We went beyond the spec, but in fact TodoMVC looks only at undeleted to-dos so we provided a filtered property for most code to use. Now how about `itemsEver`? Great question.
+We went beyond the spec, but in fact TodoMVC looks only at undeleted to-dos so we provided a filtered `items` property for most code to use. Now how about `itemsEver`? Great question.
 ### Official spec line #2: New todos
 > New todos are entered in the input at the top of the app... Pressing Enter creates the todo, appends it to the todo list, and clears the input. Make sure to .trim() the input and then check that it's not empty before creating a new todo.
 
-We have reached the last turtle, an input cell fed by an event handler:
+We have reached the last turtle, an input cell fed by the `onkeypress` event handler on the to-do `input` element we reprise here for the reader's convenience:
+```javascript
+input({ class: "new-todo", autofocus: true,
+        placeholder: "What needs doing?",
+        onkeypress: 'todoAddNewOnEnter'})
+```
+And now the handler itself assigning to `itemsEver`:
 ```javascript
 function todoAddNewOnEnter (dom, e) {
     if (e.key==='Enter') {
@@ -159,10 +165,35 @@ function todoAddNewOnEnter (dom, e) {
     }
 }
 ```
-When the user hits Enter on a non-blank title, the above handler glue stores a new list with the new to-do in `Todos.itemsEver`. The `items` property recalculates and grows by one (the new to-do is undeleted) and then the `empty` property decides on `false` and then the `hidden` properties of `#main` and `#footer` decide on false. An observer then removes the `hidden` attribute from their DOM counterparts. (Much else happens as well, because almost all of the UI feeds off the list of to-dos.)
+When the user hits Enter on a non-blank title, the above handler assigns to `Todos.itemsEver` a new list extended with the new to-do. The `items` property recalculates and grows by one (the new to-do *is* undeleted) and then the `empty` property decides on `false` and then the `hidden` properties of `#main` and `#footer` decide on false. An observer then removes the `hidden` attribute from their DOM counterparts. (Much else happens as well, because almost all of the UI feeds off the list of to-dos.)
 
-> Why not just destructively add to the existing array? Since you asked: matrix internals work off (a) assignment and (b) by comparing prior values with new. Mutating the list `itemsEver` neither assigns nor makes visible a prior value. We *could* extend the matrix engine to force propagation with an explicit `recomputeDependents`, and even extend it to have a cell silently maintain a "priorValue" copy. In fact, one user extended the original Lisp version to handle hash-table updates at the granularity of the key. Left as an exercise, so for now try to remember not to change the matrix by mutating property values.
+> Why assign a new list? Why not just destructively add to the existing array? You caught us. This is a `matrix` gotcha: matrix internals work off (a) assignment and (b) by comparing prior values with new. Mutating the list `itemsEver` neither assigns nor makes visible a prior value. We *could* extend the matrix engine to force propagation with an explicit `recomputeDependents`, and even extend it to have a cell silently maintain a "priorValue" copy. In fact, one user extended the original Lisp version to handle hash-table updates at the granularity of the key. Left as an exercise. For now try to remember not to change the matrix by mutating property values.
 
-> More to come
+In fact, let us look at another element watching the list of to-dos, one in the dashboard that will now be un-hidden. The spec says:
+> Display the number of active todos in a pluralized form. Make sure the number is wrapped by a \<strong\> tag. Also make sure to pluralize the item word correctly: 0 items, 1 item, 2 items. Example: 2 items left.
 
+We thought "remaining" more readable.
+```javascript
+span({ class: "todo-count",
+       content: cF(c => {
+          let remCt = Todos.items.filter(todo => !todo.completed).length;
+          return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
+```
+Again simply declarative, and again `Tag.js` supplies an observer to propagate transparently to the actual DOM:
+```javascript
+function obsContent (slot, md, newv, oldv, c) {
+   if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
+   md.dom.innerHTML = newv;
+}
+```
+And one more functional requirement:
+> **Clear completed button** Removes completed todos when clicked. Should be hidden when there are no completed todos.
 
+OK:
+```javascript
+button("Clear completed",
+       { class: "clear-completed",
+         hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
+         onclick: 'todoCompletedDelete'})
+```
+The astute observer will note we could add another formulaic `itemsCompleted` cell to `Todos` and it would probably be a good design choice, but we like emphasizing that connective formulae can contain arbitrary HLL code when connecting values to value.
