@@ -1,10 +1,10 @@
 # MatrixJS
 
-Sailboat designers say any one boat can have at most two of the three virtues of speed, comfort, and low cost. 
+Sailboat designers say one boat can have at most two of the three virtues of speed, comfort, and low cost. 
 
 MatrixJS delivers all three: run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
-The project at this proof-of-concept stage consists of the official version of MatrixJS *and* an implementation of TodoMVC, a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are functionally conformant, anyway.
+The project at this proof-of-concept stage consists of the official version of MatrixJS and an implementation of TodoMVC, a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are functionally conformant.
 
 ### So what do *we* mean by "matrix"?
 We like this definition:
@@ -15,9 +15,9 @@ In the movie, the matrix harnessed humans to suck energy from them. In English, 
 ### Matrix internals
 [This section is a bit technical. Feel free to skip it and come back as soon as you regret doing so.]
 
-The "matrix" in MatrixJS is just another dataflow/reactive/databinding library. At run-time, a matrix is just a simple tree of parent and children objects where children have just one parent (and have a link to that parent). Thus the entire matrix can be navigated starting from any object. It is all connected, as Buddha said.
+The "matrix" in MatrixJS is just another dataflow/reactive/databinding library. At run-time, a matrix is a simple tree of parent and children objects where children have just one parent (and have a link to that parent). Thus the entire matrix can be navigated starting from any object. It is all connected, as Buddha said.
 
-Properties of objects might have fixed values or be mediated by so-called "cells". Our shorthand for "properties mediated by cells" is simply "cells". Formulaic `cF` cells calculate values for their properties from anonymous functions that take for input the object they qualify. These functions can use other properties of the same object or, by navigating intelligently to other objects in the matrix, rely on any other property in the matrix. Cue Buddha, and yes, we consider stateless isolation, encapsulation, and the model-view dichotomy to miss the point of UI programming, where interdependency abounds.
+Properties of objects might have fixed values or be mediated by so-called "cells". Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions that take for input the object they qualify. These functions can use other properties of the same object or, by navigating intelligently to other objects in the matrix, rely on any other property in the matrix. Cue Buddha, and yes this flies happily in the face of conventional wisdom on component isolation, because model-building is all about exposing information and connecting things. End of rant.
 
 > Example: nuclear power plant control room dashboard background color is red or black depending on whether the core temperature reported by a sensor is greater or equal to a billion degrees.
 
