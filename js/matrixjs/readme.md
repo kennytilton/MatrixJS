@@ -1,6 +1,6 @@
 # MatrixJS
 
-Sailboat designers say that one boat can have at most two of the three virtues of speed, comfort, and low cost. 
+Sailboat designers say one boat can have at most two of the three virtues of speed, comfort, and low cost. 
 
 MatrixJS aspires to all three: run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
