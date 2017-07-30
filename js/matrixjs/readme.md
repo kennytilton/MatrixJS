@@ -1,6 +1,6 @@
 # MatrixJS
 
-Sailboat designers say one boat can have at most two of the three virtues of speed, comfort, and low cost. 
+Sailboat designers say one boat can have at most two out of the three virtues of speed, comfort, and low cost. 
 
 MatrixJS delivers all three: run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
@@ -89,16 +89,16 @@ So far we have seen:
 * efficiency: the initial page load is of one block of HTML source (no piecemeal JS DOM assembly).
 Now let's get into how the app fulfills the requirements.
 ## I do declare!
-The first functional requirement:
+The first functional requirement from the TodoMVC challenge:
 > When there are no todos, #main and #footer should be hidden.
-And here is the code that will hide and show `#main` as to-dos come and go (recall that `cF` is short for "make formulaic cell"):
+And here is the code that will hide and show `#main` as to-dos come and go (`cF` is short for "make formulaic cell"):
 ```javascript
    section({class: "main",
             hidden: cF( c => Todos.empty)})
 ```
 Sweet. `#footer` works the same. But the above just makes the `hidden` matrix property true or false. What actually updates the DOM? 
 
-Matrix internals invoke the observers we specify, but in this case the MatrixJS HTML sub-component `Tag.js` has our back. Without getting too far into the weeds, here is how a change in the matrix `hidden` property makes it to the DOM, with a Tag-supplied universal slot observer not shown already having worked out that it needs to handle `hidden` as a global attribute:
+Matrix internals invoke whatever observers we specify; in this case the MatrixJS HTML sub-component `Tag.js` has our back, `tag` being the JS class for all HTML element proxies in the matrix. Without getting too far into the weeds, here is how a change in the matrix `hidden` property makes it to the DOM, with a Tag-supplied universal slot observer (not shown) already having worked out that it needs to handle `hidden` as a global attribute:
 ```javascript
 function obsAttrGlobal (property, md, newv, oldv, c) {
    if (oldv===kUnbound) {
@@ -109,6 +109,7 @@ function obsAttrGlobal (property, md, newv, oldv, c) {
    }
 }
 ```
+The matrix-to-DOM mystery turns out to be as simple as each proxy DOM element knowing its true DOM element (because it supplies the true element's `id`).
 ## Let the dataflow begin!
 We said input cells are fed by glue code in, inter alia, browser event handlers. Let us look at how the `onkeypess` handler does that:
 ```javascript
