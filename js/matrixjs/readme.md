@@ -2,22 +2,22 @@
 
 Sailboat designers say one boat can have at most two of the three virtues of speed, comfort, and low cost. 
 
-MatrixJS aspires to all three: run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
+MatrixJS aspires to all three of run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
-The source here consists of (a) the official version of MatrixJS and (b) an implementation of the TodoMVC challenge. TodoMVC is a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are only functionally conformant on a couple of browsers.
+The source here consists of (a) the official version of MatrixJS and (b) an implementation of the TodoMVC challenge. TodoMVC is a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are functionally conformant but only on a couple of browsers until we make friends with Babel.
 
 ### So what does matrix *really* mean?
 We like this definition:
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-In the movie, the matrix harnessed humans to suck energy from them. In English, a matrix provides the conditions for new things to come to life.
+In the movie, the matrix harnessed humans to suck their energy out of them. In English, a matrix provides the conditions for new things to come to life.
 
 ### Matrix internals
 [This section is a bit technical. Feel free to skip it and come back as soon as you regret doing so.]
 
-The "matrix" driving MatrixJS is just another dataflow/reactive/databinding library. Let's take a look from thirty thousand feet.
+The "matrix" driving MatrixJS is just another dataflow aka reactive aka databinding library. Let's take a look from thirty thousand feet.
 
-A run-time matrix is a simple tree of parent and children objects where children have just one parent and have a link to that parent, so the entire matrix can be navigated starting from any object. It is all connected, as Buddha said, and physicists have proven that a billiards shot can be affected by a quantum event in a different galaxy.
+The matrix library lets us build a simple tree of parent and children objects where children have just one parent and have a link to that parent, so the entire matrix can be navigated starting from any object. It is all connected, as Buddha said, and physicists have proven that a billiards shot can be affected by a quantum event in a different galaxy.
 
 Properties of objects might have fixed values or be mediated by so-called "cells" supplied to an object constructor. That means different objects of the same class can be mediated by different cells (nicely amping object re-use). 
 
@@ -36,6 +36,8 @@ When an input cell is assigned a new value, any formulaic cells that used it *in
 Next. When cells change value, so-called *observer* functions can be supplied as the developer deems fit to  manifest the changed matrix world to the outside world (if only to the browser DOM).
 
 > Example: code in an observer on the `clanging` property of a matrix klaxon uses a real device's interface to turn the real klaxon off or on. A different observer on the backgroundColor property executes `[dashboard DOM].style.backgroundColor = [new-value]`.
+
+The matrix library allows us to define declaratively a processing model and then animates that model once we hook it up to a stream of inputs.
 
 ## So why "matrix"?
 This dataflow library provides an environment in which the developer can arrange for a proxy nuclear powerplant to take form. The matrix powerplant runs by itself given:
