@@ -15,13 +15,12 @@ In the movie, the matrix harnessed humans to suck their energy out of them. In E
 ### Matrix internals
 [This section is a bit technical. Feel free to skip it and come back as soon as you regret doing so.]
 
-The "matrix" driving MatrixJS is just another dataflow aka reactive aka databinding library. Let's take a look from thirty thousand feet.
+The "matrix" driving MatrixJS is just another dataflow aka reactive aka databinding library. With this library we build a simple tree of parent and children objects where children have just one parent and have a link to that parent, so the entire matrix can be navigated starting from any object. It is all connected, as Buddha said, and physicists have proven that a billiards shot can be affected by a quantum event in a different galaxy. We digress.
 
-The matrix library lets us build a simple tree of parent and children objects where children have just one parent and have a link to that parent, so the entire matrix can be navigated starting from any object. It is all connected, as Buddha said, and physicists have proven that a billiards shot can be affected by a quantum event in a different galaxy.
+Properties of objects might have fixed values or be mediated by so-called "cells" supplied to an object constructor. That means different objects of the same class can be mediated by different cells, nicely amping object re-use. 
+> Delivering the Grail of object re-use is one part of `matrix`'s expressive power
 
-Properties of objects might have fixed values or be mediated by so-called "cells" supplied to an object constructor. That means different objects of the same class can be mediated by different cells (nicely amping object re-use). 
-
-Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions. These functions receive one argument: the object they qualify. The function bodies can use other properties of the same object or (by navigating intelligently to other objects) consult any other property in the matrix. Cue Buddha, and yes this flies happily in the face of the conventional wisdom on component isolation, separation of concerns, and even the MVC trifurcation itself. Do not get us started.
+Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions. These functions receive one argument: the object they qualify. The function bodies can use other properties of the same object or (by navigating to other objects) consult any other property in the matrix. Cue Buddha, and yes this flies happily in the face of the conventional wisdom on component isolation, separation of concerns, and even the MVC trifurcation itself. Do not get us started.
 
 > Example: nuclear power plant control room dashboard background color is red or black depending on whether the core temperature reported by a sensor is greater or equal to a billion degrees.
 
