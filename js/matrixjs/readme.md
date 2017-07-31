@@ -2,9 +2,9 @@
 
 Sailboat designers say one boat can have at most two of the three virtues of speed, comfort, and low cost. 
 
-MatrixJS aspires to all three of run-time efficiency, expressive power, and development simplicity. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
+MatrixJS aspires to all three of speed, expressive power, and development ease. The secret? A custom dataflow engine we have re-christened "matrix" after finding out what that word really means. (Forget the movie.)
 
-The source here consists of (a) the official version of MatrixJS and (b) an implementation of the TodoMVC challenge. TodoMVC is a do-list web app [specified here](https://github.com/tastejs/todomvc/blob/master/app-spec.md) by the good folks at [TodoMVC](http://todomvc.com). We are functionally conformant but only on a couple of browsers until we make friends with Babel.
+The source here consists of (a) the official version of MatrixJS and (b) an implementation of [the TodoMVC challenge](https://github.com/tastejs/todomvc/blob/master/app-spec.md), a do-list web app designed by the good folks at [TodoMVC](http://todomvc.com) to help folks compare Web frameworks. We are functionally conformant but only on a couple of browsers until we make friends with Babel.
 
 ### So what does matrix *really* mean?
 We like this definition:
