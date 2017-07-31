@@ -10,14 +10,14 @@ The source here consists of (a) the official version of MatrixJS and (b) an impl
 We like this definition:
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-In the movie, the matrix harnessed humans to suck their energy out of them. In English, a matrix provides the conditions for new things to come to life.
+In the movie, the matrix harnessed humans to suck energy out of them. In English, a matrix provides the conditions for new things to come to life.
 
 ### Matrix internals
-[This section is a bit technical. Feel free to skip it and come back as soon as you regret doing so.]
+*This section is a bit technical. Feel free to skip it and come back as soon as you regret doing so.*
 
 The "matrix" driving MatrixJS is just another dataflow aka reactive aka databinding library. With this library we build a simple tree of parent and children objects where children have just one parent and have a link to that parent, so the entire matrix can be navigated starting from any object. It is all connected, as Buddha said, and physicists have proven that a billiards shot can be affected by a quantum event in a different galaxy. We digress.
 
-Properties of objects might have fixed values or be mediated by so-called "cells" supplied to an object constructor. That means different objects of the same class can be mediated by different cells, nicely amping object re-use. 
+Properties of objects might have fixed values or might be mediated by so-called "cells" supplied to the object constructor. That means different objects of the same class can be mediated by different cells, nicely amping object re-use. 
 > Delivering the Grail of object re-use is one part of `matrix`'s expressive power
 
 Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions. These functions receive one argument: the object they qualify. The function bodies can use other properties of the same object or (by navigating to other objects) consult any other property in the matrix. Cue Buddha, and yes this flies happily in the face of the conventional wisdom on component isolation, separation of concerns, and even the MVC trifurcation itself. Do not get us started.
@@ -28,15 +28,15 @@ Next. It cannot be formulae all the way down: `input cells` can be assigned to f
 
 > Example: software monitoring an actual thermometer assigns a stream of temperature values to the `temperature` input cell of the matrix object corresponding to the real sensor.
 
-When an input cell is assigned a new value, any formulaic cells that used it *in their most recent computation* are re-run to compute new values. Yes, Virginia, the dependency graph changes dynamically to minimize re-calculation. This propagation cascades recursively to other formulaic cells, stopping when a cell has no dependents or recomputes the same value as before.
+When an input cell is assigned a new value, any formulaic cells that used it *in their most recent computation* are re-run to compute new values. Yes, Virginia, the dependency graph changes dynamically, minimizing re-calculations. This propagation cascades recursively to other formulaic cells, stopping when a cell has no dependents or recomputes the same value as before.
 
 > Example (adding an intermediate cell to our example): the `coreStatus` property is "OK" or "not good" depending on the core temperature. The dashboard background color and a klaxon alarm derive their states from `coreStatus`. Suppose we are at one billion degrees and the dashboard is red and the klaxon is sounding. If the temperature increases to one billion and one, the `coreStatus` rule runs to consider the new value but again decides on "not good", so the formulae for the dashboard color and klaxon do not re-run.
 
-Next. When cells change value, so-called *observer* functions can be supplied as the developer deems fit to  manifest the changed matrix world to the outside world (if only to the browser DOM).
+Next. When cells change value, so-called *observer* functions can be supplied to manifest the changed matrix world to the outside world (if only to the browser DOM).
 
 > Example: code in an observer on the `clanging` property of a matrix klaxon uses a real device's interface to turn the real klaxon off or on. A different observer on the backgroundColor property executes `[dashboard DOM].style.backgroundColor = [new-value]`.
 
-The matrix library allows us to define declaratively a processing model and then animates that model once we hook it up to a stream of inputs.
+Summary. The matrix library takes a declarative definition of a processing model and animates that model when we feed it inputs. It brings an application to life.
 
 ## So why "matrix"?
 This dataflow library provides an environment in which the developer can arrange for a proxy nuclear powerplant to take form. The matrix powerplant runs by itself given:
