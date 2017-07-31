@@ -46,7 +46,7 @@ This dataflow library provides an environment in which the developer can arrange
 
 Turning to a safer application, the input of a user pressing the Enter key in TodoMVC procedurally extends the list of to-do items. The matrix proxy of a `UL` list sees the list grow and grows a new matrix `LI`. MatrixJS observers add a new LI to the browser DOM.
 
-Summary: the dataflow library supports a live proxy of a web page, one that MatrixJS delivers continuously, transparently, and incrementally to the browser. Hence "matrix".
+Summary. The dataflow library supports a live proxy of a web page, one that MatrixJS delivers continuously, transparently, and incrementally to the browser. Hence "matrix".
 
 ## Running TodoMVC
 Pretty simple. In a terminal:
@@ -70,7 +70,10 @@ Starting with [`index.html`](https://github.com/kennytilton/MatrixJS/blob/master
   </script>
 </body>
 ```
-Super. Now take a look at the function `todoMVC` defined in [`app.js`](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/js/app.js) and compare it with the `<body>` in [the original HTML](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/todo-orig.html) supplied by the TodoMVC folks. Pretty close (except for the structure we have broken out into subroutines just to keep the source visually manageable). 
+Super. Well, one thing:
+> Speed: initially the matrix proxy page loads as a single wodge of HTML for the browser to consume all at once. Thereafter, *all* updates are incremental.
+
+Now take a look at the function `todoMVC` defined in [`app.js`](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/js/app.js) and compare it with the `<body>` in [the original HTML](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/todo-orig.html) supplied by the TodoMVC folks. Pretty close (except for the structure we have broken out into subroutines just to keep the source visually manageable). 
 
 > HTML "subroutines" in the form of simple JS subroutines are part of the expressive power of MatrixJS,
 
