@@ -22,7 +22,7 @@ Properties of objects might have fixed values or might be mediated by so-called 
 
 Our shorthand for "a property mediated by a cell" is simply "cell". Formulaic `cF` cells calculate values for their properties from anonymous functions. These functions receive one argument: the object they qualify. The function bodies can use other properties of the same object or (by navigating to other objects) consult any other property in the matrix. Cue Buddha, and yes this flies happily in the face of the conventional wisdom on component isolation, separation of concerns, and even the MVC trifurcation itself. Do not get us started.
 
-> Example: nuclear power plant control room dashboard background color is red or black depending on whether the core temperature reported by a sensor is greater or equal to a billion degrees.
+> Example: nuclear power plant control room dashboard background color is red or black depending on whether the core temperature reported by a sensor is greater than or equal to a billion degrees.
 
 Next. It cannot be formulae all the way down: `input cells` can be assigned to from outside the matrix by, say, event handlers or code monitoring a socket. From the perspective of the matrix, these are inputs, hence `input cells`.
 
@@ -46,7 +46,7 @@ This dataflow library provides an environment in which the developer can arrange
 
 Turning to a safer application, the input of a user pressing the Enter key in TodoMVC procedurally extends the list of to-do items. The matrix proxy of a `UL` list sees the list grow and grows a new matrix `LI`. MatrixJS observers add a new LI to the browser DOM.
 
-Summary: the dataflow library supports a live proxy of a web page, one that MatrixJS delivers continuously, transparently, and incrementally to the browser. Hence "matrix".
+Summary. The dataflow library supports a live proxy of a web page, one that MatrixJS delivers continuously, transparently, and incrementally to the browser. Hence "matrix".
 
 ## Running TodoMVC
 Pretty simple. In a terminal:
@@ -70,7 +70,10 @@ Starting with [`index.html`](https://github.com/kennytilton/MatrixJS/blob/master
   </script>
 </body>
 ```
-Super. Now take a look at the function `todoMVC` defined in [`app.js`](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/js/app.js) and compare it with the `<body>` in [the original HTML](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/todo-orig.html) supplied by the TodoMVC folks. Pretty close (except for the structure we have broken out into subroutines just to keep the source visually manageable). 
+Super. Well, one thing:
+> Speed: initially the matrix proxy page loads as a single wodge of HTML for the browser to consume all at once. Thereafter, *all* updates are incremental.
+
+Now take a look at the function `todoMVC` defined in [`app.js`](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/js/app.js) and compare it with the `<body>` in [the original HTML](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/todo-orig.html) supplied by the TodoMVC folks. Pretty close (except for the structure we have broken out into subroutines just to keep the source visually manageable). 
 
 > HTML "subroutines" in the form of simple JS subroutines are part of the expressive power of MatrixJS,
 
