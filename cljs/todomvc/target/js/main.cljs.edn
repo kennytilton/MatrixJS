@@ -1,0 +1,1 @@
+{:require [todomvc.core adzerk.boot-reload.js.main adzerk.boot-cljs-repl], :compiler-options {:asset-path "js/main.out"}, :boot-reload {:ws-host "localhost"}}

@@ -5,12 +5,12 @@
 (def on-event-attr-template
   "(function () { ~a(event~{,~s~})})()")
 
-(defmacro on-evt [fname & cb-args]
+(defmacro on-evt! [fname & cb-args]
   `(let [fn-name# (str/replace
-                    (str/replace (subs (str (resolve ~fname)) 2)
-                      \- \_) \/ \.)]
-      ;;;(println :on-evt-calling fn-name# (string? fn-name#))
-      (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
+                    (str/replace (str '~fname)
+                                 \- \_) \/ \.)]
+
+        (pp/cl-format nil on-event-attr-template fn-name# (list ~@cb-args))))
 
 (def tag-dom-sid (atom -1))
 

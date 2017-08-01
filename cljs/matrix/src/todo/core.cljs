@@ -8,7 +8,7 @@
             [tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
             [tiltontec.tag.html :refer [tag to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
                                         dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
-            [tiltontec.tag.gen :refer-macros [on-evt section header h1 input footer p a span label ul li div button]
+            [tiltontec.tag.gen :refer-macros [on-evt on-evt! section header h1 input footer p a span label ul li div button]
              :refer [dom-tag]]
             [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
                                td-to-json td-load td-upsert td-delete td-load-all gTodo-items
@@ -29,6 +29,15 @@
             :selection (name route))
     :default (reset! iroute (name route))))
 
+#_
+    (def on-event-attr-template
+  "(function () { ~a(event~{,~s~})})()")
+
+(declare todo-process-on-enter)
+
+(defn dobam [e]
+      (println :bam (.-type e)))
+
 (defn landing-page []
   (r/start! router {:default :todo/all
                     :on-navigate on-navigate})
@@ -38,10 +47,10 @@
   (reset! app
     [(section (:class "todoapp" :par :top)
         (header (:class "header")
-          (h1 () "todos")
+          (h1 () "todos!")
           (input (:class "new-todo" :autofocus true
-                  :placeholder "What needs to be done?"
-                  :onkeypress (on-evt 'todo-process-on-enter))))
+                  :placeholder "What needs to be done???"
+                  :onkeypress (on-evt! todo.core/todo-process-on-enter))))
 
         (section (:class "main"
                     :hidden (c? (zero? (count (gTodo-items)))))
@@ -52,7 +61,7 @@
                   :checked (c? (= (md-get me :action) :uncomplete))))
 
           (label (:for "toggle-all"
-                  :onclick (on-evt 'td-completed-toggle-all))
+                  :onclick (on-evt! todo.core/td-completed-toggle-all))
             "Mark all as complete")
 
           (ul (:class "todo-list"
@@ -86,18 +95,18 @@
     (div (:class "view")
          (input (:class "toggle" :input-type "checkbox"
                   :checked (c? (md-get td :completed))
-                  :onclick (on-evt 'td-toggle-completed (td-id td))))
+                  :onclick (on-evt! todo.todo/td-toggle-completed (td-id td))))
 
-         (label (:ondblclick (on-evt 'todo-start-editing))
+         (label (:ondblclick (on-evt! todo.core/todo-start-editing))
                 (td-title td))
 
          (button (:class "destroy"
-                   :onclick (on-evt 'td-delete-by-key (td-id td)))))
+                   :onclick (on-evt! todo.todo/td-delete-by-key (td-id td)))))
 
     (input (:class "edit"
              :value (c?n (td-title td))
-             :onblur (on-evt 'todo-edit (td-id td))
-             :onkeydown (on-evt 'todo-edit (td-id td))))))
+             :onblur (on-evt! todo.core/todo-edit (td-id td))
+             :onkeydown (on-evt! todo.core/todo-edit (td-id td))))))
 
 (defn mk-dashboard []
   (footer (:class "footer"
@@ -116,7 +125,7 @@
 
     (button (:class "clear-completed"
               :hidden (c? (zero? (count (filter td-completed (gTodo-items)))))
-              :onclick (on-evt 'td-clear-completed))
+              :onclick (on-evt! todo.todo/td-clear-completed))
       "Clear completed")))
 
 ;;; --- event handlers to support the above ------------------------------------

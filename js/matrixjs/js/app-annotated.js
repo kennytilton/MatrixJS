@@ -212,8 +212,8 @@ function mkToggleAll() {
 function toggleAllCompleted (dom,e) {
 	// n.b! the official app.js code has been re-factored to avoid all this, which I leave here
 	// for comparison. The refactoring had each TD have a rule for the completed property that
-	// watched a "txBulkOp" property on the Todo class, so all TDs decided on a new 'completed'
-	// state as part of the dataflow from a single assignment (to txBulkOP).
+	// watched a "bulkTx" property on the Todo class, so all TDs decided on a new 'completed'
+	// state as part of the dataflow from a single assignment (to bulkTx).
 
 	// flow:GLUE: Amusing CELLS-necessitated hack: we pull the action into a local variable instead of accessing
 	// the expression "dom2js(dom).action" in the mapped function because (hang on to your hat):
