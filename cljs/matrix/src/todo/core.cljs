@@ -2,32 +2,37 @@
   (:require [cljs.pprint :as pp]
             [clojure.string :as str]
             [bide.core :as r]
-            [tiltontec.util.core :refer [pln any-ref? xor json-to-map map-to-json now]]
-            [tiltontec.cell.base :refer [unbound ia-type *within-integrity*]]
+            [tiltontec.util.core :refer [xor now]]
+            [tiltontec.cell.base :refer [*within-integrity*]]
             [tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
-            [tiltontec.model.core :refer [*par* fget fasc make md-reset! md-get fmi-w-class fmu-w-class kid-values-kids]]
-            [tiltontec.tag.html :refer [tag to-html tag-dom fm-asc-tag tagfo dom-ancestor-by-class dom-ancestor-by-tag
-                                        dom-has-class io-all-keys io-truncate io-find io-upsert io-read io-clear-storage]]
-            [tiltontec.tag.gen :refer-macros [ on-evt!  section header h1 input footer p a span label ul li div button]
+            [tiltontec.model.core :refer [md-get md-reset! mxi-find mxu-find-class kid-values-kids]]
+            [tiltontec.tag.html :refer [ to-html  fm-asc-tag dom-tag tag-dom dom-has-class dom-ancestor-by-tag]]
+            [tiltontec.tag.gen
+             :refer-macros [ on-evt!  section header h1 input footer p a span label ul li div button]
              :refer [dom-tag]]
-            [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-to-map td-title td-completed
-                               td-to-json td-load td-upsert td-delete td-load-all gTodo-items
+            [todo.todo :refer [gTodo gItems-raw gTodo-lookup TODO_LS_PREFIX make-todo td-title
+                               td-completed td-upsert td-delete td-load-all gTodo-items
                                td-id td-clear-completed td-delete-by-key td-toggle-completed]]))
 
-(declare todo-list-item toggle-all dashboard-footer  todo-input)
+(def app (atom nil))
+
+;;; --- routing -------------------------------
 
 (def router (r/router [["/" :All]
              ["/active" :Active]
              ["/completed" :Completed]]))
 
-(def app (atom nil))
 (def iroute (atom nil))
 
 (defn on-navigate [route params query]
   (cond
-    @app (md-reset! (fmi-w-class (first @app) "filters")
+    @app (md-reset! (mxi-find (first @app) :class "filters")
             :selection (name route))
     :default (reset! iroute (name route))))
+
+;;; --- the app -------------------------------
+
+(declare todo-list-item toggle-all dashboard-footer  todo-entry)
 
 (defn landing-page []
   (r/start! router {:default :todo/all
@@ -35,15 +40,24 @@
   ;; todo maybe avoid gTodo global and load with dom into common "app" object
   (reset! gTodo (td-load-all))
 
+      ;; Next we mix native (matrix) HTML generators with simple function calls that
+      ;; return the same, in the spirit of web components but avoiding that mess.
+      ;;
+      ;; Note that if we wanted reusable "web components" these functions could
+      ;; accept conventional parameters for the generated (matrix) elements.
+
   (reset! app
-    [(section {:class "todoapp" :par :top}
+    [(section {:class "todoapp"}
         (header {:class "header"}
-          (h1 {} "todos!")
-          (todo-input))
+          (h1 {} "todos")
+          (todo-entry))
 
         (section {:class "main"
                     :hidden (c? (zero? (count (gTodo-items))))}
            (toggle-all)
+                 ;; Next we address the problem ReactJS handles by allowing
+                 ;; keys on items of a list of elements, namely how not to
+                 ;; regen all just because one comes or goes.
            (ul {:class "todo-list"
                 :kid-values (c? (gTodo-items))
                 :kid-key #(md-get % :todo)
@@ -52,45 +66,48 @@
 
         (dashboard-footer))
 
+     ;; no need to hide everything behind a function....
      (footer {:class "info"}
-       (p {} "Double-click a todo00 to edit it.")
+       (p {} "Double-click a todo to edit it.")
        (p {} "Created by <a href=\"http://tiltontec.com\">Kenneth Tilton</a>.")
        (p {} "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>."))])
+
   (to-html @app))
 
 ;; --- to-do INPUT -------------------------
 
-(defn todo-input []
-      (input {:class       "new-todo" :autofocus true
-              :placeholder "What needs to be done?"
-              :onkeypress  (on-evt! todo.core/todo-process-on-enter)}))
+(defn todo-entry []
+  (input {:class       "new-todo" :autofocus true
+          :placeholder "What needs to be done?"
+          :onkeypress  (on-evt! todo.core/todo-process-on-enter)}))
 
 (defn todo-process-on-enter [e]
-      (when (= (.-key e) "Enter")
-            (let [raw (.-value (.-target e))
-                  title (str/trim raw)]
-                 (if (= title "")
-                   (when (pos? (count raw))
-                         (.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
-                   (md-reset! @gTodo :items-raw
-                              (conj (gItems-raw)
-                                    (make-todo {:title title}))))
-                 (set! (.-value (.-target e)) ""))))
+  (when (= (.-key e) "Enter")
+        (let [raw (.-value (.-target e))
+              title (str/trim raw)]
+             (if (= title "")
+               (when (pos? (count raw))
+                     (.alert js/window "A reminder to do nothing? We like it! But no."))
+               (md-reset! @gTodo :items-raw
+                          (conj (gItems-raw)
+                                (make-todo {:title title}))))
+             (set! (.-value (.-target e)) ""))))
 
 ;; -- toggle-all -------------------------------------
 
 (defn toggle-all []
-    ;; these will get flattened out by "the-kids" so lets keep these togetehr
-    [(input {:id "toggle-all" :class "toggle-all" :input-type "checkbox"
-                       :action (c? (if (some (complement td-completed) (gTodo-items))
-                                     :complete :uncomplete))
-                       :checked (c? (= (md-get me :action) :uncomplete))})
-     (label {:for "toggle-all"
-             :onclick (on-evt! todo.core/td-completed-toggle-all)}
-            "Mark all as complete")])
+  ;; these will get flattened out by "the-kids". That let's us keep these
+  ;; together in the source although they do not share the same parent exclusively
+  [(input {:id "toggle-all" :class "toggle-all" :input-type "checkbox"
+                     :action (c? (if (some (complement td-completed) (gTodo-items))
+                                   :complete :uncomplete))
+                     :checked (c? (= (md-get me :action) :uncomplete))})
+   (label {:for "toggle-all"
+           :onclick (on-evt! todo.core/td-completed-toggle-all)}
+          "Mark all as complete")])
 
 (defn td-completed-toggle-all [event]
-      (let [input (fmu-w-class (dom-tag (.-target event)) "toggle-all")
+      (let [input (mxu-find-class (dom-tag (.-target event)) "toggle-all")
             action (md-get input :action)]
            (doseq [td (gTodo-items)]
                   (md-reset! td :completed (when (= action :complete) (now))))))
@@ -101,7 +118,7 @@
   (li {:todo td
         :name :todo-li
         :class (c? (if (td-completed td) "completed" ""))
-        :display (c? (let [sel (md-get (fmu-w-class me "filters") :selection)]
+        :display (c? (let [sel (md-get (mxu-find-class me "filters") :selection)]
                        (if (or (= sel "All")
                                (xor (= sel "Active")
                                     (md-get td :completed)))
@@ -124,35 +141,36 @@
              :onkeydown (on-evt! todo.core/todo-edit (td-id td))})))
 
 (defn todo-start-editing [e]
-      ;; I am tempted to make this more declarative, but leave as is
-      ;; as an example of how jLive allows straight JS coding
-      (let [lbl (dom-tag (.-target e))
-            li (fm-asc-tag lbl "li")
-            edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
-           (.add (.-classList (tag-dom li)) "editing")
-           (.focus edt-dom)
-           (.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
+  ;; I am tempted to make this more declarative, but leave as is
+  ;; as an example of how jLive allows straight JS coding
+  (let [lbl (dom-tag (.-target e))
+        li (fm-asc-tag lbl "li")
+        edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
+     (.add (.-classList (tag-dom li)) "editing")
+     (.focus edt-dom)
+       ;; no one gets this right any more...
+     (.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
 
 (defn todo-edit [e td-key]
       ;; this all might be done more declaratively
-    (when-not *within-integrity* ;; todo is this still a problem? If so, handle better
-      (let [edom (.-target e)
-            title (str/trim (.-value edom))
-            td (gTodo-lookup td-key)
-            li-dom (dom-ancestor-by-tag edom "li")]
-           (cond
-             (or (and (= (.-type e) "blur")
-                      (dom-has-class li-dom "editing"))
-                 (= (.-key e) "Enter"))
-             (do
-               (if (= title "")
-                 (td-delete td)
-                 (md-reset! td :title title))
-               (.remove (.-classList li-dom) "editing"))
+  (when-not *within-integrity* ;; todo is this still a problem? If so, handle better
+    (let [edom (.-target e)
+          title (str/trim (.-value edom))
+          td (gTodo-lookup td-key)
+          li-dom (dom-ancestor-by-tag edom "li")]
+       (cond
+         (or (and (= (.-type e) "blur")
+                  (dom-has-class li-dom "editing"))
+             (= (.-key e) "Enter"))
+         (do
+           (if (= title "")
+             (td-delete td)
+             (md-reset! td :title title))
+           (.remove (.-classList li-dom) "editing"))
 
-             (= (.-key e) "Escape")
-             (do (set! (.-value edom) (td-title td))
-                 (.remove (.-classList li-dom) "editing"))))))
+         (= (.-key e) "Escape")
+         (do (set! (.-value edom) (td-title td))
+             (.remove (.-classList li-dom) "editing"))))))
 
 ;; --- dashboard FOOTER -------------------------------------
 

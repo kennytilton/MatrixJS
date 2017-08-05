@@ -3,9 +3,8 @@
     [clojure.string :as str]
     [tiltontec.cell.base :refer [unbound ia-type]]
     [tiltontec.cell.core
-             :refer-macros [c? c?+ c-reset-next! c?once c?n]
-             :refer [c-in c-reset! make-cell make-c-formula]]
-        [tiltontec.cell.observer :refer [observe-by-type]]
+           :refer-macros [c? c?n] :refer [c-in ]]
+    [tiltontec.cell.observer :refer [observe-by-type]]
     [tiltontec.model.core :as md :refer [make md-get md-reset!]]
     [tiltontec.util.core :as util :refer [pln now map-to-json json-to-map uuidv4]]
     [tiltontec.tag.html :refer [io-upsert io-read io-find]]))
@@ -57,15 +56,15 @@
   (make-todo (assoc (json-to-map json)
                :par :todo-42)))
 
-;;; --- persistence ------------------------------------------------------
+;; -- new/update --
 
-;; -- new --
 (defn td-upsert [td]
   (io-upsert (td-id td)
              (.stringify js/JSON
                          (td-to-json td))))
 
-;; -- read --
+;; -- readers --
+
 (defn td-load [id]
   (td-from-json
     (.parse js/JSON
@@ -77,17 +76,11 @@
            :items-raw (c?n (doall (map td-load (io-find TODO_LS_PREFIX))))
            :items (c? (doall (remove #(md-get % :deleted) (md-get me :items-raw))))))
 
-;; -- update --
-;; regardless of slot that changed, update td instance
-(defmethod observe-by-type [::todo.todo/todo] [slot me new-val old-val c]
-  (when-not (= old-val unbound)
-    (td-upsert me)))
-
-;;; ---- semantically more interesting ----------------------
-
-;;; --- the in-memory store --
+;;; --- the matrix incarnation of localStorage --
 
 (def gTodo (atom nil))
+
+;; --- dependency-establishing accessors ---------------------
 
 (defn gItems-raw []
   (md-get @gTodo :items-raw))
@@ -96,10 +89,10 @@
   (md-get @gTodo :items))
 
 (defn gTodo-lookup [id]
-  (let [td (some (fn [td] (when (= id (td-id td)) td))
-                 (gTodo-items))]
-    (assert td (str "gTodo-lookup cannot find " id))
-    td))
+  (some (fn [td] (when (= id (td-id td)) td))
+                 (gTodo-items)))
+
+;; --- dataflow triggering mutations --------------
 
 (defn td-delete [td]
   (md-reset! td :deleted (now)))
@@ -116,4 +109,12 @@
 
 (defn td-delete-by-key [event id]
   (td-delete (gTodo-lookup id)))
+
+;; --- dataflow observer propgates mutations to localStorage --------------
+
+(defmethod observe-by-type [::todo.todo/todo] [slot me new-val old-val c]
+   ;; regardless of which slot changed, update td instance
+   (when-not (= old-val unbound)
+             (td-upsert me)))
+
 

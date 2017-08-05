@@ -227,9 +227,22 @@
   (fget #(= class (md-get % :class))
       where :me? false :up? true))
 
+(defn mxu-find-class
+      "Search up the matrix from node 'where' looking for element with class"
+      [where class]
+      (fget #(= class (md-get % :class))
+            where :me? false :up? true))
+
 (defn fmi-w-class [where class]
   (fget #(when (any-ref? %)
                 (= class (md-get % :class)))
+        where :inside? true :up? false))
+
+(defn mxi-find
+  "Search matrix below node 'where' for node with property and value"
+  [where property value]
+  (fget #(when (any-ref? %)
+               (= value (md-get % property)))
         where :inside? true :up? false))
 
 (defmacro the-kids [& tree]
