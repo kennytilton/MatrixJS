@@ -14,7 +14,7 @@
                                td-to-json td-load td-upsert td-delete td-load-all gTodo-items
                                td-id td-clear-completed td-delete-by-key td-toggle-completed]]))
 
-(declare mk-todo-item mk-dashboard td-completed-toggle-all)
+(declare todo-list-item toggle-all dashboard-footer  todo-input)
 
 (def router (r/router [["/" :All]
              ["/active" :Active]
@@ -29,50 +29,28 @@
             :selection (name route))
     :default (reset! iroute (name route))))
 
-#_
-    (def on-event-attr-template
-  "(function () { ~a(event~{,~s~})})()")
-
-(declare todo-process-on-enter)
-
-(defn dobam [e]
-      (println :bam (.-type e)))
-
 (defn landing-page []
   (r/start! router {:default :todo/all
                     :on-navigate on-navigate})
-
+  ;; todo maybe avoid gTodo global and load with dom into common "app" object
   (reset! gTodo (td-load-all))
-
-      (println (vec (seq {:a 1 :b 2})))
 
   (reset! app
     [(section {:class "todoapp" :par :top}
         (header {:class "header"}
-          (h1 {} "todos")
-          (input {:class "new-todo" :autofocus true
-                  :placeholder "What needs to be done?"
-                  :onkeypress (on-evt! todo.core/todo-process-on-enter)}))
+          (h1 {} "todos!")
+          (todo-input))
 
         (section {:class "main"
                     :hidden (c? (zero? (count (gTodo-items))))}
-
-          (input {:id "toggle-all" :class "toggle-all" :input-type "checkbox"
-                  :action (c? (if (some (complement td-completed) (gTodo-items))
-                                :complete :uncomplete))
-                  :checked (c? (= (md-get me :action) :uncomplete))})
-
-          (label {:for "toggle-all"
-                  :onclick (on-evt! todo.core/td-completed-toggle-all)}
-            "Mark all as complete")
-
-          (ul {:class "todo-list"
+           (toggle-all)
+           (ul {:class "todo-list"
                 :kid-values (c? (gTodo-items))
                 :kid-key #(md-get % :todo)
-                :kid-factory mk-todo-item}
+                :kid-factory todo-list-item}
             (kid-values-kids me cache)))
 
-        (mk-dashboard))
+        (dashboard-footer))
 
      (footer {:class "info"}
        (p {} "Double-click a todo00 to edit it.")
@@ -80,11 +58,46 @@
        (p {} "Inspired by <a href=\"http://todomvc.com\">TodoMVC</a>."))])
   (to-html @app))
 
-;;; --- page sub-structure breakouts for readabilityy ------------------------------
+;; --- to-do INPUT -------------------------
 
-(declare todo-start-editing todo-edit)
+(defn todo-input []
+      (input {:class       "new-todo" :autofocus true
+              :placeholder "What needs to be done?"
+              :onkeypress  (on-evt! todo.core/todo-process-on-enter)}))
 
-(defn mk-todo-item [me td]
+(defn todo-process-on-enter [e]
+      (when (= (.-key e) "Enter")
+            (let [raw (.-value (.-target e))
+                  title (str/trim raw)]
+                 (if (= title "")
+                   (when (pos? (count raw))
+                         (.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
+                   (md-reset! @gTodo :items-raw
+                              (conj (gItems-raw)
+                                    (make-todo {:title title}))))
+                 (set! (.-value (.-target e)) ""))))
+
+;; -- toggle-all -------------------------------------
+
+(defn toggle-all []
+    ;; these will get flattened out by "the-kids" so lets keep these togetehr
+    [(input {:id "toggle-all" :class "toggle-all" :input-type "checkbox"
+                       :action (c? (if (some (complement td-completed) (gTodo-items))
+                                     :complete :uncomplete))
+                       :checked (c? (= (md-get me :action) :uncomplete))})
+     (label {:for "toggle-all"
+             :onclick (on-evt! todo.core/td-completed-toggle-all)}
+            "Mark all as complete")])
+
+(defn td-completed-toggle-all [event]
+      (let [input (fmu-w-class (dom-tag (.-target event)) "toggle-all")
+            action (md-get input :action)]
+           (doseq [td (gTodo-items)]
+                  (md-reset! td :completed (when (= action :complete) (now))))))
+
+;; --- to-do list LI ---------------------------------
+
+(defn todo-list-item [me td]
   (li {:todo td
         :name :todo-li
         :class (c? (if (td-completed td) "completed" ""))
@@ -110,7 +123,40 @@
              :onblur (on-evt! todo.core/todo-edit (td-id td))
              :onkeydown (on-evt! todo.core/todo-edit (td-id td))})))
 
-(defn mk-dashboard []
+(defn todo-start-editing [e]
+      ;; I am tempted to make this more declarative, but leave as is
+      ;; as an example of how jLive allows straight JS coding
+      (let [lbl (dom-tag (.-target e))
+            li (fm-asc-tag lbl "li")
+            edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
+           (.add (.-classList (tag-dom li)) "editing")
+           (.focus edt-dom)
+           (.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
+
+(defn todo-edit [e td-key]
+      ;; this all might be done more declaratively
+    (when-not *within-integrity* ;; todo is this still a problem? If so, handle better
+      (let [edom (.-target e)
+            title (str/trim (.-value edom))
+            td (gTodo-lookup td-key)
+            li-dom (dom-ancestor-by-tag edom "li")]
+           (cond
+             (or (and (= (.-type e) "blur")
+                      (dom-has-class li-dom "editing"))
+                 (= (.-key e) "Enter"))
+             (do
+               (if (= title "")
+                 (td-delete td)
+                 (md-reset! td :title title))
+               (.remove (.-classList li-dom) "editing"))
+
+             (= (.-key e) "Escape")
+             (do (set! (.-value edom) (td-title td))
+                 (.remove (.-classList li-dom) "editing"))))))
+
+;; --- dashboard FOOTER -------------------------------------
+
+(defn dashboard-footer []
   (footer {:class "footer"
             :hidden  (c? (zero? (count (gTodo-items))))}
     (span {:class "todo-count"
@@ -130,53 +176,3 @@
               :onclick (on-evt! todo.todo/td-clear-completed)}
       "Clear completed")))
 
-;;; --- event handlers to support the above ------------------------------------
-
-(defn todo-process-on-enter [e]
-  (when (= (.-key e) "Enter")
-    (let [raw (.-value (.-target e))
-          title (str/trim raw)]
-      (if (= title "")
-        (when (pos? (count raw))
-          (.alert js/window "A reminder to do nothing? Are we relaxing yet? So, no."))
-        (md-reset! @gTodo :items-raw
-          (conj (gItems-raw)
-            (make-todo {:title title}))))
-      (set! (.-value (.-target e)) ""))))
-
-(defn todo-start-editing [e]
-  ;; I am tempted to make this more declarative, but leave as is
-  ;; as an example of how jLive allows straight JS coding
-  (let [lbl (dom-tag (.-target e))
-        li (fm-asc-tag lbl "li")
-        edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
-    (.add (.-classList (tag-dom li)) "editing")
-    (.focus edt-dom)
-    (.setSelectionRange edt-dom 0 (.-length (.-value edt-dom)))))
-
-(defn todo-edit [e td-key]
-  (if *within-integrity* ;; TODO refactor event handler scheme to solve htis generically
-    (println :event-handler-reentered!!!!!!!!!!!!)
-    (let [edom (.-target e)
-          title (str/trim (.-value edom))
-          td (gTodo-lookup td-key)
-          li-dom (dom-ancestor-by-tag edom "li")]
-      (cond
-        (or (and (= (.-type e) "blur")
-                  (dom-has-class li-dom "editing"))
-            (= (.-key e) "Enter"))
-        (do
-          (if (= title "")
-            (td-delete td)
-            (md-reset! td :title title))
-          (.remove (.-classList li-dom) "editing"))
-
-        (= (.-key e) "Escape")
-        (do (set! (.-value edom) (td-title td))
-          (.remove (.-classList li-dom) "editing"))))))
-
-(defn td-completed-toggle-all [event]
-  (let [input (fmu-w-class (dom-tag (.-target event)) "toggle-all")
-        action (md-get input :action)]
-    (doseq [td (gTodo-items)]
-      (md-reset! td :completed (when (= action :complete) (now))))))

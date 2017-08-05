@@ -23,6 +23,7 @@
                   " of dom " dom))
     tag))
 
+#_
 (defn make-tag [tag attrs c?kids]
   ;; (println :mtag (count attrs))
 
@@ -37,13 +38,10 @@
       (swap! id-js assoc (str dom-sid) js-obj)
       js-obj))
 
-(defn make-tagx [tag attrs c?kids]
-      (println :mtagx attrs )
+(defn make-tag [tag attrs c?kids]
+      ;;(println :mtagx attrs )
 
       (let [dom-sid (swap! tag-dom-sid inc)
-            args (conj (vec (apply concat (seq attrs)))
-                       :id dom-sid
-                       :kids c?kids)
             js-obj (apply make
                           :type :tiltontec.tag.html/tag
                           :tag tag
@@ -51,32 +49,23 @@
                                 :id dom-sid
                                 :kids c?kids))]
 
-           (println :mtagx-attrs tag attrs)
-           (println :mtagx-vec (vec (apply concat (seq attrs))))
-           (println :mtagx-args tag args)
            (swap! id-js assoc (str dom-sid) js-obj)
            js-obj))
 
-(defmacro deftagx [tag]
+(defmacro deftag [tag]
           (let [kids-sym (gensym "kids")
                 tag-name (str tag)
                 attrs-sym (gensym "attrs")]
      `(defmacro ~tag [~attrs-sym & ~kids-sym]
-
-          `(tiltontec.tag.gen/make-tagx ~~tag-name ~~attrs-sym
+          `(tiltontec.tag.gen/make-tag ~~tag-name ~~attrs-sym
                                        (tiltontec.model.core/c?kids ~@~kids-sym)))))
 
 (defmacro deftags [& tags]
   `(do ~@(for [tag tags]
            `(deftag ~tag))))
 
-(defmacro deftagxs [& tags]
-          `(do ~@(for [tag tags]
-                      `(deftagx ~tag))))
-
 ;;; This:
-(declare sectionx section label header footer h1 input p span a img ul li div button)
-(deftagx section )
-(deftagxs header footer p h1 input)
+(declare section section label header footer h1 input p span a img ul li div button)
+
 ;;; ... avoids mistaken/benign warnings from this:
-(deftagxs  label  span a img ul li div button)
+(deftags section header footer p h1 input label  span a img ul li div button)
