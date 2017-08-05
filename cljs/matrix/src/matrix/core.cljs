@@ -10,6 +10,6 @@
       ;body (.-body doc)
       root (.getElementById doc "tagroot")
       landing (todo/landing-page)]
-  ;(println :landing landing)
+  ; (println :landing? landing)
   ;   (println #js {:coolio #(console.log("bam "+event))})
   (set! (.-innerHTML root) landing))
