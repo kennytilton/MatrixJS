@@ -44,6 +44,7 @@
 
 (defn md-get [me slot]
   ;; (trx :md-get slot me)
+      (assert me)
   (when (any-ref? me)
     (if-let [c (md-cell me slot)]
       (c-get c)
@@ -262,6 +263,7 @@
         k-factory (md-get me :kid-factory)]
     (assert (and k-key ))
     (assert (and  k-factory))
+       (println :kidvaks (md-get me :kid-values))
     (doall
       (for [kid-value (md-get me :kid-values)]
       (or (some (fn [x-kid]

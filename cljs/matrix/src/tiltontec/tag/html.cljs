@@ -2,7 +2,7 @@
   (:require
     [clojure.string :as str]
     [cljs.pprint :as pp]
-    [tiltontec.cell.base :refer [unbound]]
+    [tiltontec.cell.base :refer [ia-type unbound]]
     [tiltontec.cell.observer :refer [observe observe-by-type]]
     [tiltontec.model.core
              :refer-macros [the-kids mdv!]
@@ -10,14 +10,22 @@
              :as md]))
 
 (defn tagfo [me]
-  (select-keys @me [:id :tag :class :name]))    
+  (select-keys @me [:id :tag :class :name]))
 
 (defn mxa-find-tag
       "Search matrix ascendants only from node 'me' for first with given tag"
       [me tag]
-  (fasc (fn [visited]
-          ;; (println :fli-visits tag (:tag @visited) (= (:par @visited) nil))
-          (= tag (:tag @visited))) me))
+      (fasc (fn [visited]
+                ;; (println :fli-visits tag (:tag @visited) (= (:par @visited) nil))
+                (= tag (:tag @visited))) me))
+
+(defn mxa-find-type
+      "Search matrix ascendants only from node 'me' for first with given tag"
+      [me type]
+      (assert me)
+      (fasc (fn [visited]
+                (println :mxa-find-type type (ia-type visited))
+                (= type (ia-type visited))) me))
 
 (defn dom-has-class [dom class]
   (when dom
