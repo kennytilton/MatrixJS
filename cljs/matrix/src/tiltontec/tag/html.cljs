@@ -12,7 +12,9 @@
 (defn tagfo [me]
   (select-keys @me [:id :tag :class :name]))    
 
-(defn fm-asc-tag [me tag]
+(defn mxa-find-tag
+      "Search matrix ascendants only from node 'me' for first with given tag"
+      [me tag]
   (fasc (fn [visited]
           ;; (println :fli-visits tag (:tag @visited) (= (:par @visited) nil))
           (= tag (:tag @visited))) me))

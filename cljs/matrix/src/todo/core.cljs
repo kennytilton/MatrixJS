@@ -6,7 +6,7 @@
             [tiltontec.cell.base :refer [*within-integrity*]]
             [tiltontec.cell.core :refer-macros [c? c?n] :refer [c-in]]
             [tiltontec.model.core :refer [md-get md-reset! mxi-find mxu-find-class kid-values-kids]]
-            [tiltontec.tag.html :refer [ to-html  fm-asc-tag dom-tag tag-dom dom-has-class dom-ancestor-by-tag]]
+            [tiltontec.tag.html :refer [io-clear-storage to-html  mxa-find-tag dom-tag tag-dom dom-has-class dom-ancestor-by-tag]]
             [tiltontec.tag.gen
              :refer-macros [ on-evt!  section header h1 input footer p a span label ul li div button]
              :refer [dom-tag]]
@@ -35,8 +35,10 @@
 (declare todo-list-item toggle-all dashboard-footer  todo-entry)
 
 (defn landing-page []
+      ;; (io-clear-storage)
   (r/start! router {:default :todo/all
                     :on-navigate on-navigate})
+
   ;; todo maybe avoid gTodo global and load with dom into common "app" object
   (reset! gTodo (td-load-all))
 
@@ -142,9 +144,9 @@
 
 (defn todo-start-editing [e]
   ;; I am tempted to make this more declarative, but leave as is
-  ;; as an example of how jLive allows straight JS coding
+  ;; as an example of how MatrixJS allows straight JS coding
   (let [lbl (dom-tag (.-target e))
-        li (fm-asc-tag lbl "li")
+        li (mxa-find-tag lbl "li")
         edt-dom (.item (.getElementsByClassName (tag-dom li) "edit") 0)]
      (.add (.-classList (tag-dom li)) "editing")
      (.focus edt-dom)
@@ -185,7 +187,7 @@
           :selection (c-in (or @iroute "All"))}
        (doall (for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
           (li {} (a {:href route :selector label
-                      :selected (c? (= (:selector @me) (md-get (fm-asc-tag me "ul") :selection)))
+                      :selected (c? (= (:selector @me) (md-get (mxa-find-tag me "ul") :selection)))
                       :class (c? (if (md-get me :selected) "selected" ""))}
                    label)))))
 

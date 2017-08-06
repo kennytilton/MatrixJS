@@ -7,13 +7,16 @@
     [tiltontec.cell.observer :refer [observe-by-type]]
     [tiltontec.model.core :as md :refer [make md-get md-reset!]]
     [tiltontec.util.core :as util :refer [pln now map-to-json json-to-map uuidv4]]
-    [tiltontec.tag.html :refer [io-upsert io-read io-find]]))
+    [tiltontec.tag.html :refer [io-upsert io-read io-find io-truncate]]))
 
-(def TODO_LS_PREFIX "todos-jLive.")
+(def TODO_LS_PREFIX "todos-matrixjs.")
 
 (declare td-upsert)
 
-(defn make-todo [islots]
+(defn make-todo
+      "Make a matrix todo either on initial entry or on page load when
+      pulling localStorage into the matrix"
+  [islots]
   (let [net-slots (merge
             {:type ::todo
              :id (str TODO_LS_PREFIX (uuidv4))
@@ -26,13 +29,11 @@
     todo (apply md/make (flatten (into [] net-slots)))]
 
     (when-not (:id islots)
-      ;; this is not being instantiated from localStorage
-      (pln :make-td-upsert-new!! (:id @todo))
+      ;; no id means is it not being instantiated from localStorage
       (td-upsert todo))
     todo))
 
 ;;; --- straight accessors (but establishing dependency if hit within formulae)
-;;;  (use (:some-prop @td) to avoid dependency (at own dataflow risk) -
 
 (defn td-title [td]
   (md-get td :title))
@@ -71,6 +72,7 @@
             (io-read id))))
 
 (defn td-load-all []
+  ;; (io-truncate TODO_LS_PREFIX)
   (md/make ::todo-list
            :par :todo-42-top
            :items-raw (c?n (doall (map td-load (io-find TODO_LS_PREFIX))))
