@@ -24,7 +24,7 @@
       [me type]
       (assert me)
       (fasc (fn [visited]
-                (println :mxa-find-type type (ia-type visited))
+                ;;(println :mxa-find-type type (ia-type visited))
                 (= type (ia-type visited))) me))
 
 (defn dom-has-class [dom class]
