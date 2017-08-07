@@ -119,6 +119,7 @@
 
 (defmethod observe [:kids ::tiltontec.tag.html/tag] [_ me newv oldv _]
   (when-not (= oldv unbound)
+    (println :obs-kids!!!! (count newv) (count oldv))
     (cond
       (some #{(.-tagName (tag-dom me))} ["LABEL"])
       (do ;(println :bam-html!!! (tag-dom me))
@@ -155,7 +156,7 @@
 
 (defmethod observe-by-type [::tiltontec.tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
-    ;(println :tag-obs-entry slot newv)
+    (println :tag-obs-by-type (:tag @me) slot newv oldv (= "" oldv))
     (cond
       (= slot :content) (set! (.-innerHTML (tag-dom me)) newv)
       (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
