@@ -250,12 +250,12 @@
   `(binding [*par* ~'me]
       (assert *par*)
       ;;(println :bingo-par (any-ref? *par*))
-      (remove nil? (flatten (list ~@tree)))))
+            (doall (remove nil? (flatten (list ~@tree))))))
 
 (defmacro c?kids [& tree]
   `(c? (assert ~'me "no me for c?kids")
     ;;(print :c?kids-me!!! (:id (deref ~'me)))
-    (the-kids ~@tree)))
+       (the-kids ~@tree)))
 
 (defn kid-values-kids [me x-kids]
   (let [x-kids (if (= x-kids unbound) [] x-kids)
@@ -263,7 +263,7 @@
         k-factory (md-get me :kid-factory)]
     (assert (and k-key ))
     (assert (and  k-factory))
-       (println :kidvaks (md-get me :kid-values))
+
     (doall
       (for [kid-value (md-get me :kid-values)]
       (or (some (fn [x-kid]

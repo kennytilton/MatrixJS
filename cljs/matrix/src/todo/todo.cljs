@@ -58,8 +58,7 @@
 
 (defn load-all []
       (let [keys (io-find TODO_LS_PREFIX)]
-           (println :load-all keys)
-           (doall (map td-load (io-find TODO_LS_PREFIX)))))
+           (map td-load (io-find TODO_LS_PREFIX))))
 
 ;;; --- now we get to dataflow/reactive/databinding ------------------
 

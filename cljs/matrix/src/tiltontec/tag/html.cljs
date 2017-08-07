@@ -104,14 +104,13 @@
         fa))))
 
 (defn tag-dom [me]
-  ;;(println :domgo me)
+  ;; this will return nil in that fragile space in which the matrix
+      ;; is coming to life but not yet installed in the dom
   (let [id (md-get me :id)]
     (assert id)
     ;;(println :dom-uding-id id)
     (or (md-get me :dom-cache)
-      (let [dom (.getElementById js/document (str id))]
-        (assert dom (str "tag-dom failed on id " id))
-        ;;(println :tag-dom-succeeds!!!!!!!!!!! id)
+      (when-let [dom (.getElementById js/document (str id))]
         (backdoor-reset! me :dom-cache dom)))))
 
 (defn tag [me]
@@ -119,9 +118,9 @@
 
 (defmethod observe [:kids ::tiltontec.tag.html/tag] [_ me newv oldv _]
   (when-not (= oldv unbound)
-    (println :obs-kids!!!! (count newv) (count oldv))
+    ;;(println :obs-kids!!!! (count newv) (count oldv))
     (cond
-      (some #{(.-tagName (tag-dom me))} ["LABEL"])
+      (some #{(.-tagName (tag-dom me))} ["LABEL"]) ;; todo make better; related lose strings as kids
       (do ;(println :bam-html!!! (tag-dom me))
           (set! (.-innerHTML (tag-dom me))
             (to-html newv)))
@@ -156,36 +155,32 @@
 
 (defmethod observe-by-type [::tiltontec.tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
-    (println :tag-obs-by-type (:tag @me) slot newv oldv (= "" oldv))
-    (cond
-      (= slot :content) (set! (.-innerHTML (tag-dom me)) newv)
-      (+global-attr+ slot) (do #_ (set-global-attr slot me newv oldv)
-                              ;;(println :attr-newv newv)
-                              (case slot
-                                :hidden (set! (.-hidden (tag-dom me)) newv)
-                                :class (set! (.-className (tag-dom me)) newv)
-                                :checked (set! (.-checked (tag-dom me)) newv)))
-      (+inline-css+ slot) (do ;; (println :obs-inline-css!!! slot)
-                            (case slot
-                                :display (set! (.-display (.-style (tag-dom me))) newv)))
-      ;; :default (println :oby-type-punt slot (tag me) newv)
-      )))
+        (when-let [dom (tag-dom me)]
+              (cond
+                (= slot :content) (set! (.-innerHTML dom) newv)
+
+                (+global-attr+ slot)
+                (case slot
+                      :hidden (set! (.-hidden dom) newv)
+                      :class (set! (.-className dom) newv) ;; todo gotta handle class list, not just one
+                      :checked (set! (.-checked dom) newv))
+
+                (+inline-css+ slot)
+                (do ;; (println :obs-inline-css!!! slot)
+                  (case slot
+                        :display (set! (.-display (.-style dom)) newv)))))))
 
 ;;; --- local storage ------------------------
 
 ;;; --- localStorage io implementation --------------------------------
 
 (defn io-upsert [key val]
-  ;(pln :io-upsert key val)
   (.setItem (.-localStorage js/window) key val))
 
 (defn io-read [key]
-  (let [raw (.getItem (.-localStorage js/window) key)]
-    ;(pln :raw-read key raw)
-    raw))
+      (.getItem (.-localStorage js/window) key))
 
-(defn io-delete [key val]
-  ;;  (pln :deleting key)
+(defn io-delete [key]
   (.removeItem (.-localStorage js/window) key))
 
 (defn io-clear-storage []
@@ -205,6 +200,6 @@
       found)))
 
 (defn io-truncate [key-prefix]
-  ;;(pln :trunc key-prefix)
-  (doall (map io-delete (io-find key-prefix))))
+  (doseq [key (io-find key-prefix)]
+         (io-delete key)))
 
