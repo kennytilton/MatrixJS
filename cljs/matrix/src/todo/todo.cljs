@@ -11,6 +11,14 @@
 
 (def TODO_LS_PREFIX "todos-matrixjs.")
 
+(defn todo-list [mx]
+      (md/make ::todo-list
+               :par mx
+               :items-raw (c?n (load-all))
+               :items (c? (doall (remove #(md-get % :deleted) (md-get me :items-raw))))
+               ;;:route-items (c? )
+               ))
+
 (declare td-upsert)
 
 (defn make-todo

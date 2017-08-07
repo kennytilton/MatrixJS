@@ -24,12 +24,12 @@
 (declare landing-page mx-todos mx-todo-items
          mx-find-matrix mx-todo-lookup event-to-mx mx-route)
 
+
+
 (defn matrix-build! []
   (reset! matrix (md/make ::todoApp
                    :route (c-in nil)
-                   :todos (md/make ::todo-list
-                             :items-raw (c?n (load-all))
-                             :items (c? (doall (remove #(md-get % :deleted) (md-get me :items-raw)))))
+                   :todos (c?once (todo.todo/todo-list me))
                    :dom (c?once (binding [md/*par* me]
                                          ;; todo macro-ize
                                    (landing-page))))))
