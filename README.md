@@ -3,20 +3,21 @@
 
 Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. A React Native incarnation is in the works. All frameworks are driven usefully at runtime by JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 #### A quick note on the name
-In the movie, the matrix harnessed humans to suck energy from them. Ouch.
+In the movie, the matrix harnessed humans to suck energy from them. Not nice.
 
-In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library animates a proxy web page so it continuously, transparently, and incrementally drives an actual browser page in reaction to runtime events. It brings our code to life.
-#### Simplicity
-The first element of simplicity is that the page is generated as if it were conventional HTML, with a library of functions whose API closely parallels HTML.
+In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally maintains and responds to an actual browser page. It brings our code to life.
 
-Here is a bit of the HTML provided by the TodoMVC challenge:
+#### Simplicity: it's just HTML
+We generate the page as if it were conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
+
+Some examples. Here is a bit of the HTML provided by the TodoMVC challenge:
 ````html
 <header class="header">
   <h1>todos</h1>
   <input class="new-todo" placeholder="What needs to be done?" autofocus>
 </header>
 ````
-And here is how that looks in MatrixJS:
+And here is how that looks in MatrixJ
 ````javascript
 header({class: "header"}, c => [
   h1("todos"),
@@ -31,7 +32,7 @@ And now in the ClojureScript version:
 Of course, those only *look like* mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code. Are you thinking what I am thinking?
 
 #### Expressiveness
-We can write wwhatever JS/CLJS code we like to generate our proxy DOM. Here for example is some more original TodoMVC HTML, a row of radio buttons specifying which kind of todo items the user would like to see:
+We can write wwhatever JS/CLJS code we like to generate our proxy DOM. Here for example is another example from the original TodoMVC HTML, a row of radio buttons specifying which kind of todo items the user would like to see:
 ````html
 <ul class="filters">
     <li>
@@ -55,7 +56,7 @@ ul( { class: "filters"}, c =>
                                 content: label,
                                 class: (label==="All") ? "selected":"")})])}))
 ````
-HTML is not just mark-up any more. But that capability merely gets our initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
+Great; HTML is not just mark-up any more. But this merely gets our initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
 
 #### Simplicity II
 Matrix also helps with page dynamism as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned/removed to highlight the label suitably. Here is the CLJS version:
@@ -66,14 +67,14 @@ Matrix also helps with page dynamism as the user interacts with the page. For ex
                      :class (c? (when (=== label (mx-route-label me))
                                    "selected"))} label))))
 ````
-Whoa. What is `c?`?! That is short for "formulaic cell". The enclosed code  will run any time its dependencies change. Here, each time the user changes the route by clicking an item, all three buttons' formulas will be re-run to produce a new value for the `class` attribute. An `on-change` callback provided by the HTML component of Matrix will update the widgets' `classList`s. Super, but we left something out.
+Whoa. What is that `c?` creature? `c?` is short for "formulaic cell". The enclosed code  will run initially and then any time its dependencies change. Here, each time the user changes the filter/route by clicking an item, all three items' formulas will be re-run to produce a new value for the `class` attribute of that item. An `on-change` callback provided by the HTML component of Matrix will update the corresponding DOM element's `classList` as needed. 
 
-Where did we subscribe to the route (and where is it stored)? The current route is just a property on our root application object:
+Super, but we left something out. Where did we subscribe to the route (and where is the route stored)? The route is just a property on our root application object:
 ````clojure
 (md/make ::todoApp
     :route (c-in nil))
 ````                   
-`c-in` is short for "input cell". (My Javelin friends call it just `cell`, without the `=` suffix.) The models we build rely mostly on formulaic `c?` cells, but it cannot be formulas all the way down. Input cells allow procedural code to feed our models, just as the on-change observers allow our models to act outside themselves, if only to update the real browser DOM.
+`c-in` is short for "input cell". The models we build rely mostly on formulaic `c?` cells, but it cannot be formulas all the way down. Input cells allow procedural code to feed our models, just as the on-change observers allow our models to act outside themselves to update the real browser DOM.
 
 The function `mx-route-label` simply navigates from the `me` parameter (akin to `self` or `this`) to the app object and then simlply reads the property:
 ````clojurescript
@@ -81,7 +82,7 @@ function mxRouteMe( me) {
    return route( mxaFindType( me , :todoApp));
 }
 ````
-No explicit subscribe is necessary because more internals handle that transparently when we read (directly or indirectly thru function calls) a property initialize with a cell (formulaic or input).
+No explicit subscribe is necessary because more internals handle that transparently when we read (directly or indirectly thru function calls) a property initialized with a cell (formulaic or input).
 
 Speaking of transparency, let us complete the circle and see how the "input" route gets fed and published, this time in the CLJS version where we do not have the transparency provided by the custom accessors of JS:
 ````clojure
@@ -93,21 +94,21 @@ We simply set the app `route` to the new value. (`on-navigate` is the callback w
 To summarize, without the hassle of explicit publish or subscribe we are able to have a web page dynamically adjust itself as the user works, simply by writing natural JS/CLJS code in Cell "formulae" that read other Cells.
 
 #### Efficiency
-We mentioned efficiency at the outset as one of the virtues of Matrix UIs, but so far have only looked at the simplicity which highly dynamic pages can be authored.
+We mentioned efficiency at the outset as one of the virtues of Matrix UIs, but so far have only looked at the simplicity with which highly dynamic pages can be authored.
 
-First, the initial page is generated all at once, without piecemeal assembly of individual parts. 
-
-Second, dependencies and state change propagation happen at the logical maximum of granularity, requiring the logical minimum of recalculation and consequent DOM updates. For example, when a user clicks a button triggering a new route selection, the internal dependency tracking indicates exactly what needs attention: each button re-decides if it should have the `selected` class, and those that change have new values propagated to the true browser DOM by directly setting the attributes.
-
-> ReactJS achieves excellent performance by minimizing DOM updates as well, but by default does so by diffing a newly built virtual DOM with the most recent version thereof. This means the virtual DOM *always* must be rebuilt to support the diff. React *does* provide a hook for us to wave off the regeneration of the virtual DOM when unnecessary, but provides no help in our making that determination.
+First, the initial page is generated all at once, without piecemeal assembly of individual parts. Second, dependencies and state change propagation happen at the logical maximum of granularity, requiring the logical minimum of recalculation and consequent DOM updates. For example, when a user clicks a button triggering a new route selection, the internal dependency tracking indicates exactly what needs attention: each button re-decides if it should have the `selected` class, and those that change have new values propagated to the true browser DOM by directly setting the attributes.
 
 #### Expressiveness II
-The example above in which the `selected` class followed the user's clicking of the list filters showed just one step of dataflow. Let us look at what happens when there is one to-do item in the list that has not yet been completed, the user has selected "shoow only actie" as the filter, and then the user marks the one item as completed. Here is what happens as dictated by the TodoMVC Challenge spec:
-> The item is record as `completed` in `localStorage`.The `<LI>` element `classList` has "completed" added to it. The count of remaining items goes from 1 to 0 (and the word "item" becomes "items"). The "clear completed" button appears (the `hidden` attribute having been removed). The "toggle all" becomes `checked`, which means its semantics change from "mark all complete" to "mark all incomplete". And because the filter is "active only", the item disappears. Because it was the last item, as per the spec two chunks of dom (the "header" and "footer") disappear.
+The example above in which the `selected` class followed the user's clicking of the list filters showed just one step of dataflow. Let us look at what happens when: 
+* there is one to-do item in the list;
+* that item has not yet been completed;
+* the user has selected "active" as the filter; and
+* then the user marks the one item as completed.
 
-Momma don't let your babies grow up to be UI/UX programmers.
+Here is what happens as dictated by the TodoMVC Challenge spec:
+> The item is record as `completed` in `localStorage`.The `<LI>` element `classList` has "completed" added to it. The count of remaining items goes from 1 to 0 (and the word "item" becomes "items"). The "clear completed" button appears. The "toggle all" icon becomes `checked`, which means its semantics change from "mark all complete" to "mark all incomplete". And because the filter is "active only", the item disappears.
 
-Here is the code in MatrixJS that makes that all happen:
+Momma don't let your babies grow up to be UI/UX programmers. Here is the Matrix code that makes that all happen:
 
 An observer bound to Todo items in memory persists *any* change:
 ````javascript
@@ -115,17 +116,17 @@ static obsTodoChange ( slot, todo, newv, priorv, c) {
         todo.store();
     }
 ````   
-For the `<LI>`: `class: cF(c => (todo.completed ? "completed" : ""))`.
+The `<LI>` classList: `class: cF(c => (todo.completed ? "completed" : ""))`. A library observer pushes that to the DOM.
 
 The count `<span>` content (using the CLJS version to show off Common Lisp format `~P`):
 ````javascript
    :content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining"
-                                       (count (remove td-completed (mx-todo-items me)))))})
+                                  (count (remove td-completed (mx-todo-items me)))))})
 ````
 
 "Clear completed" appears: `hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0)`
 
-The "toggle all" semantics and CSS class, showing just the relevant properties (still in CLJS):
+The "toggle all" semantics and CSS class update (still in CLJS):
 ````javascript
    :action (c? (if (some (complement td-completed) (mx-todo-items me))
                  :complete :uncomplete))
@@ -135,13 +136,12 @@ The "toggle all" semantics and CSS class, showing just the relevant properties (
 The item disappears: 
 ````javascript
   :display (c? (let [route (mx-route me)]
-                    (if (or (= route "All")
-                            (xor (= route "Active")
-                                 (md-get td :completed)))
-                        "block" "none")))
+                  (if (or (= route "All")
+                          (xor (= route "Active")
+                               (md-get td :completed)))
+                      "block" "none")))
 ````
-
-And if we now click "Clear completed", it as flagged as logically deleted in `localStorage` and, as per the spec, two chunks of dom (the "header" and "footer") disappear since no items active or completed exist.
+In other words, by simply stating how things should be, and without explicit pub-sub or state propagation mechanisms, the page runs by itself.
 
 #### Where next?
  This repository contains several proof-of-concept frameworks. For now, all but Qxia have their own version of Cells, to make debugging easier during this proof-of-concept phase.
