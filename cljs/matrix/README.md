@@ -1,12 +1,8 @@
-# matrix
+# MatrixCLJS
 
-MatrixJS, a minimal yet powerful and efficient web/mobile framework for ClojureScript built only of CLJS and HTML.
+MatrixCLJS combines ClojureScript, a thin HTML generator, and the CLJS version of Cells to produce a simple but powerful and efficient CLJS Web development framework. Head to [the mother page](https://github.com/kennytilton/MatrixJS) for an overview, including motivation for the name "matrix". A sister project built of straight JS can be [found here](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) framework. 
 
-## Overview
-
-Matrix combines ClojureScript, a thin HTML generator, and the CLJS version of Cells to produce a simple but powerful and efficient CLJS Web/mobile development framework. It is a sister project of the pure JS [js/matrixjs](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) framework. Head to [the mother page](https://github.com/kennytilton/MatrixJS) of both implementations for an overview, including motivation for the name "matrix".
-
-This project is at once an implemention of the TodoMVC classic and (for now) the official version of both Matrix and Cells for CLJS.
+This project is at once an implemention of the TodoMVC\* classic and (for now) the official version of both Matrix and Cells for CLJS. * We call ours TodoSSB because our design imperative eschews exploding things along MVC lines in favor of keeping together everything related to some particular bit of application behavior. "SSB" stands for "single source of behavior", with a nice pun in there because by "source" we mean a single block of lexical source. We digress.
 
 ## Setup 
 
