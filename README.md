@@ -1,7 +1,34 @@
-# MatrixJS
+# Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to MatrixJS and MatrixCLJS, two lightweight but powerful and efficient web development frameworks for Javascript and ClojureScript, enervated by native ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+Welcome to Matrix, a family of simple but powerful and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations using each. A React Native incarnation is in the works. All enjoy the simplifying power of of JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+
+Here is a bit more on simplicity, expressive power, and run-time performance:
+
+#### Simplicity
+The first element of simplicity is that the page is generated as if it were conventional HTML, with a library of functions whose API closely parallels HTML.
+
+Here is a bit of the HTML provided by the TodoMVC challenge as a starting point:
+````html
+<header class="header">
+  <h1>todos</h1>
+  <input class="new-todo" placeholder="What needs to be done?" autofocus>
+</header>
+````
+And here is how that would be authored in MatrixJS:
+````javascript
+header({class: "header"}, c => [
+  h1("todos"),
+  input({ class: "new-todo", placeholder: "What needs to be?", autofocus: true})])
+````
+We plan to lose that anonymous function wrapper in the next release, by the way.
+
+And now in the ClojureScript version:
+````clojure
+(header {:class "header"}
+   (h1 {} "todos")
+   (input {:class "new-todo" placeholder "What needs to be done?" :autofocus true})))
+````
 
 * Lightweight means not having to learn a new framework erected around HTML/JS (requiring tooling or pre-processing). Instead of wrapping JS/HTML from the outside, MatrixJS goes inside Javascript/CLJS to change what happens when we read or set properties.
 * Powerful means having as much work done as efficiently as possible by MatrixJS. Matrix proxy DOM is specified declaratively and revised automagically as referenced properties change. Changes begin with procedural mutations made by conventional event handlers. Cells provides the motive force to cascade these initial changes throughout the matrix as if it were a spreadsheet. Application "model" and "view" live in the same flow so each readily reflect each other. 
