@@ -1,23 +1,20 @@
 # Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations using each. A React Native incarnation is in the works. All frameworks are driven at runtime by JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. A React Native incarnation is in the works. All frameworks are driven at runtime by JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 #### A quick note on the name
-In the movie, the matrix harnessed humans to suck energy from them. In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library animates a proxy web page so it continuously, transparently, and incrementally drives an actual browser page in reaction to runtime events. Hence "matrix".
-
-Here is a bit more on simplicity, expressive power, and run-time performance:
-
+In the movie, the matrix harnessed humans to suck energy from them. In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library animates a proxy web page so it continuously, transparently, and incrementally drives an actual browser page in reaction to runtime events. It brings our code to life.
 #### Simplicity
 The first element of simplicity is that the page is generated as if it were conventional HTML, with a library of functions whose API closely parallels HTML.
 
-Here is a bit of the HTML provided by the TodoMVC challenge as a starting point:
+Here is a bit of the HTML provided by the TodoMVC challenge:
 ````html
 <header class="header">
   <h1>todos</h1>
   <input class="new-todo" placeholder="What needs to be done?" autofocus>
 </header>
 ````
-And here is how that would be authored in MatrixJS:
+And here is how that looks in MatrixJS:
 ````javascript
 header({class: "header"}, c => [
   h1("todos"),
@@ -31,10 +28,10 @@ And now in the ClojureScript version:
    (h1 {} "todos")
    (input {:class "new-todo" placeholder "What needs to be done?" :autofocus true})))
 ````
-Now of course those only look like mark-up. They are in fact neatly nested function calls producing *proxy* markup, and we are looking at simple JS/CLJS code, bringing us to our first bit of expressiveness: program-generated mark-up.
+Of course, those only *look like* mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code which we can elaborate as needed to generate our proxy DOM. Next.
 
 #### Expressiveness
-Here is some more original TodoMVC HTML, a row of radio buttons specifying which kind of items to show (elsewhwere):
+Here is some more original TodoMVC HTML, a row of radio buttons specifying which kind of todo items to show (elsewhwere):
 ````html
 <ul class="filters">
     <li>
@@ -58,17 +55,17 @@ ul( { class: "filters"}, c =>
                                 content: label,
                                 class: (label==="All") ? "selected":"")})])}))
 ````
-Now that is fine for the initial page load, but how will the `selected` class get moved about as the user triggers each route? The CLJS version is closer to the TodoMVC requirements and manifests that best:
+HTML is not just mark-up any more. But that capability just gets our initial page built. How about dealing with user-generated events thereafter?
+
+Matrix also helps with page dynamism as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned/removed to highlight the label suitably. Here is the CLJS version:
 ````clojure
 (ul {:class "filters"}
         (for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
           (li {} (a {:href route
-                      :class (c? (if (=== label (mx-route-label me))
-                                   "selected" ""))} label))))
+                     :class (c? (when (=== label (mx-route-label me))
+                                   "selected"))} label))))
 ````
-Whoa. What is `c?`?! That is short for "formulaic cell". (My fellow dataflow travelers over at [Hoplon/Javelin()](https://github.com/hoplon/javelin) use `cell=`.) How does that move the `selected` class about as the user works?
-
-The enclosed code (as much JS/CLJS as we like) will run any time its dependencies change. Here, each time the user changes the route by clicking an item, all three buttons' formulas will be re-run to produce a new value for the `class` attribute. An `on-change` callback provided by the HTML component of Matrix will update the widgets' `classList`s. Super, but we left something out.
+Whoa. What is `c?`?! That is short for "formulaic cell". The enclosed code  will run any time its dependencies change. Here, each time the user changes the route by clicking an item, all three buttons' formulas will be re-run to produce a new value for the `class` attribute. An `on-change` callback provided by the HTML component of Matrix will update the widgets' `classList`s. Super, but we left something out.
 
 Where did we subscribe to the route (and where is it stored)? The current route is just a property on our root application object:
 ````clojure
