@@ -1,9 +1,11 @@
 # Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. A React Native incarnation is in the works. All frameworks are driven at runtime by JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. A React Native incarnation is in the works. All frameworks are driven usefully at runtime by JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 #### A quick note on the name
-In the movie, the matrix harnessed humans to suck energy from them. In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library animates a proxy web page so it continuously, transparently, and incrementally drives an actual browser page in reaction to runtime events. It brings our code to life.
+In the movie, the matrix harnessed humans to suck energy from them. Ouch.
+
+In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library animates a proxy web page so it continuously, transparently, and incrementally drives an actual browser page in reaction to runtime events. It brings our code to life.
 #### Simplicity
 The first element of simplicity is that the page is generated as if it were conventional HTML, with a library of functions whose API closely parallels HTML.
 
@@ -20,18 +22,16 @@ header({class: "header"}, c => [
   h1("todos"),
   input({ class: "new-todo", placeholder: "What needs to be?", autofocus: true})])
 ````
-We plan to lose that anonymous function wrapper in the next release, by the way.
-
 And now in the ClojureScript version:
 ````clojure
 (header {:class "header"}
    (h1 {} "todos")
    (input {:class "new-todo" placeholder "What needs to be done?" :autofocus true})))
 ````
-Of course, those only *look like* mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code which we can elaborate as needed to generate our proxy DOM. Next.
+Of course, those only *look like* mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code. Are you thinking what I am thinking?
 
 #### Expressiveness
-Here is some more original TodoMVC HTML, a row of radio buttons specifying which kind of todo items to show (elsewhwere):
+We can write wwhatever JS/CLJS code we like to generate our proxy DOM. Here for example is some more original TodoMVC HTML, a row of radio buttons specifying which kind of todo items the user would like to see:
 ````html
 <ul class="filters">
     <li>
@@ -45,7 +45,7 @@ Here is some more original TodoMVC HTML, a row of radio buttons specifying which
     </li>
 </ul>
 ````
-And now the MatrixJS equivalent:
+Fortunately a short list. And now the MatrixJS equivalent:
 ````javascript
 ul( { class: "filters"}, c =>
   [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
@@ -55,8 +55,9 @@ ul( { class: "filters"}, c =>
                                 content: label,
                                 class: (label==="All") ? "selected":"")})])}))
 ````
-HTML is not just mark-up any more. But that capability just gets our initial page built. How about dealing with user-generated events thereafter?
+HTML is not just mark-up any more. But that capability merely gets our initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
 
+#### Simplicity II
 Matrix also helps with page dynamism as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned/removed to highlight the label suitably. Here is the CLJS version:
 ````clojure
 (ul {:class "filters"}
@@ -89,16 +90,58 @@ Speaking of transparency, let us complete the circle and see how the "input" rou
 ````
 We simply set the app `route` to the new value. (`on-navigate` is the callback we provided to our routing library.) This triggers the routing buttons to recompute their DOM class attribute and, for those that change, the new value gets propagated to the dom.
 
-To summarize, without explicit publish or subscribe we are able to have a web page dynamically adjust itself as the user works, with an internal engine seeing to it that each user gesture gets completely propagated thoughout the page, as directed by simple (or not so simple!) formulae declaratively defining how the page should look given other conditions on the page.
+To summarize, without the hassle of explicit publish or subscribe we are able to have a web page dynamically adjust itself as the user works, simply by writing natural JS/CLJS code in Cell "formulae" that read other Cells.
 
-#### Run-time efficiency
+#### Efficiency
 We mentioned efficiency at the outset as one of the virtues of Matrix UIs, but so far have only looked at the simplicity which highly dynamic pages can be authored.
 
 First, the initial page is generated all at once, without piecemeal assembly of individual parts. 
 
-Some will have spotted the bigger win: dependencies and state change propagation happen at the logical maximum of granularity, requiring the logical minimum of recalculation and then DOM updates. For example, when a user clicks a button triggering a new route selection, the internal dependency tracking indicates exactly what needs attention: each button re-decides if it should have the `selected` class, and only those that change have new values propagated to the true browser DOM.
+Second, dependencies and state change propagation happen at the logical maximum of granularity, requiring the logical minimum of recalculation and consequent DOM updates. For example, when a user clicks a button triggering a new route selection, the internal dependency tracking indicates exactly what needs attention: each button re-decides if it should have the `selected` class, and those that change have new values propagated to the true browser DOM by directly setting the attributes.
 
-> ReactJS achieves excellent performance by minimizing DOM updates as well, but it does so by default by diffing a virtual DOM with the real DOM. This means the virtual DOM *always* gets rebuilt, and one change means the whole new chunk of DOM must be added. With more work we can track change ourselves and wave off the regeneration of the virtual DOM, but no help is offered with that determination.
+> ReactJS achieves excellent performance by minimizing DOM updates as well, but by default does so by diffing a newly built virtual DOM with the most recent version thereof. This means the virtual DOM *always* must be rebuilt to support the diff. React *does* provide a hook for us to wave off the regeneration of the virtual DOM when unnecessary, but provides no help in our making that determination.
+
+#### Expressiveness II
+The example above in which the `selected` class followed the user's clicking of the list filters showed just one step of dataflow. Let us look at what happens when there is one to-do item in the list that has not yet been completed, the user has selected "shoow only actie" as the filter, and then the user marks the one item as completed. Here is what happens as dictated by the TodoMVC Challenge spec:
+> The item is record as `completed` in `localStorage`.The `<LI>` element `classList` has "completed" added to it. The count of remaining items goes from 1 to 0 (and the word "item" becomes "items"). The "clear completed" button appears (the `hidden` attribute having been removed). The "toggle all" becomes `checked`, which means its semantics change from "mark all complete" to "mark all incomplete". And because the filter is "active only", the item disappears. Because it was the last item, as per the spec two chunks of dom (the "header" and "footer") disappear.
+
+Momma don't let your babies grow up to be UI/UX programmers.
+
+Here is the code in MatrixJS that makes that all happen:
+
+An observer bound to Todo items in memory persists *any* change:
+````javascript
+static obsTodoChange ( slot, todo, newv, priorv, c) {
+        todo.store();
+    }
+````   
+For the `<LI>`: `class: cF(c => (todo.completed ? "completed" : ""))`.
+
+The count `<span>` content (using the CLJS version to show off Common Lisp format `~P`):
+````javascript
+   :content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining"
+                                       (count (remove td-completed (mx-todo-items me)))))})
+````
+
+"Clear completed" appears: `hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0)`
+
+The "toggle all" semantics and CSS class, showing just the relevant properties (still in CLJS):
+````javascript
+   :action (c? (if (some (complement td-completed) (mx-todo-items me))
+                 :complete :uncomplete))
+   :checked (c? (= (md-get me :action) :uncomplete))})
+````      
+
+The item disappears: 
+````javascript
+  :display (c? (let [route (mx-route me)]
+                    (if (or (= route "All")
+                            (xor (= route "Active")
+                                 (md-get td :completed)))
+                        "block" "none")))
+````
+
+And if we now click "Clear completed", it as flagged as logically deleted in `localStorage` and, as per the spec, two chunks of dom (the "header" and "footer") disappear since no items active or completed exist.
 
 #### Where next?
  This repository contains several proof-of-concept frameworks. For now, all but Qxia have their own version of Cells, to make debugging easier during this proof-of-concept phase.
