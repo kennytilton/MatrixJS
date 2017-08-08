@@ -33,6 +33,7 @@ And now in the ClojureScript version:
 ````
 Now of course those only look like mark-up. They are in fact neatly nested function calls producing *proxy* markup, and we are looking at simple JS/CLJS code, bringing us to our first bit of expressiveness: program-generated mark-up.
 
+#### Expressiveness
 Here is some more original TodoMVC HTML, a row of radio buttons specifying which kind of items to show (elsewhwere):
 ````html
 <ul class="filters">
@@ -83,6 +84,18 @@ function mxRouteMe( me) {
 }
 ````
 No explicit subscribe is necessary because more internals handle that transparently when we read (directly or indirectly thru function calls) a property initialize with a cell (formulaic or input).
+
+Speaking of transparency, let us complete the circle and see how the "input" route gets fed and published, this time in the CLJS version where we do not have the transparency provided by the custom accessors of JS:
+````clojure
+(defn on-navigate [route params query]
+    (md-reset! @matrix :route (name route)))
+````
+We simply set the app `route` to the new value. (`on-navigate` is the callback we provided to our routing library.) This triggers the routing buttons to recompute their DOM class attribute and, for those that change, the new value gets propagated to the dom.
+
+To summarize, without explicit publish or subscribe we are able to have a web page dynamically adjust itself as the user works, with an internal engine seeing to it that each user gesture gets completely propagated thoughout the page, as directed by simple (or not so simple!) formulae declaratively defining how the page should look given other conditions on the page.
+
+#### Run-time efficiency
+
 
 #### Where next?
  This repository contains several proof-of-concept frameworks. For now, all but Qxia have their own version of Cells, to make debugging easier during this proof-of-concept phase.
