@@ -2,6 +2,10 @@
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
 Welcome to Matrix, a family of simple but powerful and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations using each. A React Native incarnation is in the works. All enjoy the simplifying power of of JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+#### A quick note on the name
+In the movie, the matrix harnessed humans to suck energy from them. In English, a matrix provides the conditions for new things to come to life. 
+
+As we will soon see, the dataflow component of this library supports a responsive proxy of a web page that continuously, transparently, and incrementally drives an actual browser page. Hence "matrix".
 
 Here is a bit more on simplicity, expressive power, and run-time performance:
 
