@@ -95,12 +95,19 @@ We simply set the app `route` to the new value. (`on-navigate` is the callback w
 To summarize, without explicit publish or subscribe we are able to have a web page dynamically adjust itself as the user works, with an internal engine seeing to it that each user gesture gets completely propagated thoughout the page, as directed by simple (or not so simple!) formulae declaratively defining how the page should look given other conditions on the page.
 
 #### Run-time efficiency
+We mentioned efficiency at the outset as one of the virtues of Matrix UIs, but so far have only looked at the simplicity which highly dynamic pages can be authored.
 
+First, the initial page is generated all at once, without piecemeal assembly of individual parts. 
+
+Some will have spotted the bigger win: dependencies and state change propagation happen at the logical maximum of granularity, requiring the logical minimum of recalculation and then DOM updates. For example, when a user clicks a button triggering a new route selection, the internal dependency tracking indicates exactly what needs attention: each button re-decides if it should have the `selected` class, and only those that change have new values propagated to the true browser DOM.
+
+> ReactJS achieves excellent performance by minimizing DOM updates as well, but it does so by default by diffing a virtual DOM with the real DOM. This means the virtual DOM *always* gets rebuilt, and one change means the whole new chunk of DOM must be added. With more work we can track change ourselves and wave off the regeneration of the virtual DOM, but no help is offered with that determination.
 
 #### Where next?
  This repository contains several proof-of-concept frameworks. For now, all but Qxia have their own version of Cells, to make debugging easier during this proof-of-concept phase.
- * In the identically named `js/matrixjs` you will find a pure Javascript version of Cells and an implementation of TodoMVC. **Even ClojureScript developers should [start there](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs).** An annotated albeit slightly out-of-date version of the main source for that might be helpful to some and can be [found here](https://github.com/kennytilton/MatrixJS/blob/master/js/matrixjs/js/app-annotated.js).
- * in `cljs/qxia` find a bit-rotten marriage of CLJS Cells and qooxdoo mobile, with random widgets serving no purpose
- * In `cljs/jlive` (soon to be renamed `matrix`) find a ClojureScript implementation of TodoMVC.
- 
-Other projects you find under `cljs` will come and go as I explore different CLJS build environments. (*lien mies* is in the lead with Boot coming up strong.)
+ * In the identically named `js/matrixjs` you will find a pure Javascript version of Cells and an implementation of TodoSSB ("single source of behavior", not "model-view-controller".) **Even ClojureScript developers should [start there](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs).** 
+ * In `cljs/matrix` find MatrixCLJS, a ClojureScript implementation of TodoSSB.
+ * in `cljs/qxia` find a bit-rotten, deprecate marriage of CLJS Cells and qooxdoo mobile, with random widgets serving no purpose.
+ * Coming soon: React Native wired up with the dataflow library from MatrixJS.
+
+And you can always reach out to us at ken@tiltontec.com for questions, comments, or support.
