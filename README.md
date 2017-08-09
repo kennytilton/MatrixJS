@@ -3,7 +3,7 @@
 
 Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. A React Native incarnation is in the works. All frameworks are driven usefully at runtime by JS or CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 #### A quick note on the name
-In the movie, the matrix harnessed humans to suck energy from them. Not nice.
+In the movie, the matrix harnessed humans to suck energy from them. As the kids would say, Ewww!
 
 In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally maintains and responds to an actual browser page. It brings our code to life.
 
@@ -108,9 +108,19 @@ The example above in which the `selected` class followed the user's clicking of 
 Here is what happens as dictated by the TodoMVC Challenge spec:
 > The item is record as `completed` in `localStorage`.The `<LI>` element `classList` has "completed" added to it. The count of remaining items goes from 1 to 0 (and the word "item" becomes "items"). The "clear completed" button appears. The "toggle all" icon becomes `checked`, which means its semantics change from "mark all complete" to "mark all incomplete". And because the filter is "active only", the item disappears.
 
-Momma don't let your babies grow up to be UI/UX programmers. Here is the Matrix code that makes that all happen:
+Momma don't let your babies grow up to be UI/UX programmers. But here is the on-click handler that makes all that happen:
 
-An observer bound to Todo items in memory persists *any* change:
+````javascript
+function todoToggleComplete (dom, e) {
+    // first navigate from the DOM toggle icon to the proxy to-do item...
+    let todo = dom2js(dom).fmTag('li').todo;
+    // and now trigger all the changes shown above:
+    todo.completed = !todo.completed;
+}
+````
+Thanks to automatic formula dependency tracking and per-property on-change observers the Matrix runtime has enough information to handle everything. 
+
+Let's start with persisting the change to `localStorage`. An "on change" observer bound to proxy to-do items persists *any* change:
 ````javascript
 static obsTodoChange ( slot, todo, newv, priorv, c) {
         todo.store();
