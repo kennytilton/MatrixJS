@@ -11,15 +11,22 @@ function todoMVC() {
     let bits = [
         section({ class: "todoapp", name: "todoapp"}, c => { return [
             header({class: "header"}, c => [
-                h1("todos"),
+                h1("todos2"),
                 input({ class: "new-todo", autofocus: true,
                         placeholder: "What needs doing?",
                         onkeypress: 'todoAddNewOnEnter'})]),
 
             section({class: "main",
                      hidden: cF( c => Todos.empty)}, c=> [
-                input({ id: "toggle-all", class: "toggle-all", type: "checkbox"}),
-                label({ for: "toggle-all", content: "Mark all as complete"}),
+                input({ id: "toggle-all",
+                        class: "toggle-all",
+                        checked: cF( c => (Todos.items.length === 0) ? false :
+                                    (Todos.items.every( i => i.completed) ? true : false)),
+
+                        type: "checkbox"}),
+                label( "Mark all as complete",
+                        { for: "toggle-all",
+                          onclick: 'toggleAllCompletion'}),
                 ul({ class: "todo-list", name: "todo-list",
                         kidValues: cF( c=> Todos.items),
                         kidKey: k => k.todo,
@@ -37,6 +44,17 @@ function todoMVC() {
     return "".concat(...bits.map( b=>b.toHTML()));
 }
 
+// -- toggle all
+
+function toggleAllCompletion (dom,e) {
+    let toggall = document.getElementById("toggle-all"),
+        action = dom2js(toggall).checked ? 'undo':'do';
+    // clg('togg all checked '+ dom2js(toggall).checked + ' act=' + action);
+    Todos.items
+        .filter( td => xor( td.completed, action === 'do'))
+        .map( td => td.completed = (action === 'do'));
+}
+
 /// --- structure breakouts just to make page easier to digest --------------
 
 function mkTodoItem( c, todo) {
@@ -44,25 +62,32 @@ function mkTodoItem( c, todo) {
                 class: cF(c => (todo.completed ? "completed" : "")),
                 display: cF(c => todoMatchesSelect(todo, c.fmUp('filters').selection) ? "block" : "none")}, c => [
 
-        div({class: "view"}, c => [
+                div({class: "view"}, c => [
 
-            input({class: "toggle", type: "checkbox",
-                    checked: cF( c=> todo.completed),
-                    onclick: 'todoToggleComplete',
-                    title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
+                    input({class: "toggle", type: "checkbox",
+                            checked: cF( c=> todo.completed),
+                            onclick: 'todoToggleComplete',
+                            title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
 
-            label( cF( c => todo.title),
-                { todo: todo,
-                  ondblclick: 'todoStartEditing'}),
+                    label( cF( c => todo.title),
+                        { todo: todo,
+                          ondblclick: 'todoStartEditing'}),
 
-            button(null, { class: "destroy", onclick: 'todoDelete'})]),
+                    button(null, { class: "destroy", onclick: 'todoDelete'})]),
 
-        input({ name: "myEditor", class: "edit",
-                todo: todo,
-                value: cFI( c=> todo.title),
-                onblur: 'todoEdit',
-                onkeydown: 'todoEdit', // hmmm. picks up Escape. Not needed in CLJS version... goog.closure?
-                onkeypress: 'todoEdit'})]);
+                input({ name: "myEditor", class: "edit",
+                        todo: todo,
+                        value: cFI( c=> todo.title),
+                        onblur: 'todoEdit',
+                        onkeydown: 'todoEdit', // hmmm. picks up Escape. Not needed in CLJS version... goog.closure?
+                        onkeypress: 'todoEdit'})]);
+}
+
+// -- toggle one
+
+function todoToggleComplete (dom, e) {
+    let todo = dom2js(dom).fmTag('li').todo;
+    todo.completed = !todo.completed;
 }
 
 function todoMatchesSelect( todo, selection) {
@@ -111,20 +136,6 @@ function todoAddNewOnEnter (dom, e) {
         }
         e.target.value = null;
     }
-}
-
-// -- toggle all
-
-function toggleAllCompletion (dom,e) {
-    Todo.completionRevise( Todos.items.filter( td => xor( td.completed, dom2js(dom).action === 'do'))
-                , dom2js(dom).action );
-}
-
-// -- toggle one
-
-function todoToggleComplete (dom, e) {
-    let todo = dom2js(dom).fmTag('li').todo;
-    Todo.completionRevise( [todo], todo.completed ? "undo" : "do");
 }
 
 // -- delete to-do

@@ -14,7 +14,7 @@ class Todo extends Model {
              created: Date.now()},
             islots,
             { title: cI( islots.title ),
-              completed: todoCompletedRule( islots.completed),
+              completed: cI( islots.completed || false),
               deleted: islots.deleted || cI( null)});
 
         super(null, null, netSlots, false);
@@ -65,33 +65,6 @@ class Todo extends Model {
     delete() {
         this.deleted = Date.now();
     }
-    static completionRevise (targets, action) {
-        Todos.bulkTx = {opCode: 'completion', targets: targets, action: action};
-    }
 }
 
-function todoCompletedRule( initialValue) {
-    // This is an example showing how complicated formulae can be broken out
-    // as functions just to keep source manageable.
-
-    return cF( c => {
-        let tx = Todos.bulkTx;
-
-        if ( tx && tx.opCode === 'completion' && tx.targets.indexOf( c.md) !== -1) {
-            return tx.action === 'undo' ? null : (c.pv || Date.now()); // enforce not stomp on prior comp
-        } else {
-            // there is no tx (the model is coming to life) or this TD is not
-            // affected by the bulk TX, so stick with current/initial value:
-            if ( c.pv === kUnbound ) { // rule is running for first time
-                return initialValue; // reloaded from localStorage
-            } else {
-                return c.pv; // initialValue only gets used initially
-            }
-            // Advanced Cells: we could use so-called synaptic Cells inside rules
-            // when referencing the bulkTx value to avoid this rule getting
-            // re-evaluated unnecessarily (when opCode not completion or this md
-            // not being on the target list).
-        }
-    })
-}
 

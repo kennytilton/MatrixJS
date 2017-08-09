@@ -177,7 +177,7 @@ class Tag extends Model {
 			} else if (TagAttributesGlobal.has(slot)) {
 				obs = obsAttrGlobal;
 			} else {
-				// console.warn(`tag ${this.tag} not resolving observer for ${slot}`);
+				//console.warn(`tag ${this.tag} not resolving observer for ${slot}`);
 				obs = kObserverUnresolved;
 			}
 			this.slotObservers[slot] = obs;
@@ -199,10 +199,10 @@ function setClick (dom, event) {
 // ---- formerly tags.js ------------------------------------------
 
 /* global Tag TagEvents CommonCSSPropertiesJS */
-const TagAttributesGlobal =  new Set(['accesskey','autofocus','class','contenteditable'
+const TagAttributesGlobal =  new Set(['accesskey','autofocus','checked','class','contenteditable'
 	,'contextmenu','dir'
 	,'draggable','dropzone','hidden','href','id','itemid','itemprop','itemref','itemscope'
-	,'itemtype','lang','spellcheck','src','style','tabindex','title','translate']);
+	,'itemtype','lang','spellcheck','src','style','tabindex','title','translate', 'type']);
 
 const TagEvents =  new Set(['onabort','onautocomplete','onautocompleteerror','onblur','oncancel'
 	,'oncanplay','oncanplaythrough','onchange','onclick','onclose','oncontextmenu','oncuechange'
@@ -342,7 +342,7 @@ function tagAttrsBuild(md) {
 			}
 		}
 	}
-	// clg(md.tag + ' attrs ' + attrs);
+	//if (md.tag==='input') clg(md.tag + ' attrs ' + attrs);
 	return attrs;
 }
 
