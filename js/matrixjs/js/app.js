@@ -8,6 +8,7 @@
 const Todos = Todo.loadAllItems();
 
 function todoSSB() {
+    /*
     let bits = [
         section({ class: "todoapp", name: "todoapp"}, c => { return [
             header({class: "header"}, c => [
@@ -40,13 +41,16 @@ function todoSSB() {
                   'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
                   'Inspired by <a href="http://todomvc.com">TodoMVC</a>']
                     .map( s => p({},s)))];
+*/
 
-    /* let bits = [
+    /*let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos")))];*/
+                h1("todos"),h1("soon")))];*/
 
-    return "".concat(...bits.map( b=>b.toHTML()));
+    let bits = [ h1("booya"), h2("cool2")];
+    //clg('bits!!!',bits);
+    return "".concat(...bits.map( b=>b().toHTML()));
 }
 
 // -- toggle all

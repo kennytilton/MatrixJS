@@ -39,9 +39,14 @@ Object.defineProperty(Array.prototype,'packedFlat'
                 a[i] instanceof Array ? a[i].packedFlat(r) : r.push(a[i]);
         return r}});
 
-function cdrAargs(args) {
+function cdrArgs(args) {
     // expects a special arguments instance, array-like but not really
-    Array.apply(null, args).slice(1)
+    return Array.apply(null, args).slice(1)
+}
+
+function cddrArgs(args) {
+    // expects a special arguments instance, array-like but not really
+    return Array.apply(null, args).slice(2)
 }
 
 //var UU = require('node-uuid');
@@ -124,6 +129,7 @@ class Model {
 			}
 		}
 	}
+    static cname() { return "Model"}
 
 	awaken() {
 		if (this.state !== kNascent) return this;
@@ -238,33 +244,53 @@ class Model {
 //module.exports.Model = Model;
 
 function mkm( par, id, props, kids, factory=Model) {
-	// clg('mkm kids '+kids);
-	opts = Object.assign({}, props
-		, kids ? {kids: typeof kids==='function'?
-			cKids( kids)
-			: kids} // TODO do these need par set? and does this ever work (hence need support)?
-			: null);
+	clg('mkm ',par, factory.cname());
+	opts = Object.assign({}
+	                    , props
+		                , kids ? {kids: cKids( kids)} : null);
 	let md = new factory( par, id, opts);
 	//clg(`mkm sees ids ${id} and mdid ${md.id} name ${md.name}`);
+    clg('mkm made', md);
 	return md;
 }
 
-function cKids(formula, options) {
+function cKids( kidFactories, options) {
+    // kidFactories can be one generative function or an array of such.
+    // These functions can return null, models, kidFactories, or arrays of such.
+    // Thus they must return null, a Model, an array, or a function.
+    // All functions will be called recursively.
+    // In the end we have a tree of Models or nulls.
+    // That tree then gets packed into a flat array with all nulls cleared.
+    // The array then be empty or not.
+    // Note that if only one function is passed as kids and one model results, the
+    // final result is still an array (of one kid).
+
 	return Object.assign( new Cell(null
-			, c=>{
-			let sgp = gPar;
-				gPar = c.md;
-				//clg('ckids switched gpar from '+(sgp? sgp.name : "none")+' to '+ gPar.name);
-				ast(gPar);
-				try {
-					return formula(c);
-				} finally {
-					// clg('ckids switching gpar from '+ gPar.name +' BACK TO ' + (sgp? sgp.name : "none"));
-					gPar = sgp;
-
-
-				}
-			}
+			, c=>{ let ks = kfsRun( c.md, kidFactories);
+			        clg('ckids kids',ks);
+			        return ks instanceof Array? ks.packedFlat():ks
+            }
 			, false, false, null)
 			, options);
+}
+
+function kfsRun( parent, kfs) {
+    let kfRun = kf => kf(parent);
+    ast( kfs instanceof Array);
+    clg('kfsRun top', kfs instanceof Array, typeof kfs);
+    kfs.map( kf => {
+        let k = kfRun(kf)
+        , ktype = typeof k;
+
+        if (k === null) {
+            return null;
+        } else if ( ktype === 'function') {
+            return kfRun(k);
+        } else if (k instanceof Array) {
+            return k.map(k => kfRun(k));
+        } else {
+            ast(ktype==='Model');
+            return k;
+        }
+    })
 }

@@ -148,7 +148,7 @@ class Tag extends Model {
 		}
 	}
 	dbg() { return `tag ${this.tag} nm=${this.name} id=${this.id} `}
-
+    static cname() { return "Tag"}
 	toHTML() {
 		let tag = this.tag
 			, others = tagAttrsBuild(this)
@@ -362,7 +362,7 @@ function tagStyleBuild(md) {
 	}
 	return ss===''? '' : ` style="${ss}"`;
 }
-
+/*
 function tag( tag, islots, kids) {
 	// clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
 	return mkm( gPar, null // todo fully lose this idea of supplying id initargs.id
@@ -371,21 +371,43 @@ function tag( tag, islots, kids) {
 		, kids
 		, Tag);
 }
+*/
+
+function tag( tag, islots, kids) {
+    // clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
+    clg('tag entry', tag, kids.length, kids instanceof Array);
+    if (kids != null) {
+        let fkids = kids.packedFlat();
+        clg('tagflat', fkids.length);
+        ast(fkids.every(function (k) {
+            return typeof k === 'function';
+        }));
+    }
+
+    return function (parent) {
+                return mkm(parent
+                    , null
+                    , Object.assign({tag: tag}
+                        , islots)
+                    , kids
+                    , Tag);
+            };
+}
 
 function div(islots, kids) {
 	return tag('div', islots, kids);
 }
-function header(islots, kids) {
-	return tag('header', islots, kids);
+function header(islots) {
+	return tag('header', islots,  cdrArgs(arguments));
 }
 function footer(islots, kids) {
 	return tag('footer', islots, kids);
 }
-function h1(content, islots, kids) {
-	return tag('h1', Object.assign( {content: content}, islots), kids);
+function h1(content, islots) {
+	return tag('h1', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
-function h2(content, islots, kids) {
-	return tag('h2', Object.assign( {content: content}, islots), kids);
+function h2(content, islots) {
+	return tag('h2', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function h3(content, islots, kids) {
 	return tag('h3', Object.assign( {content: content}, islots), kids);
@@ -399,8 +421,8 @@ function h5(content, islots, kids) {
 function h6(content, islots, kids) {
 	return tag('h6', Object.assign( {content: content}, islots), kids);
 }
-function section(islots, kids) {
-	return tag('section', islots, kids);
+function section(islots) {
+	return tag('section', islots, cdrArgs(arguments));
 }
 
 function ul(islots, kids) {
