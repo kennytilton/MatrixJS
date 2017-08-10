@@ -47,19 +47,20 @@ function todoSSB() {
                 'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
     ];
 
-    /* OK let bits = [
+    /* let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos")))];*/
+                h1("todos"),p({},"hi mom")))];*/
 
-    /* OK let bits = [
+    /*let bits = [
         section({ class: "todoapp", name: "todoapp"},
             h1("todos"))];*/
 
-    // OK let bits = [ h1("booya"), h2("cool2")];
+    // let bits = [ h1("booya"), h2("cool2")];
+    // let bits = [ h1("booya")];
     //clg('bits!!!',bits);
 
-    let h = "".concat(...bits.map( b=>b().toHTML()));
+    let h = "".concat(...bits.map( b=>b(null).toHTML()));
 
     clg('html!!!!', h);
     return h;

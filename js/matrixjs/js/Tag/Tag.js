@@ -375,7 +375,7 @@ function tag( tag, islots, kids) {
 
 function tag( tag, islots, kids) {
     // clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
-    clg('tag entry', tag, kids.length, kids instanceof Array);
+    clg('tag entry', tag, kids, kids instanceof Array);
     if (kids != null) {
         let fkids = kids.packedFlat();
         clg('tagflat', fkids.length);
@@ -385,8 +385,9 @@ function tag( tag, islots, kids) {
     }
 
     return function (parent) {
+                clg('tagfactory parent', typeof parent, parent===null, isModel(parent));
                 return mkm(parent
-                    , null
+                    , tag
                     , Object.assign({tag: tag}
                         , islots)
                     , kids
@@ -401,7 +402,7 @@ function header(islots) {
 	return tag('header', islots,  cdrArgs(arguments));
 }
 function footer(islots, kids) {
-	return tag('footer', islots, kids);
+	return tag('footer', islots, cdrArgs(arguments));
 }
 function h1(content, islots) {
 	return tag('h1', Object.assign( {content: content}, islots), cddrArgs(arguments));

@@ -243,8 +243,11 @@ class Model {
 
 //module.exports.Model = Model;
 
+var isModel = x => x instanceof Model;
+var isTag = x => x instanceof Tag;
+
 function mkm( par, id, props, kids, factory=Model) {
-	clg('mkm ',par, factory.cname());
+	clg('mkm ', typeof par, id, par === null, isModel(par), typeof par ==='undefined', factory.cname());
 	opts = Object.assign({}
 	                    , props
 		                , kids ? {kids: cKids( kids)} : null);
@@ -266,7 +269,11 @@ function cKids( kidFactories, options) {
     // final result is still an array (of one kid).
 
 	return Object.assign( new Cell(null
-			, c=>{ let ks = kfsRun( c.md, kidFactories);
+			, c=>{ clg('ckids entry',c,isModel(c.md));
+			        if (!isModel(c.md))
+			            throw 'ckids c.md not model';
+
+			        let ks = kfExpand( c.md, kidFactories);
 			        clg('ckids kids',ks);
 			        return ks instanceof Array? ks.packedFlat():ks
             }
@@ -274,30 +281,21 @@ function cKids( kidFactories, options) {
 			, options);
 }
 
-function kfsRun( parent, kfs) {
-    let kfRun = kf => kf(parent);
-    ast( kfs instanceof Array);
-    clg('kfsRun top', kfs instanceof Array, typeof kfs);
-    return kfs.map( kf => {
-        let k = kfRun(kf)
-        , ktype = typeof k;
+var kfExpandFinal = m => m === null
+                    || isModel(m)
+                    || (m instanceof Array && m.every(kfExpandFinal));
 
-        if (k === null) {
-            return null;
-        } else if ( ktype === 'function') {
-            return kfRun(k);
-        } else if (k instanceof Array) {
-            return k.map(k => kfRun(k))
-        } if (k instanceof Model) {
-            clg('kfsrun sees Model made!');
-            return k;
-        } else {
-            if (ktype !== 'Model') {
-                clg('oops not model', ktype, k);
-            }
-            ast(ktype==='Model');
-
-            return k;
-        }
-    });
+function kfExpand(parent, kf) {
+    if ( kfExpandFinal(kf)) {
+        clg('kfsrun sees  unexpandable!', kf===null, kf instanceof Model, kf instanceof Array);
+        return kf;
+    } else if ( typeof kf === 'function') {
+        clg('kfsrun sees function!');
+        return kfExpand(parent, kf(parent));
+    } else if (kf instanceof Array) {
+        return kfExpand( parent, kf.map(k => kfExpand( parent,k )));
+    } else {
+        clg('expand bad kf', kf, kf===null, typeof kf);
+        throw 'kfexpand fell thru';
+    }
 }
