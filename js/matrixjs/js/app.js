@@ -8,17 +8,17 @@
 const Todos = Todo.loadAllItems();
 
 function todoSSB() {
-    /*
-    let bits = [
-        section({ class: "todoapp", name: "todoapp"}, c => { return [
-            header({class: "header"}, c => [
+
+    /*let bits = [
+        section({ class: "todoapp", name: "todoapp"},
+            header({class: "header"},
                 h1("todos2"),
                 input({ class: "new-todo", autofocus: true,
                         placeholder: "What needs doing?",
-                        onkeypress: 'todoAddNewOnEnter'})]),
+                        onkeypress: 'todoAddNewOnEnter'})),
 
             section({class: "main",
-                     hidden: cF( c => Todos.empty)}, c=> [
+                     hidden: cF( c => Todos.empty)},
                 input({ id: "toggle-all",
                         class: "toggle-all",
                         checked: cF( c => (Todos.items.length === 0) ? false :
@@ -32,21 +32,25 @@ function todoSSB() {
                         kidValues: cF( c=> Todos.items),
                         kidKey: k => k.todo,
                         kidFactory: mkTodoItem},
-                    c =>  c.kidValuesKids())]),
+                    c =>  c.kidValuesKids())),
 
-            mkDashboard()]}),
+            mkDashboard()),
 
         footer({class: "info"},
-            c => ['Double-click a todo to edit it',
-                  'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
-                  'Inspired by <a href="http://todomvc.com">TodoMVC</a>']
-                    .map( s => p({},s)))];
-*/
-
+            ['Double-click a todo to edit it',
+             'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
+             'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))];*/
     let bits = [
+        footer({class: "info"},
+            ['Double-click a todo to edit it',
+                'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
+                'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
+    ];
+
+    /* OK let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos")))];
+                h1("todos")))];*/
 
     /* OK let bits = [
         section({ class: "todoapp", name: "todoapp"},
