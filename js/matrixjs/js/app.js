@@ -7,7 +7,7 @@
 
 const Todos = Todo.loadAllItems();
 
-function todoMVC() {
+function todoSSB() {
     let bits = [
         section({ class: "todoapp", name: "todoapp"}, c => { return [
             header({class: "header"}, c => [
@@ -40,6 +40,11 @@ function todoMVC() {
                   'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
                   'Inspired by <a href="http://todomvc.com">TodoMVC</a>']
                     .map( s => p({},s)))];
+
+    /* let bits = [
+        section({ class: "todoapp", name: "todoapp"},
+            header({class: "header"},
+                h1("todos")))];*/
 
     return "".concat(...bits.map( b=>b.toHTML()));
 }

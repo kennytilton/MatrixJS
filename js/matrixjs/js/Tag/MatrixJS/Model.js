@@ -32,6 +32,18 @@ function ast (test, msg) {
 	console.assert(test,msg);
 }
 
+Object.defineProperty(Array.prototype,'packedFlat'
+    ,{ value: function(r) {
+        for (var a=this, i=0, r = r || []; i < a.length; ++i)
+            if ( a[i] != null)
+                a[i] instanceof Array ? a[i].packedFlat(r) : r.push(a[i]);
+        return r}});
+
+function cdrAargs(args) {
+    // expects a special arguments instance, array-like but not really
+    Array.apply(null, args).slice(1)
+}
+
 //var UU = require('node-uuid');
 
 const kAwakening = "md-awakening";
