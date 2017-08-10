@@ -411,27 +411,27 @@ function h2(content, islots) {
 	return tag('h2', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function h3(content, islots, kids) {
-	return tag('h3', Object.assign( {content: content}, islots), kids);
+	return tag('h3', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function h4(content, islots, kids) {
-	return tag('h4', Object.assign( {content: content}, islots), kids);
+	return tag('h4', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function h5(content, islots, kids) {
-	return tag('h5', Object.assign( {content: content}, islots), kids);
+	return tag('h5', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function h6(content, islots, kids) {
-	return tag('h6', Object.assign( {content: content}, islots), kids);
+	return tag('h6', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function section(islots) {
 	return tag('section', islots, cdrArgs(arguments));
 }
 
 function ul(islots, kids) {
-	return tag('ul', islots, kids);
+	return tag('ul', islots, cdrArgs(arguments));
 }
 
 function li(islots, kids) {
-	return tag('li', islots, kids);
+	return tag('li', islots, cdrArgs(arguments));
 }
 // todo Standardize all these so islots precedes content
 function label(content, islots, kids) { // can a label have kids?
@@ -447,8 +447,8 @@ function button(content, islots, kids) {
 function span( islots) {
 	return tag('span', islots);
 }
-function input(islots, kids) {
-	return tag('input', islots, kids);
+function input(islots) {
+	return tag('input', islots, cdrArgs(arguments));
 }
 function p(islots, content) {
 	return tag('p', Object.assign( {content: content}, islots));

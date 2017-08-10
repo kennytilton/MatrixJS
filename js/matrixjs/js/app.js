@@ -40,12 +40,27 @@ function todoSSB() {
             ['Double-click a todo to edit it',
              'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
              'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))];*/
+
+    let bits = [
+        section({ class: "todoapp", name: "todoapp"},
+            header({class: "header"},
+                h1("todos")),
+            input({ class: "new-todo", autofocus: true,
+                placeholder: "What needs doing?",
+                onkeypress: 'todoAddNewOnEnter'}))
+        , footer({class: "info"},
+            ['Double-click a todo to edit it',
+                'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
+                'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
+    ];
+
+    /*
     let bits = [
         footer({class: "info"},
             ['Double-click a todo to edit it',
                 'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
                 'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
-    ];
+    ];*/
 
     /* let bits = [
         section({ class: "todoapp", name: "todoapp"},
@@ -60,7 +75,7 @@ function todoSSB() {
     // let bits = [ h1("booya")];
     //clg('bits!!!',bits);
 
-    let h = "".concat(...bits.map( b=>b(null).toHTML()));
+    let h = "".concat(...bits.map( b=>b().toHTML()));
 
     clg('html!!!!', h);
     return h;
