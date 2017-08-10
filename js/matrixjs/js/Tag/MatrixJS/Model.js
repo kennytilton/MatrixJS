@@ -278,7 +278,7 @@ function kfsRun( parent, kfs) {
     let kfRun = kf => kf(parent);
     ast( kfs instanceof Array);
     clg('kfsRun top', kfs instanceof Array, typeof kfs);
-    kfs.map( kf => {
+    return kfs.map( kf => {
         let k = kfRun(kf)
         , ktype = typeof k;
 
@@ -287,10 +287,17 @@ function kfsRun( parent, kfs) {
         } else if ( ktype === 'function') {
             return kfRun(k);
         } else if (k instanceof Array) {
-            return k.map(k => kfRun(k));
+            return k.map(k => kfRun(k))
+        } if (k instanceof Model) {
+            clg('kfsrun sees Model made!');
+            return k;
         } else {
+            if (ktype !== 'Model') {
+                clg('oops not model', ktype, k);
+            }
             ast(ktype==='Model');
+
             return k;
         }
-    })
+    });
 }

@@ -43,14 +43,22 @@ function todoSSB() {
                     .map( s => p({},s)))];
 */
 
-    /*let bits = [
+    let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos"),h1("soon")))];*/
+                h1("todos")))];
 
-    let bits = [ h1("booya"), h2("cool2")];
+    /* OK let bits = [
+        section({ class: "todoapp", name: "todoapp"},
+            h1("todos"))];*/
+
+    // OK let bits = [ h1("booya"), h2("cool2")];
     //clg('bits!!!',bits);
-    return "".concat(...bits.map( b=>b().toHTML()));
+
+    let h = "".concat(...bits.map( b=>b().toHTML()));
+
+    clg('html!!!!', h);
+    return h;
 }
 
 // -- toggle all
