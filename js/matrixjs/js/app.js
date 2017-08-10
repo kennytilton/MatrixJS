@@ -44,10 +44,13 @@ function todoSSB() {
     let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos")),
-            input({ class: "new-todo", autofocus: true,
-                placeholder: "What needs doing?",
-                onkeypress: 'todoAddNewOnEnter'}))
+                h1("todos"+Math.random()),
+                input({ class: "new-todo", autofocus: true,
+                        placeholder: "What needs doing?",
+                        onkeypress: 'todoAddNewOnEnter'}))
+            , mkDashboard()
+        )
+
         , footer({class: "info"},
             ['Double-click a todo to edit it',
                 'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
@@ -81,6 +84,9 @@ function todoSSB() {
     return h;
 }
 
+function mkDash() {
+    return p({},"this works");
+}
 // -- toggle all
 
 function toggleAllCompletion (dom,e) {
@@ -134,29 +140,31 @@ function todoMatchesSelect( todo, selection) {
 }
 
 function mkDashboard () {
-    return footer({class: "footer",
-                    hidden: cF( c => Todos.empty)}, c => [
+    return footer({class: "footer"
+                    //, hidden: cF( c => Todos.empty)
+                },
 
                 span({ class: "todo-count",
                         content: cF(c => {
                     let remCt = Todos.items.filter(todo => !todo.completed).length;
-                    return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})}),
+                    return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
 
-                ul( { class: "filters",
+                , ul( { class: "filters",
                       name: "filters",
-                      selection: cI("All")}, c =>
+                      selection: cI("All")},
                     [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
                         .map( which => {
                             var [ label, route] = which;
-                            return li({}, c=> [a({href: route,
-                                                  content: label, selector: label,
-                                                  selected: cF( c => c.md.selector === c.md.fmTag('ul').selection),
-                                                  class: cF( c => c.md.selected ? "selected":"")})])})),
+                            return li({}, a({href: route,
+                                            content: label, selector: label,
+                                            selected: cF( c => c.md.selector === c.md.fmTag('ul').selection),
+                                            class: cF( c => c.md.selected ? "selected":"")}));}))
 
-                button("Clear completed",
+                , button("Clear completed",
                     { class: "clear-completed",
                       hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
-                      onclick: 'todoCompletedDelete'})]);
+                      onclick: 'todoCompletedDelete'})
+        );
 }
 
 /// --- on event handlers --------------------------------------------
