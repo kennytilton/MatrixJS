@@ -48,6 +48,22 @@ function todoSSB() {
                 input({ class: "new-todo", autofocus: true,
                         placeholder: "What needs doing?",
                         onkeypress: 'todoAddNewOnEnter'}))
+            , section({class: "main",
+                        hidden: cF( c => Todos.empty)},
+                input({ id: "toggle-all",
+                    class: "toggle-all",
+                    checked: cF( c => (Todos.items.length === 0) ? false :
+                                    (Todos.items.every( i => i.completed) ? true : false)),
+
+                    type: "checkbox"}),
+                label( "Mark all as complete",
+                    { for: "toggle-all",
+                        onclick: 'toggleAllCompletion'}),
+                    ul({ class: "todo-list", name: "todo-list",
+                         kidValues: cF( c=> Todos.items),
+                         kidKey: k => k.todo,
+                         kidFactory: mkTodoItem},
+                        c.kidValuesKids()))
             , mkDashboard()
         )
 
