@@ -49,21 +49,22 @@ function todoSSB() {
                         placeholder: "What needs doing?",
                         onkeypress: 'todoAddNewOnEnter'}))
             , section({class: "main",
-                        hidden: cF( c => Todos.empty)},
-                input({ id: "toggle-all",
+                        hidden: cF( c => Todos.empty)}
+                , input({ id: "toggle-all",
                     class: "toggle-all",
                     checked: cF( c => (Todos.items.length === 0) ? false :
                                     (Todos.items.every( i => i.completed) ? true : false)),
 
-                    type: "checkbox"}),
-                label( "Mark all as complete",
+                    type: "checkbox"})
+                , label( "Mark all as complete",
                     { for: "toggle-all",
-                        onclick: 'toggleAllCompletion'}),
-                    ul({ class: "todo-list", name: "todo-list",
+                        onclick: 'toggleAllCompletion'})
+                , ul({ class: "todo-list", name: "todo-list",
                          kidValues: cF( c=> Todos.items),
                          kidKey: k => k.todo,
                          kidFactory: mkTodoItem},
-                        c.kidValuesKids()))
+                        c => c.kidValuesKids())
+                )
             , mkDashboard()
         )
 
@@ -81,16 +82,18 @@ function todoSSB() {
                 'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
     ];*/
 
-    /* let bits = [
+     /*let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos"),p({},"hi mom")))];*/
+                h1("todos"),
+                c=> [(Math.random()>0.5) ? p({}, "Greater"): p({}, "less")]))];*/
 
     /*let bits = [
         section({ class: "todoapp", name: "todoapp"},
             h1("todos"))];*/
 
-    // let bits = [ h1("booya"), h2("cool2")];
+    //let bits = [ h1("booya"),  c=> (Math.random()>0.5) ? p({}, "Greater"): p({}, "less")];
+    //let bits = [ h1("booya"), h2("cool2")];
     // let bits = [ h1("booya")];
     //clg('bits!!!',bits);
 
@@ -108,7 +111,7 @@ function mkDash() {
 function toggleAllCompletion (dom,e) {
     let toggall = document.getElementById("toggle-all"),
         action = dom2js(toggall).checked ? 'undo':'do';
-    // clg('togg all checked '+ dom2js(toggall).checked + ' act=' + action);
+    clg('togg all checked '+ dom2js(toggall).checked + ' act=' + action);
     Todos.items
         .filter( td => xor( td.completed, action === 'do'))
         .map( td => td.completed = (action === 'do'));
@@ -119,27 +122,29 @@ function toggleAllCompletion (dom,e) {
 function mkTodoItem( c, todo) {
     return li({ todo: todo,
                 class: cF(c => (todo.completed ? "completed" : "")),
-                display: cF(c => todoMatchesSelect(todo, c.fmUp('filters').selection) ? "block" : "none")}, c => [
+                display: cF(c => todoMatchesSelect(todo, c.fmUp('filters').selection) ? "block" : "none")},
 
-                div({class: "view"}, c => [
+            // p({},"baby"),
+            div({class: "view"},
+                //p({},"Steps")
+                input({class: "toggle", type: "checkbox",
+                        checked: cF( c=> todo.completed),
+                        onclick: 'todoToggleComplete',
+                        title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
 
-                    input({class: "toggle", type: "checkbox",
-                            checked: cF( c=> todo.completed),
-                            onclick: 'todoToggleComplete',
-                            title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
+                label( cF( c => todo.title),
+                    { todo: todo,
+                      ondblclick: 'todoStartEditing'}),
 
-                    label( cF( c => todo.title),
-                        { todo: todo,
-                          ondblclick: 'todoStartEditing'}),
+                button(null, { class: "destroy", onclick: 'todoDelete'})
+            ),
 
-                    button(null, { class: "destroy", onclick: 'todoDelete'})]),
-
-                input({ name: "myEditor", class: "edit",
-                        todo: todo,
-                        value: cFI( c=> todo.title),
-                        onblur: 'todoEdit',
-                        onkeydown: 'todoEdit', // hmmm. picks up Escape. Not needed in CLJS version... goog.closure?
-                        onkeypress: 'todoEdit'})]);
+            input({ name: "myEditor", class: "edit",
+                    todo: todo,
+                    value: cFI( c=> todo.title),
+                    onblur: 'todoEdit',
+                    onkeydown: 'todoEdit', // hmmm. picks up Escape. Not needed in CLJS version... goog.closure?
+                    onkeypress: 'todoEdit'}));
 }
 
 // -- toggle one

@@ -362,20 +362,11 @@ function tagStyleBuild(md) {
 	}
 	return ss===''? '' : ` style="${ss}"`;
 }
-/*
-function tag( tag, islots, kids) {
-	// clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
-	return mkm( gPar, null // todo fully lose this idea of supplying id initargs.id
-		, Object.assign({tag: tag}
-			, islots)
-		, kids
-		, Tag);
-}
-*/
+
 
 function tag( tag, islots, kids) {
     // clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
-    clg('tag entry', tag, kids, kids instanceof Array);
+    clg('tag entry', tag, typeof kids, kids, kids==='undefined', kids instanceof Array);
     if (kids != null) {
         let fkids = kids.packedFlat();
         clg('tagflat', fkids.length);
@@ -384,24 +375,24 @@ function tag( tag, islots, kids) {
         }));
     }
 
-    return function (parent) {
-                clg('tagfactory parent', typeof parent, parent===null, isModel(parent));
-                return mkm(parent
-                    , tag
-                    , Object.assign({tag: tag}
-                        , islots)
-                    , kids
-                    , Tag);
-            };
+    return function (c) {
+				clg('tagfactory c', c, (c || null) === null ? 'no c':c.md);
+				return mkm(c ? c.md : null
+					, tag
+					, Object.assign({tag: tag}
+						, islots)
+					, kids
+					, Tag);
+			};
 }
 
-function div(islots, kids) {
-	return tag('div', islots, kids);
+function div(islots) {
+	return tag('div', islots, cdrArgs(arguments));
 }
 function header(islots) {
 	return tag('header', islots,  cdrArgs(arguments));
 }
-function footer(islots, kids) {
+function footer(islots) {
 	return tag('footer', islots, cdrArgs(arguments));
 }
 function h1(content, islots) {
@@ -410,39 +401,39 @@ function h1(content, islots) {
 function h2(content, islots) {
 	return tag('h2', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
-function h3(content, islots, kids) {
+function h3(content, islots) {
 	return tag('h3', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
-function h4(content, islots, kids) {
+function h4(content, islots) {
 	return tag('h4', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
-function h5(content, islots, kids) {
+function h5(content, islots) {
 	return tag('h5', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
-function h6(content, islots, kids) {
+function h6(content, islots) {
 	return tag('h6', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function section(islots) {
 	return tag('section', islots, cdrArgs(arguments));
 }
 
-function ul(islots, kids) {
+function ul(islots) {
 	return tag('ul', islots, cdrArgs(arguments));
 }
 
-function li(islots, kids) {
+function li(islots) {
 	return tag('li', islots, cdrArgs(arguments));
 }
 // todo Standardize all these so islots precedes content
-function label(content, islots, kids) { // can a label have kids?
-	return tag('label', Object.assign( {content: content}, islots), kids);
+function label(content, islots) { // can a label have kids?
+	return tag('label', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
-function labelx(islots, kids) { // todo can a label have kids?
+function labelx(islots) { // todo can a label have kids?
 	ast( islots.content, 'labelx sees islots sans content');
-	return tag('label', islots, kids);
+	return tag('label', islots, cdrArgs(arguments));
 }
 function button(content, islots, kids) {
-	return tag('button', Object.assign( {content: content}, islots), kids);
+	return tag('button', Object.assign( {content: content}, islots), cddrArgs(arguments));
 }
 function span( islots) {
 	return tag('span', islots);
