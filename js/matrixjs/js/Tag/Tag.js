@@ -366,17 +366,9 @@ function tagStyleBuild(md) {
 
 function tag( tag, islots, kids) {
     // clg(`tag ${tag} ${islots.name} sees parent ${parent}, kids ` + kids);
-    clg('tag entry', tag, typeof kids, kids, kids==='undefined', kids instanceof Array);
-    if (kids != null) {
-        let fkids = kids.packedFlat();
-        clg('tagflat', fkids.length);
-        ast(fkids.every(function (k) {
-            return typeof k === 'function';
-        }));
-    }
+    //clg('tag entry', tag, typeof kids, kids, kids==='undefined', kids instanceof Array);
 
     return function (c) {
-				clg('tagfactory c', c, (c || null) === null ? 'no c':c.md);
 				return mkm(c ? c.md : null
 					, tag
 					, Object.assign({tag: tag}

@@ -9,53 +9,20 @@ const Todos = Todo.loadAllItems();
 
 function todoSSB() {
 
-    /*let bits = [
-        section({ class: "todoapp", name: "todoapp"},
-            header({class: "header"},
-                h1("todos2"),
-                input({ class: "new-todo", autofocus: true,
-                        placeholder: "What needs doing?",
-                        onkeypress: 'todoAddNewOnEnter'})),
-
-            section({class: "main",
-                     hidden: cF( c => Todos.empty)},
-                input({ id: "toggle-all",
-                        class: "toggle-all",
-                        checked: cF( c => (Todos.items.length === 0) ? false :
-                                    (Todos.items.every( i => i.completed) ? true : false)),
-
-                        type: "checkbox"}),
-                label( "Mark all as complete",
-                        { for: "toggle-all",
-                          onclick: 'toggleAllCompletion'}),
-                ul({ class: "todo-list", name: "todo-list",
-                        kidValues: cF( c=> Todos.items),
-                        kidKey: k => k.todo,
-                        kidFactory: mkTodoItem},
-                    c =>  c.kidValuesKids())),
-
-            mkDashboard()),
-
-        footer({class: "info"},
-            ['Double-click a todo to edit it',
-             'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
-             'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))];*/
-
     let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos"+Math.random()),
+                h1("todos"),
                 input({ class: "new-todo", autofocus: true,
                         placeholder: "What needs doing?",
                         onkeypress: 'todoAddNewOnEnter'}))
             , section({class: "main",
                         hidden: cF( c => Todos.empty)}
                 , input({ id: "toggle-all",
-                    class: "toggle-all",
-                    checked: cF( c => (Todos.items.length === 0) ? false :
-                                    (Todos.items.every( i => i.completed) ? true : false)),
-
-                    type: "checkbox"})
+                        type: "checkbox",
+                        class: "toggle-all",
+                        checked: cF( c => (Todos.items.length === 0) ? false :
+                                        (Todos.items.every( i => i.completed) ? true : false))})
                 , label( "Mark all as complete",
                     { for: "toggle-all",
                         onclick: 'toggleAllCompletion'})
@@ -66,52 +33,21 @@ function todoSSB() {
                         c => c.kidValuesKids())
                 )
             , mkDashboard()
-        )
-
-        , footer({class: "info"},
+        ),
+        footer({class: "info"},
             ['Double-click a todo to edit it',
                 'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
                 'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
     ];
 
-    /*
-    let bits = [
-        footer({class: "info"},
-            ['Double-click a todo to edit it',
-                'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
-                'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
-    ];*/
-
-     /*let bits = [
-        section({ class: "todoapp", name: "todoapp"},
-            header({class: "header"},
-                h1("todos"),
-                c=> [(Math.random()>0.5) ? p({}, "Greater"): p({}, "less")]))];*/
-
-    /*let bits = [
-        section({ class: "todoapp", name: "todoapp"},
-            h1("todos"))];*/
-
-    //let bits = [ h1("booya"),  c=> (Math.random()>0.5) ? p({}, "Greater"): p({}, "less")];
-    //let bits = [ h1("booya"), h2("cool2")];
-    // let bits = [ h1("booya")];
-    //clg('bits!!!',bits);
-
-    let h = "".concat(...bits.map( b=>b().toHTML()));
-
-    clg('html!!!!', h);
-    return h;
+    return "".concat(...bits.map( b=>b().toHTML()));
 }
 
-function mkDash() {
-    return p({},"this works");
-}
 // -- toggle all
 
 function toggleAllCompletion (dom,e) {
     let toggall = document.getElementById("toggle-all"),
         action = dom2js(toggall).checked ? 'undo':'do';
-    clg('togg all checked '+ dom2js(toggall).checked + ' act=' + action);
     Todos.items
         .filter( td => xor( td.completed, action === 'do'))
         .map( td => td.completed = (action === 'do'));
@@ -124,9 +60,7 @@ function mkTodoItem( c, todo) {
                 class: cF(c => (todo.completed ? "completed" : "")),
                 display: cF(c => todoMatchesSelect(todo, c.fmUp('filters').selection) ? "block" : "none")},
 
-            // p({},"baby"),
             div({class: "view"},
-                //p({},"Steps")
                 input({class: "toggle", type: "checkbox",
                         checked: cF( c=> todo.completed),
                         onclick: 'todoToggleComplete',
@@ -161,8 +95,8 @@ function todoMatchesSelect( todo, selection) {
 }
 
 function mkDashboard () {
-    return footer({class: "footer"
-                    //, hidden: cF( c => Todos.empty)
+    return footer({class: "footer",
+                    hidden: cF( c => Todos.empty)
                 },
 
                 span({ class: "todo-count",

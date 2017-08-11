@@ -247,7 +247,7 @@ var isModel = x => x instanceof Model;
 var isTag = x => x instanceof Tag;
 
 function mkm( par, id, props, kids, factory=Model) {
-	clg('mkm ', typeof par, id, par === null, isModel(par), typeof par ==='undefined', factory.cname());
+	//clg('mkm ', typeof par, id, par === null, isModel(par), typeof par ==='undefined', factory.cname());
 	opts = Object.assign({}
 	                    , props
 		                , kids ? {kids: cKids( kids)} : null);
@@ -269,12 +269,12 @@ function cKids( kidFactories, options) {
     // final result is still an array (of one kid).
 
 	return Object.assign( new Cell(null
-			, c=>{ clg('ckids entry',c,isModel(c.md));
+			, c=>{ //clg('ckids entry',c,isModel(c.md));
 			        if (!isModel(c.md))
 			            throw 'ckids c.md not model';
 
 			        let ks = kfExpand( c, kidFactories);
-			        clg('ckids kids',ks);
+			        //clg('ckids kids',ks);
 			        return ks instanceof Array? ks.packedFlat():ks
             }
 			, false, false, null)
