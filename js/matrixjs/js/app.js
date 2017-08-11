@@ -43,7 +43,8 @@ function toggleAllCompletion (dom,e) {
 function mkTodoItem( c, todo) {
     return li({ todo: todo,
                 class: cF(c => (todo.completed ? "completed" : "")),
-                display: cF(c => todoMatchesSelect(todo, c.fmUp('filters').selection) ? "block" : "none")},
+                display: cF(c => todoMatchesRoute(todo) ? "block" : "none")
+                },
 
             div({class: "view"},
                 input({class: "toggle", type: "checkbox",
@@ -70,10 +71,8 @@ function todoToggleComplete (dom, e) {
     todo.completed = !todo.completed;
 }
 
-function todoMatchesSelect( todo, selection) {
-    return selection==='All'
-        || (selection==='Completed' && todo.completed)
-        || (selection==='Active' && !todo.completed);
+function todoMatchesRoute( todo, selection = todoRoute.slotValue()) {
+    return selection==='All' || xor( selection==='Active', todo.completed);
 }
 
 function mkDashboard () {
@@ -85,14 +84,13 @@ function mkDashboard () {
                                         return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
 
                 , ul( { class: "filters",
-                      name: "filters",
-                      selection: cI("All")},
+                        name: "filters"},
                     [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
                         .map( which => { let [ label, route] = which;
                                         return li({},
                                                     a({href: route,
                                                         content: label, selector: label,
-                                                        selected: cF( c => c.md.selector === c.md.fmTag('ul').selection),
+                                                        selected: cF( c => c.md.selector === todoRoute.slotValue()),
                                                         class: cF( c => c.md.selected ? "selected":"")}));}))
 
                 , button("Clear completed",
