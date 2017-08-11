@@ -930,13 +930,15 @@ function c_F(formula, options) {
 		, {lazy: kUntilAsked}
 		, options);
 }
-function cFI(formula) {
+function cFI(formula, options) {
 	/*
 	 make a cell whose formula runs once for
 	 its initial value but then is set procedurally
 	 as an input cell.
 	 */
-	return new Cell(null, formula, true, false, null);
+	//return new Cell(null, formula, true, false, null);
+    return Object.assign(new Cell(null, formula, true, false, null)
+        , options);
 }
 function cI(value, options) {
 	// standard input cell

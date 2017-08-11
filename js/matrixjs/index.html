@@ -10,42 +10,26 @@
 	<script src="js/Tag/MatrixJS/Cells.js"></script>
 	<script src="js/Tag/MatrixJS/Model.js"></script>
 	<script src="js/Tag/Tag.js"></script>
-	<script>
-		console.log("BAM:" + (localStorage.getObject("todo-matrix.route")===null? "null":  "All") +":BOOM");
-        var setFiltersSelectDelay = 500;
-		var todoRoute = cFI( c=> {let r = localStorage.getObject("todo-matrix.route");
-								return r === null ? "All" : r;
-								});
-        function setFiltersSelect (which) {
-            setTimeout( function () {
-                localStorage.setObject("todo-matrix.route", which)
-                todoRoute.v = which;
-                setFiltersSelectDelay = 0;
-            }, setFiltersSelectDelay);
+	<script src="js/Todo.js"></script>
+	<script src="js/app.js"></script>
 
+	<script>
+        function setFiltersSelect (which) {
+            //localStorage.setObject("todo-matrix.route", which)
+            console.log('setting todoroute '+ which);
+            todoRoute.v = which;
         }
-        var completed = function () {
-            setFiltersSelect('Completed');
-        };
-        var active = function () {
-            setFiltersSelect('Active');
-        }
-        var all = function () {
-            setFiltersSelect('All');
-        };
+
         var routes = {
-            '/completed': completed,
-            '/active': active,
-            '/': all
+            '/completed': ()=> setFiltersSelect('Completed'),
+            '/active': ()=> setFiltersSelect('Active'),
+            '/': ()=> setFiltersSelect('All')
         };
 
         var router = Router(routes);
 
         router.init();
 	</script>
-	<script src="js/Todo.js"></script>
-	<script src="js/app.js"></script>
-	<!-- script src="js/test/Todo.js"></script -->
 </head>
 <body>
 <h1>Script failed to load.</h1>

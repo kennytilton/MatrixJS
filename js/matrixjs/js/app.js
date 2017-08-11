@@ -1,5 +1,3 @@
-const Todos = Todo.loadAllItems();
-
 function todoSSB() {
     let bits = [
         section({ class: "todoapp", name: "todoapp"},
@@ -19,7 +17,7 @@ function todoSSB() {
                     { for: "toggle-all",
                         onclick: 'toggleAllCompletion'}),
                 ul({ class: "todo-list", name: "todo-list",
-                         kidValues: cF( c=> Todos.items),
+                         kidValues: cF( c=> Todos.routeItems),
                          kidKey: k => k.todo,
                          kidFactory: mkTodoItem},
                     c => c.kidValuesKids())),
@@ -42,9 +40,7 @@ function toggleAllCompletion (dom,e) {
 
 function mkTodoItem( c, todo) {
     return li({ todo: todo,
-                class: cF(c => (todo.completed ? "completed" : "")),
-                display: cF(c => todoMatchesRoute(todo) ? "block" : "none")
-                },
+                class: cF(c => (todo.completed ? "completed" : ""))},
 
             div({class: "view"},
                 input({class: "toggle", type: "checkbox",
@@ -71,10 +67,6 @@ function todoToggleComplete (dom, e) {
     todo.completed = !todo.completed;
 }
 
-function todoMatchesRoute( todo, selection = todoRoute.slotValue()) {
-    return selection==='All' || xor( selection==='Active', todo.completed);
-}
-
 function mkDashboard () {
     return footer({class: "footer",
                     hidden: cF( c => Todos.empty)},
@@ -90,7 +82,7 @@ function mkDashboard () {
                                         return li({},
                                                     a({href: route,
                                                         content: label, selector: label,
-                                                        selected: cF( c => c.md.selector === todoRoute.slotValue()),
+                                                        selected: cF( c => c.md.selector === todoRoute.v),
                                                         class: cF( c => c.md.selected ? "selected":"")}));}))
 
                 , button("Clear completed",

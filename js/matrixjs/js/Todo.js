@@ -1,10 +1,3 @@
-/*
- * The MIT License
- *
- * Copyright 2017 Kenneth Tilton.
- *
- */
-
 const TODO_LS_PREFIX = "todos-MatrixJS.";
 
 class Todo extends Model {
@@ -54,10 +47,13 @@ class Todo extends Model {
                                     .sort( (a,b) => a.created < b.created ? -1 : 1) || []),
 
                 items: cF( c => c.md.itemsRaw.filter( td => !td.deleted)),
+                routeItems: cF( c => {
+                    let selection = todoRoute.slotValue();
+                    clg('routeItems sees', selection);
+                    return c.md.items.filter( td => selection==='All'
+                                                    || xor( selection==='Active', td.completed))}),
 
-                empty: cF( c => c.md.items.length === 0),
-
-                bulkTx: cIe( null)})
+                empty: cF( c => c.md.items.length === 0)})
     }
     store () {
         localStorage.setObject( this.dbKey, this.toJSON());
@@ -67,4 +63,14 @@ class Todo extends Model {
     }
 }
 
+const todoRoute = cFI( c=> {let r = localStorage.getObject("todo-matrix.route");
+                        return r === null ? "All" : r;},
+                    // obs(this.name, this.md, this.pv, vPrior, this);
+                    {observer: (n, md, newv, oldv, c) => {
+                        console.log('obs storing! '+ newv + ',' + (oldv===kUnbound));
+                        localStorage.setObject("todo-matrix.route", newv)
+                        //clg('obsroute', newv, oldv);
+                    }});
+
+const Todos = Todo.loadAllItems();
 
