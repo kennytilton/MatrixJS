@@ -1,20 +1,14 @@
-/*
-last action was mark complete last incomplete with filter = active
-  error is unable to find DOM matching JS
-
-prior action was clearing completed with one completed but not showing
-because filter was active.
-
- */
-
 function todoSSB() {
+    clg('SSB BAM');
+    Router({'/completed': ()=> todoRoute.v = 'Completed',
+        '/active': ()=> { console.log('Router BAM!'); todoRoute.v = 'Active'},
+    '/': ()=> todoRoute.v = 'All'}).init();
+
     let bits = [
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
                 h1("todos"),
-                input({ class: "new-todo", autofocus: true,
-                        placeholder: "What needs doing?",
-                        onkeypress: 'todoAddNewOnEnter'})),
+                todoEntry()),
             section({class: "main",
                         hidden: cF( c => Todos.empty)},
                 input({ id: "toggle-all",
@@ -24,13 +18,13 @@ function todoSSB() {
                                         (Todos.items.every( i => i.completed) ? true : false))}),
                 label( "Mark all as complete",
                     { for: "toggle-all",
-                        onclick: 'toggleAllCompletion'}),
+                        onclick: 'toggleAllCompletion( this)'}),
                 ul({ class: "todo-list", name: "todo-list",
                          kidValues: cF( c=> Todos.routeItems),
                          kidKey: k => k.todo,
-                         kidFactory: mkTodoItem},
+                         kidFactory: todoListItem},
                     c => c.kidValuesKids())),
-            mkDashboard()),
+            todoDashboard()),
         footer({class: "info"},
             ['Double-click a todo to edit it',
                 'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
@@ -40,7 +34,7 @@ function todoSSB() {
     return "".concat(...bits.map( b=>b().toHTML()));
 }
 
-function toggleAllCompletion (dom,e) {
+function toggleAllCompletion (dom) {
     let toggall = document.getElementById("toggle-all"),
         action = dom2js(toggall).checked ? 'undo':'do';
 
@@ -48,20 +42,43 @@ function toggleAllCompletion (dom,e) {
                 .map( td => td.completed = (action === 'do'));
 }
 
-function mkTodoItem( c, todo) {
-    clg('mkTodo', todo.title);
+// --- new to-do entry field -----------------------------------------------------------------
+
+function todoEntry () {
+    return input({ class: "new-todo", autofocus: true,
+                    placeholder: "What needs doing?",
+                    onkeypress: 'todoAddNewOnEnter'})
+}
+
+function todoAddNewOnEnter (dom, e) {
+    if (e.key==='Enter') {
+        let title = e.target.value.trim();
+        if (title === '')
+            alert("A reminder to do nothing? I like it! We should all slow down now and then. But, no.");
+        else
+            Todos.itemsRaw = Todos.itemsRaw.concat(new Todo({title: title}));
+        e.target.value = null;
+    }
+}
+
+// --- the to-do <LI>, including editing callbacks -------------------------------------------
+
+function todoListItem( c, todo) {
     return li({ todo: todo,
                 class: cF(c => (todo.completed ? "completed" : ""))},
 
             div({class: "view"},
                 input({class: "toggle", type: "checkbox",
                         checked: cF( c=> todo.completed),
-                        onclick: 'todoToggleComplete',
+                        onclick: 'let todo = dom2js(this).fmTag(\'li\').todo;' +
+                                    'todo.completed = !todo.completed',
                         title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
                 label( cF( c => todo.title), // + '/' + todo.dbKey),
                     { todo: todo,
                       ondblclick: 'todoStartEditing'}),
-                button(null, { class: "destroy", onclick: 'todoDelete'})),
+                button(null, { class: "destroy",
+                                todo: todo,
+                                onclick: 'dom2js(this).todo.delete()'})),
 
             input({ name: "myEditor", class: "edit",
                     todo: todo,
@@ -69,49 +86,6 @@ function mkTodoItem( c, todo) {
                     onblur: 'todoEdit',
                     onkeydown: 'todoEdit', // picks up Escape. Not needed in CLJS version... goog.closure?
                     onkeypress: 'todoEdit'}));
-}
-
-function todoToggleComplete (dom, e) {
-    let todo = dom2js(dom).fmTag('li').todo;
-    todo.completed = !todo.completed;
-}
-
-function mkDashboard () {
-    return footer({class: "footer",
-                    hidden: cF( c => Todos.empty)},
-                span({ class: "todo-count",
-                        content: cF(c => { let remCt = Todos.items.filter(todo => !todo.completed).length;
-                                        return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})}),
-
-                ul( { class: "filters", name: "filters"},
-                    [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
-                        .map( which => { let [ label, route] = which;
-                                        return li({},
-                                                    a({href: route,
-                                                        content: label, selector: label,
-                                                        selected: cF( c => c.md.selector === todoRoute.v),
-                                                        class: cF( c => c.md.selected ? "selected":"")}));})),
-
-                button("Clear completed",
-                    { class: "clear-completed",
-                      hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
-                      onclick: 'todoCompletedDelete'}));
-}
-
-function todoAddNewOnEnter (dom, e) {
-    if (e.key==='Enter') {
-        let title = e.target.value.trim();
-        if (title === '')
-            alert("A reminder to do nothing? I like it! We should all slow things down now and then. But, no.");
-        else
-            Todos.itemsRaw = Todos.itemsRaw.concat(new Todo({title: title}));
-        e.target.value = null;
-    }
-}
-
-function todoDelete (dom,e) {
-    let todo = dom2js(dom).fmTag('li').todo;
-    todo.delete();
 }
 
 function todoStartEditing (dom,e) {
@@ -143,6 +117,28 @@ function todoEdit ( edtdom, e) {
     }
 }
 
-function todoCompletedDelete( dom, e) {
-    Todos.items.filter( td => td.completed ).map( td => td.delete());
+// --- the dashboard of controls below the to-do <UL> ---------------------------------------------
+
+function todoDashboard () {
+    return footer({class: "footer",
+                    hidden: cF( c => Todos.empty)},
+                span({ class: "todo-count",
+                        content: cF(c => { let remCt = Todos.items.filter(todo => !todo.completed).length;
+                                        return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})}),
+
+                ul( { class: "filters", name: "filters"},
+                    [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
+                        .map( which => { let [ label, route] = which;
+                                        return li({},
+                                                    a({href: route,
+                                                        content: label, selector: label,
+                                                        selected: cF( c => c.md.selector === todoRoute.v),
+                                                        class: cF( c => c.md.selected ? "selected":"")}));})),
+
+                button("Clear completed",
+                    { class: "clear-completed",
+                      hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
+                      onclick: 'Todos.items.filter( td => td.completed ).map( td => td.delete())'}));
 }
+
+

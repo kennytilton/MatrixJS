@@ -295,7 +295,11 @@ function tagAttrsBuild(md) {
 		if (md.hasOwnProperty(prop)) {
 			if (TagEvents.has(prop)) {
 				//clg('bingo event!!!!!!!!!! '+prop);
-				attrs += ` ${prop}="${md[prop]}(this, event)"`;
+                let code = md[prop];
+                if ( ["this","\\("].every( clue => code.search(clue) == -1 ) )
+                    attrs += ` ${prop}="${md[prop]}(this, event)"`;
+                else
+                    attrs += ` ${prop}="${code}"`;
 			} else {
 				switch (prop) {
 					case 'disabled':
