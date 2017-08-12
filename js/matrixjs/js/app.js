@@ -11,7 +11,9 @@ function todoSSB() {
         section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
                 h1("todos"),
-                todoEntry()),
+                input({ class: "new-todo", autofocus: true,
+                    placeholder: "What needs doing?",
+                    onkeypress: 'todoAddNewOnEnter'})),
             section({class: "main",
                         hidden: cF( c => Todos.empty)},
                 input({ id: "toggle-all",
@@ -43,12 +45,6 @@ function toggleAllCompletion (dom) {
 
     Todos.items.filter( td => xor( td.completed, action === 'do'))
                 .map( td => td.completed = (action === 'do'));
-}
-
-function todoEntry () {
-    return input({ class: "new-todo", autofocus: true,
-                    placeholder: "What needs doing?",
-                    onkeypress: 'todoAddNewOnEnter'})
 }
 
 function todoAddNewOnEnter (dom, e) {
@@ -136,5 +132,3 @@ function todoDashboard () {
                       hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
                       onclick: 'Todos.items.filter( td => td.completed ).map( td => td.delete())'}));
 }
-
-

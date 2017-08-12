@@ -1,4 +1,4 @@
-// todo abstract AMAP into generic Matrix support of localStorage
+// todo abstract into generic Matrix support of localStorage
 
 const TODO_LS_PREFIX = "todos-MatrixJS.";
 
