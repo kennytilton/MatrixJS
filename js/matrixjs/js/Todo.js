@@ -51,9 +51,10 @@ class Todo extends Model {
 
                 routeItems: cF( c => {
                     let selection = todoRoute.v;
+                    clg('recalcing routeitems');
                     return c.md.items
                             .filter( td => selection==='All'
-                                                    || xor( selection==='Active', td.completed))
+                                    || xor( selection==='Active', td.completed))
                             .sort( (a,b) => a.created < b.created ? -1 : 1)}),
 
                 empty: cF( c => c.md.items.length === 0)})

@@ -1,3 +1,12 @@
+/*
+last action was mark complete last incomplete with filter = active
+  error is unable to find DOM matching JS
+
+prior action was clearing completed with one completed but not showing
+because filter was active.
+
+ */
+
 function todoSSB() {
     let bits = [
         section({ class: "todoapp", name: "todoapp"},
@@ -49,7 +58,7 @@ function mkTodoItem( c, todo) {
                         checked: cF( c=> todo.completed),
                         onclick: 'todoToggleComplete',
                         title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
-                label( cF( c => todo.title + '/' + todo.dbKey),
+                label( cF( c => todo.title), // + '/' + todo.dbKey),
                     { todo: todo,
                       ondblclick: 'todoStartEditing'}),
                 button(null, { class: "destroy", onclick: 'todoDelete'})),

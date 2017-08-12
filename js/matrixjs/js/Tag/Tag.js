@@ -41,47 +41,31 @@ function obsContent (slot, md, newv, oldv, c) {
 	md.dom.innerHTML = newv;
 }
 
-// referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 function obsKids (slot, md, newv, oldv, c) {
-	//let matchTest = this.fmMatchtest || (k1,k2) => k1==k2;
+
 	if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
 
-	//clg(`<${md.tag}> ${c.name} changed!!! `+ newv + ' from ' + oldv +'!');
-	let priork = null;
+    let pdom = md.dom,
+        frag = document.createDocumentFragment();
 
-	for (kx=0; kx < oldv.length; ++kx) {
-		let oldk = oldv[kx];
-		if (!find( oldk, newv)) {
-			let kdom = oldk.dom; // I wonder if this will always be there?
-			ast(kdom, 'Tag kid going has no dom');
-			clg(`Tag obskids removing dom ${kdom} of id ${oldk.id}`);
-			kdom.parentNode.removeChild(kdom);
-		}
-	}
+    ast(pdom);
 
-	for (kx=0; kx < newv.length; ++kx) {
-		let newk = newv[kx];
-		// todo wait, did todo ul really have to re-use kids on its own?
+    for (kx=0; kx < newv.length; ++kx ) {
+        let newk = newv[kx];
+        if (find( newk, oldv)) {
+            ast(newk.dom);
+            frag.appendChild( pdom.removeChild(newk.dom)); // todo can we skip remove?
+        } else {
+            let incubator = document.createElement('div');
+            incubator.innerHTML = newk.toHTML();
 
-		if (find( newk, oldv)) {
-			console.log('re-using dom '+newk.id);
-			priork = newk;
-		} else {
-			let incubator = document.createElement('div');
-			incubator.innerHTML = newk.toHTML();
+            let newDom = newk.domCache = incubator.removeChild( incubator.firstChild);
+            frag.appendChild( newDom);
+        }
+    }
 
-			console.log('building new dom '+newk.title);
-
-			newk.domCache = incubator.firstChild; // tell jsdom about its mirror dom
-
-			if (priork === null) {
-				md.dom.insertBefore( newk.domCache, null);
-			} else {
-				md.dom.insertBefore( newk.domCache, priork.dom.nextSibling);
-			}
-			priork = newk;
-		}
-	}
+    pdom.innerHTML = null;
+    pdom.appendChild( frag);
 }
 
 function obsDisabled (slot, md, newv, oldv, c) {
@@ -135,7 +119,8 @@ class Tag extends Model {
 			get: ()=> {
 				if (this.domCache===null) {
 					this.domCache = document.getElementById(this.id);
-					ast(this.domCache, "Unable to locate DOM for JS via " + this.id);
+					ast(this.domCache, "Unable to locate DOM for Tag via Tag.id " + this.id);
+					if (!this.domCache) throw 'Tag unanble find DOM';
 				}
 				return this.domCache;}});
 
