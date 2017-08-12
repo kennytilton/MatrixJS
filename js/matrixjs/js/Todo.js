@@ -23,9 +23,10 @@ class Todo extends Model {
                  completed: this.completed,
                  deleted: this.deleted }
     }
-    static fromJSON ( json) {
+    static fromJSON (json) {
         return new Todo( json )
     }
+
     static load (dbKey) {
         return new Todo( localStorage.getObject( dbKey))
     }
@@ -35,7 +36,7 @@ class Todo extends Model {
     }
 
     slotObserverResolve(slot) {
-        // tell the Matrix engine our slot observer
+        // tell the Matrix engine about our slot observer
         return Todo.obsTodoChange
     }
 
@@ -44,14 +45,16 @@ class Todo extends Model {
                 { itemsRaw: cI( Object.keys(localStorage)
                                     .filter( k => k.startsWith(TODO_LS_PREFIX))
                                     .map( Todo.load)
-                                    .sort( (a,b) => a.created < b.created ? -1 : 1) || []),
+                                    .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
 
                 items: cF( c => c.md.itemsRaw.filter( td => !td.deleted)),
+
                 routeItems: cF( c => {
-                    let selection = todoRoute.slotValue();
-                    clg('routeItems sees', selection);
-                    return c.md.items.filter( td => selection==='All'
-                                                    || xor( selection==='Active', td.completed))}),
+                    let selection = todoRoute.v;
+                    return c.md.items
+                            .filter( td => selection==='All'
+                                                    || xor( selection==='Active', td.completed))
+                            .sort( (a,b) => a.created < b.created ? -1 : 1)}),
 
                 empty: cF( c => c.md.items.length === 0)})
     }
@@ -64,13 +67,9 @@ class Todo extends Model {
 }
 
 const todoRoute = cFI( c=> {let r = localStorage.getObject("todo-matrix.route");
-                        return r === null ? "All" : r;},
-                    // obs(this.name, this.md, this.pv, vPrior, this);
-                    {observer: (n, md, newv, oldv, c) => {
-                        console.log('obs storing! '+ newv + ',' + (oldv===kUnbound));
-                        localStorage.setObject("todo-matrix.route", newv)
-                        //clg('obsroute', newv, oldv);
-                    }});
+                            return r === null ? "All" : r;},
+                        { observer: (n, md, newv ) => {
+                            localStorage.setObject("todo-matrix.route", newv)}});
 
 const Todos = Todo.loadAllItems();
 

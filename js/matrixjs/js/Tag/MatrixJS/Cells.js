@@ -867,7 +867,7 @@ class Cell {
 
 		return md.kidValues.map( kidValue => {
 				let xIndex = xKid.findIndex(xk => c.md.kidKey(xk) === kidValue);
-				// clg(`kidvalue ${kidValue.title} will be ${xIndex === -1 ? 'built new' : 'reused'}`);
+				clg(`kidvalue ${kidValue.title} will be ${xIndex === -1 ? 'built new' : 'reused'}`);
 				return (xIndex === -1) ? md.kidFactory(c, kidValue) : xKid[xIndex];
 			})
 	}

@@ -34,11 +34,13 @@ function todoSSB() {
 function toggleAllCompletion (dom,e) {
     let toggall = document.getElementById("toggle-all"),
         action = dom2js(toggall).checked ? 'undo':'do';
+
     Todos.items.filter( td => xor( td.completed, action === 'do'))
                 .map( td => td.completed = (action === 'do'));
 }
 
 function mkTodoItem( c, todo) {
+    clg('mkTodo', todo.title);
     return li({ todo: todo,
                 class: cF(c => (todo.completed ? "completed" : ""))},
 
@@ -47,11 +49,9 @@ function mkTodoItem( c, todo) {
                         checked: cF( c=> todo.completed),
                         onclick: 'todoToggleComplete',
                         title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
-
-                label( cF( c => todo.title),
+                label( cF( c => todo.title + '/' + todo.dbKey),
                     { todo: todo,
                       ondblclick: 'todoStartEditing'}),
-
                 button(null, { class: "destroy", onclick: 'todoDelete'})),
 
             input({ name: "myEditor", class: "edit",
@@ -70,22 +70,20 @@ function todoToggleComplete (dom, e) {
 function mkDashboard () {
     return footer({class: "footer",
                     hidden: cF( c => Todos.empty)},
-
                 span({ class: "todo-count",
                         content: cF(c => { let remCt = Todos.items.filter(todo => !todo.completed).length;
-                                        return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})})
+                                        return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})}),
 
-                , ul( { class: "filters",
-                        name: "filters"},
+                ul( { class: "filters", name: "filters"},
                     [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
                         .map( which => { let [ label, route] = which;
                                         return li({},
                                                     a({href: route,
                                                         content: label, selector: label,
                                                         selected: cF( c => c.md.selector === todoRoute.v),
-                                                        class: cF( c => c.md.selected ? "selected":"")}));}))
+                                                        class: cF( c => c.md.selected ? "selected":"")}));})),
 
-                , button("Clear completed",
+                button("Clear completed",
                     { class: "clear-completed",
                       hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
                       onclick: 'todoCompletedDelete'}));
@@ -110,26 +108,27 @@ function todoDelete (dom,e) {
 function todoStartEditing (dom,e) {
     let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
         , edt = li.fmDown('myEditor');
-    edt.dom.li = li; // save a little navigation later
+    edt.dom.li = li; // avoid a little navigation later
     li.dom.classList.add("editing");
     edt.dom.focus();
     edt.dom.setSelectionRange(0, edt.dom.value.length);
 }
 
 function todoEdit ( edtdom, e) {
-    let li = edtdom.li,
-        title = e.target.value.trim();
+    let li = edtdom.li;
     if (li.dom.classList.contains("editing")) {
-        if (e.type === 'blur' || e.key === 'Enter') {
-            if (title === '') {
-                li.todo.delete();
+        if (e.type === 'blur' || ['Escape', 'Enter'].includes( e.key)) {
+            if ( e.key === 'Escape') {
+                e.target.value = li.todo.title;
             } else {
-                e.target.value = title;
-                li.todo.title = edtdom.value;
+                let title = e.target.value.trim();
+
+                if (title === '') {
+                    li.todo.delete();
+                } else {
+                    li.todo.title = e.target.value = title;
+                }
             }
-            li.dom.classList.remove('editing');
-        } else if (e.key === 'Escape') {
-            e.target.value = li.todo.title;
             li.dom.classList.remove('editing');
         }
     }

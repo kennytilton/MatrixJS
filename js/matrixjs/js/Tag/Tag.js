@@ -53,7 +53,8 @@ function obsKids (slot, md, newv, oldv, c) {
 		let oldk = oldv[kx];
 		if (!find( oldk, newv)) {
 			let kdom = oldk.dom; // I wonder if this will always be there?
-			//clg(`Tag obskids removing dom ${kdom} of id ${oldk.id}`);
+			ast(kdom, 'Tag kid going has no dom');
+			clg(`Tag obskids removing dom ${kdom} of id ${oldk.id}`);
 			kdom.parentNode.removeChild(kdom);
 		}
 	}
@@ -63,13 +64,13 @@ function obsKids (slot, md, newv, oldv, c) {
 		// todo wait, did todo ul really have to re-use kids on its own?
 
 		if (find( newk, oldv)) {
-			// console.log('re-using dom');
+			console.log('re-using dom '+newk.id);
 			priork = newk;
 		} else {
 			let incubator = document.createElement('div');
 			incubator.innerHTML = newk.toHTML();
 
-			// console.log('building new dom');
+			console.log('building new dom '+newk.title);
 
 			newk.domCache = incubator.firstChild; // tell jsdom about its mirror dom
 
