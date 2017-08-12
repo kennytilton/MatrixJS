@@ -1,8 +1,11 @@
+const todoSession = mkm( null, 'TodoSSBSession',
+                        { routes: {'/completed': ()=> todoRoute.v = 'Completed',
+                                    '/active': ()=>  todoRoute.v = 'Active',
+                                    '/': ()=> todoRoute.v = 'All'}},
+                        null, TagSession);
+
 function todoSSB() {
-    clg('SSB BAM');
-    Router({'/completed': ()=> todoRoute.v = 'Completed',
-        '/active': ()=> { console.log('Router BAM!'); todoRoute.v = 'Active'},
-    '/': ()=> todoRoute.v = 'All'}).init();
+    todoSession.init();
 
     let bits = [
         section({ class: "todoapp", name: "todoapp"},
@@ -27,8 +30,8 @@ function todoSSB() {
             todoDashboard()),
         footer({class: "info"},
             ['Double-click a todo to edit it',
-                'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
-                'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
+             'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
+             'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
     ];
 
     return "".concat(...bits.map( b=>b().toHTML()));
@@ -41,8 +44,6 @@ function toggleAllCompletion (dom) {
     Todos.items.filter( td => xor( td.completed, action === 'do'))
                 .map( td => td.completed = (action === 'do'));
 }
-
-// --- new to-do entry field -----------------------------------------------------------------
 
 function todoEntry () {
     return input({ class: "new-todo", autofocus: true,
@@ -60,8 +61,6 @@ function todoAddNewOnEnter (dom, e) {
         e.target.value = null;
     }
 }
-
-// --- the to-do <LI>, including editing callbacks -------------------------------------------
 
 function todoListItem( c, todo) {
     return li({ todo: todo,
@@ -105,7 +104,6 @@ function todoEdit ( edtdom, e) {
                 e.target.value = li.todo.title;
             } else {
                 let title = e.target.value.trim();
-
                 if (title === '') {
                     li.todo.delete();
                 } else {
@@ -116,8 +114,6 @@ function todoEdit ( edtdom, e) {
         }
     }
 }
-
-// --- the dashboard of controls below the to-do <UL> ---------------------------------------------
 
 function todoDashboard () {
     return footer({class: "footer",

@@ -1,3 +1,5 @@
+// todo abstract AMAP into generic Matrix support of localStorage
+
 const TODO_LS_PREFIX = "todos-MatrixJS.";
 
 class Todo extends Model {
@@ -51,7 +53,6 @@ class Todo extends Model {
 
                 routeItems: cF( c => {
                     let selection = todoRoute.v;
-                    clg('recalcing routeitems');
                     return c.md.items
                             .filter( td => selection==='All'
                                     || xor( selection==='Active', td.completed))

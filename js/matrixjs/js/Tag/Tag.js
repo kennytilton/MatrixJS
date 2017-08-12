@@ -93,6 +93,30 @@ function obsAttrGlobal (property, md, newv, oldv, c) {
 	md.dom[trueAttr] = newv;
 }
 
+class TagSession extends Model {
+    constructor(parent, name, islots) {
+        let superSlots = Object.assign({}, islots);
+
+        super(parent, (name || islots.name), superSlots, false);
+
+        this.sid = ++sid;
+
+        // todo this is unfortunate: perhaps we do as another automatic call such as to super, or as Model static
+        if (this.awakenOnInitp) {
+            this.awaken();
+        } else {
+            withIntegrity(qAwaken, this, x => this.awaken())
+        }
+    }
+
+    static cname() {
+        return "TagSession"
+    }
+    init () {
+        Router(this.routes).init();
+    }
+}
+
 class Tag extends Model {
 	constructor(parent, name, islots) {
 		let superSlots = Object.assign({}, islots);
