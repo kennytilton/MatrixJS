@@ -18,7 +18,7 @@ Let us look at the key features of MatrixJS, the most interesting being the data
 #### The Un-Framework: It is just HTML
 JS frameworks are tough. They are powerful, but they are harder to master than a new programming language. 
 
-Sure, HTML and CSS are anachronistic brutes, but that is why we have UI designers. Who might not need you once they have MatrixJS. We digress.
+Sure, HTML and CSS are anachronistic brutes, but that is why we have UI designers, who may not need us once they have MatrixJS. We digress.
 
 MatrixJS pages are authored as if we were coding conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
 
@@ -44,7 +44,7 @@ And now in the ClojureScript version:
 Of course, those only *look* like mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code. Are you thinking what we are thinking?
 
 #### Programmatic HTML
-Because Matrix apps are just JS/CLJS functions, we can write wwhatever JS/CLJS code we like to generate our proxy DOM. Here for example is another example from the original TodoMVC HTML, a row of radio buttons specifying which kind of todo items the user would like to see:
+Because Matrix apps are just JS/CLJS functions, we can write whatever JS/CLJS code we like to generate our proxy DOM. Here for example is another example from the original TodoMVC HTML, a row of radio buttons specifying which kind of to-do items the user would like to see:
 ````html
 <ul class="filters">
     <li>
@@ -68,12 +68,12 @@ ul( { class: "filters"}, c =>
                                 content: label,
                                 class: (label==="All") ? "selected":"")})])}))
 ````
-`ul`, `a`, and `li` are all functions provide by `Tag`, the HTML subcomponent of Matrix. They emulate the syntax of HTML tags and generate tag proxies to live in the matrix.
+`ul`, `a`, and `li` are all functions provide by `Tag`, the HTML subcomponent of Matrix. They emulate the syntax of HTML tags and generate tag proxies for the matrix.
 
 Great; HTML is not just rigid mark-up any more. But this merely gets a static initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
 
 #### Page dynamism: Reactive HTML
-Matrix let's us specify *dynamic* HTML regenerated as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned or removed to highlight the labels suitably. Here is the CLJS version:
+Matrix lets us specify *dynamic* HTML regenerated as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned or removed to highlight the labels suitably. Here is the CLJS version:
 ````clojure
 (ul {:class "filters"}
   (for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
