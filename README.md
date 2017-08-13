@@ -8,15 +8,19 @@ A React Native incarnation is being explored.
 #### A quick note on the name
 Forget the movie. In the movie, the Matrix harnessed humans to suck energy from them. Not nice. In English, a matrix provides the conditions for new things to come to life. Nice! 
 
-The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally builds and listens to an actual browser page. It brings our code to life. Hence, "Matrix".
+The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally builds and responds to an actual browser page. It brings our code to life. Hence, "Matrix".
 
 ### Distinguishing Features
-Let us look at the distinguishing features of MatrixJS.
+Let us look at the key features of MatrixJS, the most interesting being the dataflow component. 
 
-> Not that other frameworks do not overlap (they do). Two kindred frameworks even feature powerful dataflow components like the one in MatrixJS: [binding.Scala](https://github.com/ThoughtWorksInc/todo) and [Hoplon/Javelin](https://github.com/lynaghk/todoFRP/tree/master/todo/javelin).
+> Two kindred frameworks also feature powerful dataflow components: [binding.Scala](https://github.com/ThoughtWorksInc/todo) and [Hoplon/Javelin](https://github.com/lynaghk/todoFRP/tree/master/todo/javelin). 
 
 #### The Un-Framework: It is just HTML
-Pages are authored as if we were coding conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
+JS frameworks are tough. They are powerful, but they are harder to master than a new programming language. 
+
+Sure, HTML and CSS are anachronistic brutes, but that is why we have UI designers. Who might not need you once they have MatrixJS. We digress.
+
+MatrixJS pages are authored as if we were coding conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
 
 An example. Here is a bit of the HTML provided by [the TodoMVC challenge](https://github.com/tastejs/todomvc/blob/master/app-spec.md):
 ````html
@@ -94,11 +98,15 @@ Router({'/completed': ()=> todoRoute.v = 'Completed',
 In other words, simply assigning to an input Cell with code like `todoRoute.v = 'All'` triggers the dependent routing buttons to recompute their DOM class attribute and, for those that change (to or from "selected"), for those changes to be propagated to the DOM `classList`s.
 
 #### Efficiency
-Any complex JS framework runs the risk of working harder than hand-crafter HTML/JS to maintain a page dynamically. MatrixJS addresses this two ways.
+Any complex JS framework runs the risk of working harder than hand-crafted HTML/JS to maintain a page dynamically, just as before you were born humans shifted better than automatic transmissions and wrote better machine language than compilers. We digress.
 
-First, the initial page is generated all at once, without piecemeal assembly of individual parts. Second, dependencies and state change propagation happen at a logical maximum of granularity, requiring the logical minimum of recalculation and consequent DOM updates. This is possible because data depedency is tracked property by property.
+MatrixJS addresses efficiency two ways. First, a no-brainer: the initial page is generated all at once as one wodge of HTML. No piecemeal assembly of individual parts. 
 
-For example, when a user clicks a button triggering a new route selection, Matrix's automatic dependency tracking tells the engine exactly which formulaic Cells to re-evaluate, so each button re-decides if it should have the `selected` class. In code we have not yet visited, it also tells the Matrix model of the do-list which items are in play:
+Second, dependencies and state change propagation happen at maximal granularity, requiring the logical minimum of recalculation and consequent DOM updates. This is possible because data dependency is tracked property by property.
+
+For example, when a user clicks a filtering button triggering a new route, Matrix's automatic dependency tracking tells the engine exactly which formulaic Cells to re-evaluate, so each button re-decides if it should have the `selected` class. 
+
+In code we have not yet visited, it also tells the Matrix incarnation of the do-lists (the model in MVC) which items are in play:
 ````js
 routeItems: cF( c => {
                 let selection = todoRoute.v;
@@ -116,15 +124,21 @@ The example above in which the `selected` class tracked the user's clicking of t
 * then the user marks the one item as completed.
 
 Here is the behavior dictated by the TodoMVC Challenge spec:
-> The item is persisted as `completed` in `localStorage`. The `<LI>` element `classList` gains the "completed" class. The count of remaining items goes from 1 to 0 (and the word "item" becomes "items"). The "Clear Completed" control appears. The "toggle all" icon becomes `checked`, which means its semantics change from "mark all complete" to "mark all incomplete". And because the filter is "active only", the item disappears.
+* The item is persisted as `completed` in `localStorage`;
+* the `<LI>` element gains the "completed" class;
+* the count of remaining items goes from 1 to 0 and...
+* the word "item" becomes "items";
+* the "Clear Completed" control appears;
+* the "toggle all" icon becomes `checked`, which means its semantics change from "mark all complete" to "mark all incomplete"; and 
+* because the filter is "active only", the item disappears.
 
 Momma don't let your babies grow up to be UI/UX programmers. But here is the on-click handler that makes all that happen:
 
 ````javascript
-onclick: 'let todo = dom2js(this).todo;' + // first track down the matrix to-do item
+onclick: 'let todo = dom2mx(this).todo;' + // navigate from dom to matrix to find to-do model item
          'todo.completed = !todo.completed'
 ````
-Thanks to automatic dependency tracking and per-property on-change observers, the Matrix runtime has enough information to do the necessary rest and no more. In the next tl;dr section we will visit each dependency to see how that all works.
+The matrix does the rest. In the next tl;dr section we will see how.
 
 #### The Set-UP
 Let's start with persisting the change in the `completed` value to `localStorage`. How did that happen? An "on change" observer bound to proxy to-do items persists *any* change regardless of which property, because we happen to be storing to-dos as atoms:
