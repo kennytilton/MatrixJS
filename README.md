@@ -1,14 +1,24 @@
 # Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. A React Native incarnation might be next. All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+
+A React Native incarnation is being explored.
+
 #### A quick note on the name
-Forget the movie. In the movie, the Matrix harnessed humans to suck energy from them. Not nice. In English, a matrix provides the conditions for new things to come to life. The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally builds and listens to an actual browser page. It brings our code to life. Hence, "Matrix".
+Forget the movie. In the movie, the Matrix harnessed humans to suck energy from them. Not nice. In English, a matrix provides the conditions for new things to come to life. Nice! 
 
-#### It is just HTML
-We generate the page as if it were conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
+The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally builds and listens to an actual browser page. It brings our code to life. Hence, "Matrix".
 
-Some examples. Here is a bit of the HTML provided by the TodoMVC challenge:
+### Distinguishing Features
+Let us look at the distinguishing features of MatrixJS.
+
+> Not that other frameworks do not overlap (they do). Two kindred frameworks even feature powerful dataflow components like the one in MatrixJS: [binding.Scala](https://github.com/ThoughtWorksInc/todo) and [Hoplon/Javelin](https://github.com/lynaghk/todoFRP/tree/master/todo/javelin).
+
+#### The Un-Framework: It is just HTML
+Pages are authored as if we were coding conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
+
+An example. Here is a bit of the HTML provided by [the TodoMVC challenge](https://github.com/tastejs/todomvc/blob/master/app-spec.md):
 ````html
 <header class="header">
   <h1>todos</h1>
@@ -27,7 +37,7 @@ And now in the ClojureScript version:
    (h1 {} "todos")
    (input {:class "new-todo" placeholder "What needs to be done?" :autofocus true})))
 ````
-Of course, those only *look* like mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code. Are you thinking what I am thinking?
+Of course, those only *look* like mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code. Are you thinking what we are thinking?
 
 #### Programmatic HTML
 Because Matrix apps are just JS/CLJS functions, we can write wwhatever JS/CLJS code we like to generate our proxy DOM. Here for example is another example from the original TodoMVC HTML, a row of radio buttons specifying which kind of todo items the user would like to see:
@@ -56,10 +66,10 @@ ul( { class: "filters"}, c =>
 ````
 `ul`, `a`, and `li` are all functions provide by `Tag`, the HTML subcomponent of Matrix. They emulate the syntax of HTML tags and generate tag proxies to live in the matrix.
 
-Great; HTML is not just rigid mark-up any more. But this merely gets our initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
+Great; HTML is not just rigid mark-up any more. But this merely gets a static initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
 
-#### Dataflow aka Databinding aka Reactive
-Matrix also helps with page dynamism as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned or removed to highlight the labels suitably. Here is the CLJS version:
+#### Page dynamism: Reactive HTML
+Matrix let's us specify *dynamic* HTML regenerated as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned or removed to highlight the labels suitably. Here is the CLJS version:
 ````clojure
 (ul {:class "filters"}
   (for [[label route] [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]]
@@ -67,15 +77,15 @@ Matrix also helps with page dynamism as the user interacts with the page. For ex
                :class (c? (when (=== label todoRoute.v) // see below for todoRoute.v
                              "selected"))} label))))
 ````
-What is that `c?` creature? `c?` is short for "formulaic cell". The code body of `c?` will run initially and again when any of its dependencies change. Here, each time the user changes the filter/route by clicking an item, all three items' formulas will be re-evaluated to produce a new value for the `class` attribute of that item. An `on-change` callback provided by `Tag` will automatically update the corresponding DOM element's `classList`, completing the loop from user action to Matrix dataflow and back to the browser DOM.
+What is that `c?` creature? `c?` is short for "formulaic cell". The code body of `c?` will run initially and then again when any of its dependencies change. Here, each time the user changes the filter/route by clicking an item, all three items' formulae will be re-evaluated to decide if the "selected" class is appropriate. An `on-change` observer callback provided by `Tag` will automatically update the corresponding DOM element's `classList`, completing the loop from user action to Matrix dataflow and back to the browser DOM.
 
 But we left something out. Where did we subscribe to the route (and where is the route stored)? Second question first: it is stored in a global input Cell:
 ````javascript
 const todoRoute = cI( 'All');
 ````                   
-`cI` is short for "input cell". The models we build in Matrix involve run mostly (90%) on formulaic `c?` cells, but it cannot be formulae all the way down. Input cells allow procedural code to feed our models, just as on-change observers let our models act outside the matrix, if only to update the real browser DOM.
+`cI` is short for "input cell". The models we build in Matrix run mostly (90%) on formulaic `c?` cells, but it cannot be formulae all the way down. Input cells allow procedural code to feed our models, just as on-change observers let our models act outside the matrix, if only to update the real browser DOM.
 
-As for *where* we subscribed, nothing explicit is necessary: simply reading the value (`(=== label todoRoute.v)` above) transparently establishes the subscription. Speaking of transparency, let us complete the circle and see how the "input" route gets fed and published. Here is our routing code in its entirety:
+As for *where* we subscribed, nothing explicit is necessary: simply reading the value (`(=== label todoRoute.v)` above) transparently establishes the subscription. Speaking of transparency, let us complete the circle and see how the "input" route gets fed into the matrix. Here is our routing code:
 ````javascript
 Router({'/completed': ()=> todoRoute.v = 'Completed',
         '/active': ()=>  todoRoute.v = 'Active',
@@ -84,17 +94,16 @@ Router({'/completed': ()=> todoRoute.v = 'Completed',
 In other words, simply assigning to an input Cell with code like `todoRoute.v = 'All'` triggers the dependent routing buttons to recompute their DOM class attribute and, for those that change (to or from "selected"), for those changes to be propagated to the DOM `classList`s.
 
 #### Efficiency
-We mentioned efficiency at the outset as one of the virtues of Matrix UIs, but so far have only looked at the simplicity with which highly dynamic pages can be authored.
+Any complex JS framework runs the risk of working harder than hand-crafter HTML/JS to maintain a page dynamically. MatrixJS addresses this two ways.
 
-First, the initial page is generated all at once, without piecemeal assembly of individual parts. Second, dependencies and state change propagation happen at a logical maximum of granularity, requiring the logical minimum of recalculation and consequent DOM updates. 
+First, the initial page is generated all at once, without piecemeal assembly of individual parts. Second, dependencies and state change propagation happen at a logical maximum of granularity, requiring the logical minimum of recalculation and consequent DOM updates. This is possible because data depedency is tracked property by property.
 
-For example, when a user clicks a button triggering a new route selection, Matrix automatic dependency tracking tells the engine exactly which formulaic Cells to kick off: each button re-decides if it should have the `selected` class. In code we have not yet visited, it also tells the Matrix model of the do-list which items are in play:
+For example, when a user clicks a button triggering a new route selection, Matrix's automatic dependency tracking tells the engine exactly which formulaic Cells to re-evaluate, so each button re-decides if it should have the `selected` class. In code we have not yet visited, it also tells the Matrix model of the do-list which items are in play:
 ````js
 routeItems: cF( c => {
                 let selection = todoRoute.v;
                 return c.md.items
-                        .filter( td => selection==='All'
-                                       || xor( selection==='Active', td.completed))
+                        .filter( td => selection==='All' || xor( selection==='Active', td.completed))
                         .sort( (a,b) => a.created < b.created ? -1 : 1)})
 ````                            
 As you might imagine, that leads to even more reshaping of the application. Which brings us to the punch line.
@@ -112,10 +121,10 @@ Here is the behavior dictated by the TodoMVC Challenge spec:
 Momma don't let your babies grow up to be UI/UX programmers. But here is the on-click handler that makes all that happen:
 
 ````javascript
-onclick: 'let todo = dom2js(this).todo;' +
+onclick: 'let todo = dom2js(this).todo;' + // first track down the matrix to-do item
          'todo.completed = !todo.completed'
 ````
-Thanks to automatic dependency tracking and per-property on-change observers, the Matrix runtime has enough information to do the rest. And no special programmer effort was necessary, which we will review in TL;DR detail next.
+Thanks to automatic dependency tracking and per-property on-change observers, the Matrix runtime has enough information to do the necessary rest and no more. In the next tl;dr section we will visit each dependency to see how that all works.
 
 #### The Set-UP
 Let's start with persisting the change in the `completed` value to `localStorage`. How did that happen? An "on change" observer bound to proxy to-do items persists *any* change regardless of which property, because we happen to be storing to-dos as atoms:
@@ -144,7 +153,7 @@ The "toggle all" semantics and CSS class update (still in CLJS):
    :checked (c? (= (md-get me :action) :uncomplete))})
 ````      
 
-The item disappears: 
+The item disappears (our original solution before learning the rules require filtering in the model, as shown above in the `routeItems` formulaic cell): 
 ````javascript
   :display (c? (let [route (mx-route me)]
                   (if (or (= route "All")
@@ -152,7 +161,7 @@ The item disappears:
                                (md-get td :completed)))
                       "block" "none")))
 ````
-In other words, by simply stating how things should be, and without explicit pub-sub or state propagation mechanisms, the page runs by itself.
+In other words, again, Matrix works off declarative expressions of how things should be to make them happen at run-time on its own.
 
 #### Where next?
  This repository contains several proof-of-concept frameworks. For now, all but Qxia have their own version of Cells, to make debugging easier during this proof-of-concept phase.
