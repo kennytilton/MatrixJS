@@ -4,7 +4,10 @@ const todoSession = mkm( null, 'TodoSSBSession',
                                     '/': ()=> todoRoute.v = 'All'}},
                         null, TagSession);
 
+//--- SSB means Single Source of Behavior ------------------------------------------
+
 function todoSSB() {
+
     todoSession.init();
 
     let bits = [
@@ -14,13 +17,14 @@ function todoSSB() {
                 input({ class: "new-todo", autofocus: true,
                     placeholder: "What needs doing?",
                     onkeypress: 'todoAddNewOnEnter'})),
+
             section({class: "main",
                         hidden: cF( c => Todos.empty)},
                 input({ id: "toggle-all",
                         type: "checkbox",
                         class: "toggle-all",
                         checked: cF( c => (Todos.items.length === 0) ? false :
-                                        (Todos.items.every( i => i.completed) ? true : false))}),
+                                            (Todos.items.every( i => i.completed) ? true : false))}),
                 label( "Mark all as complete",
                     { for: "toggle-all",
                         onclick: 'toggleAllCompletion( this)'}),
@@ -30,6 +34,7 @@ function todoSSB() {
                          kidFactory: todoListItem},
                     c => c.kidValuesKids())),
             todoDashboard()),
+
         footer({class: "info"},
             ['Double-click a todo to edit it',
              'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
@@ -38,6 +43,8 @@ function todoSSB() {
 
     return "".concat(...bits.map( b=>b().toHTML()));
 }
+
+//--- callbacks used above
 
 function toggleAllCompletion (dom) {
     let toggall = document.getElementById("toggle-all"),
@@ -53,10 +60,13 @@ function todoAddNewOnEnter (dom, e) {
         if (title === '')
             alert("A reminder to do nothing? I like it! We should all slow down now and then. But, no.");
         else
+            // gotta create a new list so matrix internals see a change
             Todos.itemsRaw = Todos.itemsRaw.concat(new Todo({title: title}));
         e.target.value = null;
     }
 }
+
+//--- the do-list item beef ----------------------------------------------------------
 
 function todoListItem( c, todo) {
     return li({ todo: todo,
@@ -65,8 +75,9 @@ function todoListItem( c, todo) {
             div({class: "view"},
                 input({class: "toggle", type: "checkbox",
                         checked: cF( c=> todo.completed),
-                        onclick: 'let todo = dom2js(this).fmTag(\'li\').todo;' +
-                                    'todo.completed = !todo.completed',
+                        todo: todo,
+                        onclick: 'let todo = dom2js(this).todo;' +
+                                 'todo.completed = !todo.completed',
                         title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
                 label( cF( c => todo.title), // + '/' + todo.dbKey),
                     { todo: todo,
@@ -82,6 +93,8 @@ function todoListItem( c, todo) {
                     onkeydown: 'todoEdit', // picks up Escape. Not needed in CLJS version... goog.closure?
                     onkeypress: 'todoEdit'}));
 }
+
+//--- editing callbacks
 
 function todoStartEditing (dom,e) {
     let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
@@ -110,6 +123,8 @@ function todoEdit ( edtdom, e) {
         }
     }
 }
+
+//--- the controls/readouts below the do-list
 
 function todoDashboard () {
     return footer({class: "footer",
