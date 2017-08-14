@@ -127,7 +127,7 @@ class Tag extends Model {
 		this.sid = ++sid;
 
 		if (islots.id) {
-			console.warn(`Provided dom id ${islots.id} is your responsibility.`);
+			/// console.warn(`Provided dom id ${islots.id} is your responsibility.`);
 			this.id = islots.id;
 		} else {
 			this.id = this.sid;
@@ -455,5 +455,72 @@ function img(islots) {
 }
 function a(islots, content) {
 	return tag('a', Object.assign( {content: content}, islots));
+}
+
+//--- Persistence via localStorage ---------------------------------------
+
+class MXStorable extends Model {
+    // this constructor can create a new storable (in localStorage
+    // as well as the matrix), or load a storable into the matrix
+
+    constructor( icslots) {
+        let islots = icslots || {},
+            netSlots = Object.assign(
+                // these first two will be overridden when loading fro localStorage
+                { id: (islots.lsPrefix || "MXSTOR_ANON")  + uuidv4(),
+                    created: Date.now()},
+                islots,
+                // on load from storage, this deleted will be present and thus
+                // not loaded as mutable input cell. ie, no undelete.
+                {deleted: islots.deleted || cI(null)});
+
+        super(null, null, netSlots, false);
+    }
+
+    static storableProperties () { return ["id", "created","deleted"]}
+
+    static make( klass, islots ) {
+        let s = new klass( islots);
+        clg('make made now storing!!!', s.id, s.title,s.created)
+        s.store();
+        return s;
+    }
+
+    toJSON () {
+        // clg('or constructor', this.constructor.storableProperties());
+        return this.constructor.storableProperties()
+            .reduce( (j, p) => { j[p] = this[p];
+                return j;}, {});
+    }
+
+    static load (klass, id) {
+        return new klass( localStorage.getObject( id))
+    }
+
+    static obsAnyChange ( slot, row, newv, priorv, c) {
+        row.store();
+    }
+
+    slotObserverResolve(slot) {
+        // tell the Matrix engine about our slot observer (same for all slots)
+        return MXStorable.obsAnyChange
+    }
+
+    store () {
+        MXStorable.storeObject( this.id, this.toJSON());
+    }
+
+    static storeObject ( id, obj) {
+        localStorage.setObject( id, obj);
+    }
+
+    delete() {
+        this.deleted = Date.now();
+    }
+    static loadAllItems(klass, prefix) {
+        return Object.keys(localStorage)
+            .filter( k => k.startsWith( prefix))
+            .map( key => MXStorable.load( klass, key));
+    }
 }
 

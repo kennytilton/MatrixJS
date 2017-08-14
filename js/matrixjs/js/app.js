@@ -4,10 +4,7 @@ const todoSession = mkm( null, 'TodoSSBSession',
                                     '/': ()=> todoRoute.v = 'All'}},
                         null, TagSession);
 
-//--- SSB means Single Source of Behavior ------------------------------------------
-
 function todoSSB() {
-
     todoSession.init();
 
     let bits = [
@@ -40,30 +37,24 @@ function todoSSB() {
              'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
              'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
     ];
-
     return "".concat(...bits.map( b=>b().toHTML()));
 }
 
-//--- callbacks used above
-
 function toggleAllCompletion (dom) {
     let toggall = document.getElementById("toggle-all"),
-        action = dom2js(toggall).checked ? 'undo':'do';
+        makeDone = dom2js(toggall).checked;
 
-    Todos.items.filter( td => xor( td.completed, action === 'do'))
-                .map( td => td.completed = (action === 'do'));
+    Todos.items.filter( td => xor( td.completed, makeDone))
+                .map( td => td.completed = makeDone);
 }
 
 function todoAddNewOnEnter (dom, e) {
-    if (e.key==='Enter') {
-        let title = e.target.value.trim();
-        if (title === '')
-            alert("A reminder to do nothing? I like it! We should all slow down now and then. But, no.");
-        else
-            // gotta create a new list so matrix internals see a change
-            Todos.itemsRaw = Todos.itemsRaw.concat(new Todo({title: title}));
-        e.target.value = null;
-    }
+    if (e.key !== 'Enter') return;
+
+    let title = e.target.value.trim();
+    if (title !== '')
+        Todos.itemsRaw = Todos.itemsRaw.concat( MXStorable.make( Todo, {title: title}));
+    e.target.value = null;
 }
 
 //--- the do-list item beef ----------------------------------------------------------
@@ -79,7 +70,7 @@ function todoListItem( c, todo) {
                         onclick: 'let todo = dom2js(this).todo;' +
                                  'todo.completed = !todo.completed',
                         title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
-                label( cF( c => todo.title), // + '/' + todo.dbKey),
+                label( cF( c => todo.title),
                     { todo: todo,
                       ondblclick: 'todoStartEditing'}),
                 button(null, { class: "destroy",
@@ -124,8 +115,6 @@ function todoEdit ( edtdom, e) {
     }
 }
 
-//--- the controls/readouts below the do-list
-
 function todoDashboard () {
     return footer({class: "footer",
                     hidden: cF( c => Todos.empty)},
@@ -147,3 +136,45 @@ function todoDashboard () {
                       hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
                       onclick: 'Todos.items.filter( td => td.completed ).map( td => td.delete())'}));
 }
+
+//--- persistence ------------------------------------------------------
+
+const TODO_LS_PREFIX = "todos-MatrixJS.";
+
+class Todo extends MXStorable {
+    constructor(islots) {
+        let netSlots = Object.assign(
+            { lsPrefix: TODO_LS_PREFIX},
+            islots,
+            { title: cI(islots.title),
+                completed: cI(islots.completed || false)})
+
+        super( netSlots);
+    }
+    static storableProperties () { return ["title"].concat(super.storableProperties()); }
+
+    static mxLoad() {
+        return mkm( null, 'Todo',
+            { itemsRaw: cI( MXStorable.loadAllItems( Todo, TODO_LS_PREFIX)
+                .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
+
+                items: cF( c => c.md.itemsRaw.filter( td => !td.deleted)),
+
+                routeItems: cF( c => {
+                    let selection = todoRoute.v;
+                    return c.md.items
+                        .filter( td => selection==='All'
+                            || xor( selection==='Active', td.completed))
+                        .sort( (a,b) => a.created < b.created ? -1 : 1)}),
+
+                empty: cF( c => c.md.items.length === 0)})
+    }
+}
+
+const todoRoute = cFI( c=> {let r = localStorage.getObject("todo-matrix.route");
+        return r === null ? "All" : r;},
+    { observer: (n, md, newv ) => {
+        localStorage.setObject("todo-matrix.route", newv)}});
+
+const Todos = Todo.mxLoad();
+
