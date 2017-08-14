@@ -7,8 +7,8 @@ const todoSession = mkm( null, 'TodoSSBSession',
 function todoSSB() {
     todoSession.init();
 
-    let bits = [
-        section({ class: "todoapp", name: "todoapp"},
+    return Tag.mxToHTML(
+        [ section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
                 h1("todos"),
                 input({ class: "new-todo", autofocus: true,
@@ -20,24 +20,21 @@ function todoSSB() {
                 input({ id: "toggle-all",
                         type: "checkbox",
                         class: "toggle-all",
-                        checked: cF( c => (Todos.items.length === 0) ? false :
-                                            (Todos.items.every( i => i.completed) ? true : false))}),
+                        checked: cF( c => Todos.items.length > 0
+                                          && Todos.items.every( i => i.completed))}),
                 label( "Mark all as complete",
                     { for: "toggle-all",
-                        onclick: 'toggleAllCompletion( this)'}),
+                      onclick: 'toggleAllCompletion( this)'}),
                 ul({ class: "todo-list", name: "todo-list",
-                         kidValues: cF( c=> Todos.routeItems),
-                         kidKey: k => k.todo,
-                         kidFactory: todoListItem},
-                    c => c.kidValuesKids())),
+                     kidValues: cF( c=> Todos.routeItems),
+                     kidKey: k => k.todo,
+                     kidFactory: todoListItem},
+                   c => c.kidValuesKids())),
             todoDashboard()),
-
         footer({class: "info"},
             ['Double-click a todo to edit it',
              'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
-             'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))
-    ];
-    return "".concat(...bits.map( b=>b().toHTML()));
+             'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))]);
 }
 
 function todoAddNew (dom, e) {
@@ -45,6 +42,7 @@ function todoAddNew (dom, e) {
 
     let title = e.target.value.trim();
     if (title !== '')
+        // gotta force a new array so matrix internals will see the change
         Todos.itemsRaw = Todos.itemsRaw.concat( MXStorable.make( Todo, {title: title}));
 
     e.target.value = null;
@@ -52,8 +50,7 @@ function todoAddNew (dom, e) {
 
 function toggleAllCompletion (dom) {
     let toggall = document.getElementById("toggle-all"),
-        makeDone = !dom2js(toggall).checked;
-    clg('toggle all completed to', makeDone, Todos.items.map( td => td.completed));
+        makeDone = !dom2mx(toggall).checked; // blame the spec for these semantics
     Todos.items.filter( td => xor( td.completed, makeDone))
                 .map( td => td.completed = makeDone);
 }
@@ -68,15 +65,14 @@ function todoListItem( c, todo) {
                 input({class: "toggle", type: "checkbox",
                         checked: cF( c=> todo.completed),
                         todo: todo,
-                        onclick: 'let todo = dom2js(this).todo;' +
+                        onclick: 'let todo = dom2mx(this).todo;' +
                                  'todo.completed = !todo.completed',
                         title: cF( c=> `Mark ${todo.completed? "in" : ""}complete.`)}),
                 label( cF( c => todo.title),
-                    { todo: todo,
-                      ondblclick: 'todoStartEditing'}),
+                    { ondblclick: 'todoStartEditing'}),
                 button(null, { class: "destroy",
                                 todo: todo,
-                                onclick: 'dom2js(this).todo.delete()'})),
+                                onclick: 'dom2mx(this).todo.delete()'})),
 
             input({ name: "myEditor", class: "edit",
                     todo: todo,
@@ -89,12 +85,12 @@ function todoListItem( c, todo) {
 //--- item editing callbacks
 
 function todoStartEditing (dom,e) {
-    let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
+    let li = dom2mx(dom).fmTag('li', 'myLi') // find overarching li, then...
         , edt = li.fmDown('myEditor');
     edt.dom.li = li; // avoid a little navigation later
     li.dom.classList.add("editing");
     edt.dom.focus();
-    edt.dom.setSelectionRange(0, edt.dom.value.length);
+    edt.dom.setSelectionRange(0, edt.dom.value.length); // the correct UX starting an edit
 }
 
 function todoEdit ( edtdom, e) {
@@ -121,6 +117,7 @@ function todoEdit ( edtdom, e) {
 function todoDashboard () {
     return footer({class: "footer",
                     hidden: cF( c => Todos.empty)},
+
                 span({ class: "todo-count",
                         content: cF(c => { let remCt = Todos.items.filter(todo => !todo.completed).length;
                                         return `<strong>${remCt}</strong> item${remCt === 1 ? '' : 's'} remaining`;})}),
@@ -139,47 +136,4 @@ function todoDashboard () {
                       hidden: cF(c => Todos.items.filter(todo => todo.completed).length === 0),
                       onclick: 'Todos.items.filter( td => td.completed ).map( td => td.delete())'}));
 }
-
-//--- persistence ------------------------------------------------------
-
-const TODO_LS_PREFIX = "todos-MatrixJS.";
-
-class Todo extends MXStorable {
-    constructor(islots) {
-        let netSlots = Object.assign(
-            { lsPrefix: TODO_LS_PREFIX},
-            islots,
-            { title: cI(islots.title),
-                completed: cI(islots.completed || false)})
-
-        super( netSlots);
-    }
-    static storableProperties () {
-        return ["title", "completed"].concat(super.storableProperties());
-    }
-
-    static mxLoad() {
-        return mkm( null, 'Todo',
-            { itemsRaw: cI( MXStorable.loadAllItems( Todo, TODO_LS_PREFIX)
-                .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
-
-                items: cF( c => c.md.itemsRaw.filter( td => !td.deleted)),
-
-                routeItems: cF( c => {
-                    let selection = todoRoute.v;
-                    return c.md.items
-                        .filter( td => selection==='All'
-                            || xor( selection==='Active', td.completed))
-                        .sort( (a,b) => a.created < b.created ? -1 : 1)}),
-
-                empty: cF( c => c.md.items.length === 0)})
-    }
-}
-
-const todoRoute = cFI( c=> {let r = localStorage.getObject("todo-matrix.route");
-        return r === null ? "All" : r;},
-    { observer: (n, md, newv ) => {
-        localStorage.setObject("todo-matrix.route", newv)}});
-
-const Todos = Todo.mxLoad();
 

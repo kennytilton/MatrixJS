@@ -26,10 +26,10 @@
 
 const jsDom = []; // here we will link JS "mirror" DOM to actual DOM by their numerical ids
 
-function dom2js(dom, mustFind=true) {
+function dom2mx(dom, mustFind=true) {
 	let js = jsDom[dom.id];
 	if ( !js && mustFind) {
-		throw `dom2js cannot find jsDom with dom.sid ${dom.sid}, dom.id ${dom.id}`;
+		throw `dom2mx cannot find jsDom with dom.sid ${dom.sid}, dom.id ${dom.id}`;
 	}
 	return js;
 }
@@ -168,7 +168,14 @@ class Tag extends Model {
 
 		return `<${tag} id="${this.id}" ${attrs}>${this.content || this.kidsToHTML()}</${tag}>`;
 	}
-	kidsToHTML() {
+
+    static mxToHTML (mx) {
+        // for now we are assuming matrix page will be an array of matrices since body
+        // can have multiple children
+        return mx.reduce( function( cum, chunk) { return cum + chunk().toHTML()}, "");
+    }
+
+    kidsToHTML() {
 		return this.kids? this.kids.reduce((pv, kid)=>{ return pv+kid.toHTML();},''):'';
 	}
 	slotObserverResolve(slot) {
@@ -481,7 +488,6 @@ class MXStorable extends Model {
 
     static make( klass, islots ) {
         let s = new klass( islots);
-        clg('make made now storing!!!', s.id, s.title,s.created)
         s.store();
         return s;
     }
@@ -512,7 +518,6 @@ class MXStorable extends Model {
     }
 
     static storeObject ( id, obj) {
-        clg('storing!!!', id, JSON.stringify(obj));
         localStorage.setObject( id, obj);
     }
 

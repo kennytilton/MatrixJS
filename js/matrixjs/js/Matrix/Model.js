@@ -58,6 +58,7 @@ const kDead = "md-dead";
 var sid = 0; // aka "serial ID"
 
 class Model {
+	// todo: maybe forget constructors ever working like CLOS and standardize on "make" as preferred over "new"
 	constructor(parent, name, islots, awakenp=true) {
 		/*
 		 * Note that we begin by initializing some slots
