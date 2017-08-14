@@ -13,7 +13,7 @@ function todoSSB() {
                 h1("todos"),
                 input({ class: "new-todo", autofocus: true,
                     placeholder: "What needs doing?",
-                    onkeypress: 'todoAddNewOnEnter'})),
+                    onkeypress: 'todoAddNew'})),
 
             section({class: "main",
                         hidden: cF( c => Todos.empty)},
@@ -40,21 +40,22 @@ function todoSSB() {
     return "".concat(...bits.map( b=>b().toHTML()));
 }
 
-function toggleAllCompletion (dom) {
-    let toggall = document.getElementById("toggle-all"),
-        makeDone = dom2js(toggall).checked;
-
-    Todos.items.filter( td => xor( td.completed, makeDone))
-                .map( td => td.completed = makeDone);
-}
-
-function todoAddNewOnEnter (dom, e) {
+function todoAddNew (dom, e) {
     if (e.key !== 'Enter') return;
 
     let title = e.target.value.trim();
     if (title !== '')
         Todos.itemsRaw = Todos.itemsRaw.concat( MXStorable.make( Todo, {title: title}));
+
     e.target.value = null;
+}
+
+function toggleAllCompletion (dom) {
+    let toggall = document.getElementById("toggle-all"),
+        makeDone = !dom2js(toggall).checked;
+    clg('toggle all completed to', makeDone, Todos.items.map( td => td.completed));
+    Todos.items.filter( td => xor( td.completed, makeDone))
+                .map( td => td.completed = makeDone);
 }
 
 //--- the do-list item beef ----------------------------------------------------------
@@ -85,7 +86,7 @@ function todoListItem( c, todo) {
                     onkeypress: 'todoEdit'}));
 }
 
-//--- editing callbacks
+//--- item editing callbacks
 
 function todoStartEditing (dom,e) {
     let li = dom2js(dom).fmTag('li', 'myLi') // find overarching li, then...
@@ -114,6 +115,8 @@ function todoEdit ( edtdom, e) {
         }
     }
 }
+
+//--- the dashboard of controls/readouts below the list of to-dos ------------------------
 
 function todoDashboard () {
     return footer({class: "footer",
@@ -151,7 +154,9 @@ class Todo extends MXStorable {
 
         super( netSlots);
     }
-    static storableProperties () { return ["title"].concat(super.storableProperties()); }
+    static storableProperties () {
+        return ["title", "completed"].concat(super.storableProperties());
+    }
 
     static mxLoad() {
         return mkm( null, 'Todo',

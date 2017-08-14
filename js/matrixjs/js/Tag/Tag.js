@@ -503,6 +503,7 @@ class MXStorable extends Model {
 
     slotObserverResolve(slot) {
         // tell the Matrix engine about our slot observer (same for all slots)
+
         return MXStorable.obsAnyChange
     }
 
@@ -511,12 +512,14 @@ class MXStorable extends Model {
     }
 
     static storeObject ( id, obj) {
+        clg('storing!!!', id, JSON.stringify(obj));
         localStorage.setObject( id, obj);
     }
 
     delete() {
         this.deleted = Date.now();
     }
+
     static loadAllItems(klass, prefix) {
         return Object.keys(localStorage)
             .filter( k => k.startsWith( prefix))
