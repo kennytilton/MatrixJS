@@ -1,16 +1,14 @@
 # Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
-
-A React Native incarnation is being explored.
+Welcome to Matrix, a family of simple but expressive and efficient web development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 
 #### A quick note on the name
 Forget the movie. In the movie, the Matrix harnessed humans to suck energy from them. Not nice. In English, a matrix provides the conditions for new things to come to life. Nice! 
 
 The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally builds and responds to an actual browser page. It brings our code to life. Hence, "Matrix".
 
-### Distinguishing Features
+### Key Features
 Let us look at the key features of MatrixJS, the most interesting being the dataflow component. 
 
 > Two kindred frameworks also feature powerful dataflow components: [binding.Scala](https://github.com/ThoughtWorksInc/todo) and [Hoplon/Javelin](https://github.com/lynaghk/todoFRP/tree/master/todo/javelin). 
