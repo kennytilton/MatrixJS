@@ -116,6 +116,7 @@ class TagSession extends Model {
         Router(this.routes).init();
     }
 }
+window['TagSession'] = TagSession;
 
 class Tag extends Model {
 	constructor(parent, name, islots) {
@@ -205,6 +206,9 @@ class Tag extends Model {
 		return this.fmUp(md=> md.tag===tag,{}, key)
 	}
 }
+window['Tag'] = Tag;
+
+var isTag = x => x instanceof Tag;
 
 function setClick (dom, event) {
 	//clg('setclick dom id '+dom.id);
@@ -390,13 +394,17 @@ function tag( tag, islots, kids) {
     //clg('tag entry', tag, typeof kids, kids, kids==='undefined', kids instanceof Array);
 
     return function (c) {
-				return mkm(c ? c.md : null
-					, tag
-					, Object.assign({tag: tag}
-						, islots)
-					, kids
-					, Tag);
-			};
+        //clg('tag ', typeof par, id, par === null, isModel(par), typeof par ==='undefined', factory.cname());
+        let opts = Object.assign({}, {tag: tag}
+                                , kids ? {kids: cKids( kids)} : null
+                                , islots)
+            , tg = new Tag( c ? c.md : null
+                            , islots.name || tag
+                            , opts);
+        //clg(`tag sees ids ${id} and mdid ${md.id} name ${md.name}`);
+        if (!isTag(tg)) throw 'tag made not-isTag';
+        return tg;
+    };
 }
 
 function div(islots) {
@@ -464,10 +472,10 @@ function a(islots, content) {
 	return tag('a', Object.assign( {content: content}, islots));
 }
 
-//--- Persistence via localStorage ---------------------------------------
+//--- Persistence via window.localStorage ---------------------------------------
 
 class MXStorable extends Model {
-    // this constructor can create a new storable (in localStorage
+    // this constructor can create a new storable (in window.localStorage
     // as well as the matrix), or load a storable into the matrix
 
     constructor( icslots) {
@@ -500,7 +508,7 @@ class MXStorable extends Model {
     }
 
     static load (klass, id) {
-        return new klass( localStorage.getObject( id))
+        return new klass( window.localStorage.getObject( id))
     }
 
     static obsAnyChange ( slot, row, newv, priorv, c) {
@@ -518,7 +526,7 @@ class MXStorable extends Model {
     }
 
     static storeObject ( id, obj) {
-        localStorage.setObject( id, obj);
+        window.localStorage.setObject( id, obj);
     }
 
     delete() {
@@ -526,9 +534,18 @@ class MXStorable extends Model {
     }
 
     static loadAllItems(klass, prefix) {
-        return Object.keys(localStorage)
+        return Object.keys(window.localStorage)
             .filter( k => k.startsWith( prefix))
             .map( key => MXStorable.load( klass, key));
     }
 }
 
+window['MXStorable'] = MXStorable;
+
+MXStorable.prototype['make'] = MXStorable.prototype.make;
+MXStorable.prototype['toJSON'] = MXStorable.prototype.toJSON;
+MXStorable.prototype['load'] = MXStorable.prototype.load;
+MXStorable.prototype['store'] = MXStorable.prototype.store;
+MXStorable.prototype['storeObject'] = MXStorable.prototype.storeObject;
+MXStorable.prototype['delete'] = MXStorable.prototype.delete;
+MXStorable.prototype['loadAllItems'] = MXStorable.prototype.loadAllItems;

@@ -1,57 +1,56 @@
-/*
- * The MIT License
- *
- * Copyright 2016 Kenneth Tilton.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+function clg(...args) {
+    console.log(Array.from(args).join(","));
+}
+window['clg'] = clg;
+
+function ast (test, msg="anon") {
+    console.assert(test,msg);
+}
+window['ast'] = ast;
+
+function find(x,y) {
+    if (y.indexOf(x) !== -1) {
+        return x;
+    }
+}
+
+function eko (tag,value) {
+    console.log('eko <' + tag + '> = ' + value.toString());
+    return(value);
+}
 
 function xor (a, b) {
 	return a ? !b : b;
 }
+window['xor']=xor;
 
 function uuidv4() {
 	return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-		(c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))
+		(c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))
 }
+window['uuidv4'] = uuidv4;
 
 function localStorageLoad (keyPrefix) {
-	var values = [],
-		keys = Object.keys(localStorage),
+    let keys = Object.keys( window.localStorage || {} ),
+        values = [],
 		i = keys.length;
+
 	clg('lsl sees keys'+keys)
 	while ( i-- ) {
 		if ( keys[i].startsWith(keyPrefix))
-			values.push( JSON.parse(localStorage.getItem(keys[i])));
+			values.push( JSON.parse(window.localStorage.getItem(keys[i]) || ""));
 	}
 	return values;
 }
 
 // --- localStorag setup ------------------------------
 
-Storage.prototype.setObject = function(key, value) {
-	this.setItem(key, JSON.stringify(value));
+Storage.prototype['setObject'] = function(key, value) {
+    this.setItem(key, JSON.stringify(value));
 }
-
-Storage.prototype.getObject = function(key) {
-	var value = this.getItem(key);
-	return value && JSON.parse(value);
+Storage.prototype['getObject'] = function(key) {
+    var value = this.getItem(key);
+    return value && JSON.parse(value);
 }
 
 /* https://gist.github.com/Benvie/9988604*/
@@ -69,100 +68,83 @@ function define(object, properties) {
 	}
 }
 
-function ArrayQueue() {
-	this.size = 0;
-	this._head = 0;
-	this._items = [];
+class ArrayQueue {
+    constructor() {
+        this.size = 0;
+        this._head = 0;
+        this._items = [];
+    }
+    emptyp() {
+        return this.size===0;
+    }
+    push(value) {
+        this._items.push(value);
+        return ++this.size;
+    }
+    shift() {
+        if (this.size) {
+            var value = this._items[this._head];
+            if (this._head === QUEUE_COMPACT_SIZE) {
+                this._items = this._items.slice(this._head + 1);
+                this._head = 0;
+                this.size--;
+            } else {
+                this._items[this._head++] = MISSING;
+            }
+            return value;
+        }
+    }
+    clear() {
+        this.size = 0;
+        this._head = 0;
+        this._items.length = 0;
+    }
+    forEach(callback, thisArg) {
+        if (this.size) {
+            for (var i = this._head, index = 0; i < this._items.length; i++) {
+                var value = this._items[i];
+                if (value !== MISSING) {
+                    callback.call(thisArg, value, index++, this);
+                }
+            }
+        }
+    }
 }
 
-//noinspection JSUnusedGlobalSymbols,JSUnusedGlobalSymbols
-define(ArrayQueue.prototype, {
-	emptyp: function emptyp() {
-		return this.size===0;
-	},
-
-	push: function push(value) {
-		this._items.push(value);
-		return ++this.size;
-	},
-	shift: function shift() {
-		if (this.size) {
-			var value = this._items[this._head];
-			if (this._head === QUEUE_COMPACT_SIZE) {
-				this._items = this._items.slice(this._head + 1);
-				this._head = 0;
-				this.size--;
-			} else {
-				this._items[this._head++] = MISSING;
-			}
-			return value;
-		}
-	},
-	clear: function clear() {
-		this.size = 0;
-		this._head = 0;
-		this._items.length = 0;
-	},
-	forEach: function forEach(callback, thisArg) {
-		if (this.size) {
-			for (var i = this._head, index = 0; i < this._items.length; i++) {
-				var value = this._items[i];
-				if (value !== MISSING) {
-					callback.call(thisArg, value, index++, this);
-				}
-			}
-		}
-	}
-});
-
-var Stack = function() {
-	var functionSet=(function() {
-		var _elements=[]; // creating a private array
-		return [
-			// push function
-			function()
-			{ return _elements.push .apply(_elements,arguments); }
-			// pop function
-			, function()
-			{ return _elements.pop .apply(_elements,arguments); }
-			, function() { return _elements.length; }
-			, function(n) { return _elements.length=n; }
-			, function () {
-				return _elements[_elements.length-1];
-			}
-			, function (e) {
-				return _elements.includes(e);
-			}
-			, function () { return _elements;}];
-	})();
-	this.push=functionSet[0];
-	this.pop=functionSet[1];
-	this.getLength=functionSet[2];
-	this.setLength=functionSet[3];
-	this.peek=functionSet[4];
-	this.includes=functionSet[5];
-	this.elts=functionSet[6];
-	// initializing the stack with given arguments
-	this.push.apply(this,arguments);
-};
+class Stack {
+    constructor () {
+        var functionSet=(function() {
+            var _elements=[]; // creating a private array
+            return [
+                // push function
+                function()
+                { return _elements.push .apply(_elements,arguments); }
+                // pop function
+                , function()
+                { return _elements.pop .apply(_elements,arguments); }
+                , function() { return _elements.length; }
+                , function(n) { return _elements.length=n; }
+                , function () {
+                    return _elements[_elements.length-1];
+                }
+                , function (e) {
+                    return _elements.includes(e);
+                }
+                , function () { return _elements;}];
+        })();
+        this.push=functionSet[0];
+        this.pop=functionSet[1];
+        this.getLength=functionSet[2];
+        this.setLength=functionSet[3];
+        this.peek=functionSet[4];
+        this.includes=functionSet[5];
+        this.elts=functionSet[6];
+        // initializing the stack with given arguments
+        this.push.apply(this,arguments);
+    }
+}
 
 // --- utilities ---
-
-function clg() {
-	console.log(Array.from(arguments).join(","));
-}
-function ast (test, msg) {
-	console.assert(test,msg);
-}
-function find(x,y) {
-	if (y.indexOf(x) !== -1) {
-		return x;
-	}
-}
-function eko (tag,value) {
-	console.log('eko <' + tag + '> = ' + value.toString());
-	return(value);
-}
 
 Array.prototype.somex = function (test) {
 	for (let [eltx, elt] of this.entries()) {
@@ -243,6 +225,7 @@ function gSlotObserverDef (slot, obs) {
 }
 const qNotify = new ArrayQueue();
 const qAwaken = new ArrayQueue();
+window['qAwaken'] = qAwaken;
 const qClient = new ArrayQueue();
 const qEphemReset = new ArrayQueue();
 const qChange = new ArrayQueue();
@@ -263,21 +246,24 @@ function withoutCDependency(fn) {
 		}
 	};
 }
+
+// var callstack; todo oops. FNYI?
+
 function withoutIntegrity (fn) {
-	let wi, dc, cs;
-	wi = gWithinIntegrity;
-	dc = deferChanges;
-	cs = callstack;
+	let wi = gWithinIntegrity
+		, dc = deferChanges
+		//, cs = callstack
+	// ;
 
 	try {
 		gWithinIntegrity = false;
 		deferChanges = false;
-		callstack = new Stack();
+		// callstack = new Stack();
 		fn();
 	} finally {
 		gWithinIntegrity = wi;
 		deferChanges = dc;
-		callStack = cs;
+		// callStack = cs;
 	}
 }
 
@@ -356,9 +342,12 @@ function withIntegrity (queue, deferInfo, action) {
 		}
 	}
 }
+window['withIntegrity'] = withIntegrity;
+
 function withChg(id, fn) {
 	withIntegrity( qChange, id, fn);
 }
+window['withChg'] = withChg;
 
 // Key block #2 of Cells data integrity, define above
 
@@ -453,8 +442,9 @@ const kObserverUnresolved = 'kObserverUnresolved';
 // --- Cells ----------------------
 
 class Cell {
-	constructor(value, formula, inputp, ephemeralp, observer) {
-		this.md = null; //when we get to Model, this will be the model of whic I am an attribute
+	constructor(value, formula, inputp, ephemeralp, observer, name = "anon", optiWhen = !inputp) {
+	    this.name = name;
+		this.md = null; //when we get to Model, this will be the model of which I am an attribute
 		this.pulse = -1;
 		this.pulseLastChanged = -1;
 		this.pulseObserved = -1;
@@ -464,10 +454,11 @@ class Cell {
 		this.ephemeralp = ephemeralp;
 		this.inputp = inputp;
 		this.observer = observer;
-		this.optimize = !inputp;
-		this.slotOwning = false; // uhoh
-		this.unchangedTest = function(a,b) { return a===b;};
-		this.unchangedIf = null;
+		this.optimize = optiWhen;
+		this.slotOwning = false; // todo uhoh
+		// todo FNYI this.unchangedTest = function(a,b) { return a===b;};
+		this.synapticp = false; // todo FNYI
+		// todo FNYI this.unchangedIf = function(a, b) { this.unchangedTest( a, b)};
 
 		if (formula) {
 			this.rule = formula;
@@ -488,6 +479,7 @@ class Cell {
 
 			});
 	}
+	mx() { return this.md}
 
 	optimizedAwayp() {return this.state===kOptimizedAwayp;}
 	unboundp() {return this.pv===kUnbound;}
@@ -498,9 +490,10 @@ class Cell {
 			kUnbound : this.uncurrentp() ? kUncurrent : kValid;
 	}
 	valueChangedp (newv,oldv) {
-		let uct = (this.unchangedIf || this.unchangedTest);
+		/*let uct = (this.unchangedIf || this.unchangedTest);
 		ast(uct, 'unchanged test required');
-		return !uct(newv, oldv);
+		return !uct(newv, oldv);*/
+		return newv === oldv;
 	}
 	currentp() {
 		//clg(`currentp this pulse ${this.pulse} vs pulse ${gpulse()}`);
@@ -603,14 +596,14 @@ class Cell {
 		//clg('evic entry ', this.name);
 		if (gNotToBe) {
 			//clg('not2be');
-			return (this.boundp && this.validp()) ? this.pv : null;
+			return this.validp() ? this.pv : null;
 		} else if (this.currentp()) {
 			//clg('currentp',this.pulse,gpulse());
 			return this.pv;
 		} else if (this.inputp
 			&& this.validp()
 			&& !(this.rule
-				&& this.optimize === kOptimizeWhenValued
+				&& this.optimize === kOptimizeWhenValued // todo FNYI
 				&& this.pv===null)) {
 			//clg('inputp', this.name);
 			return this.pv;
@@ -645,7 +638,7 @@ class Cell {
 			}
 		}
 	}
-	calcNSet(dbgId, dbgData) {
+	calcNSet(dbgId, dbgData = {}) {
 		//  Calculate, link, record, and propagate.
 		if (callStack.includes(this)) {
 			let elts = callStack.elts();
@@ -741,10 +734,9 @@ class Cell {
 				, pd = gCPropDepth
 				, dc = deferChanges;
 			try {
-				if (vPrior && this.slotOwning) {
-					// uhoh - when we get to models
-					// call not-to-be on those lostOK
-				}
+				/*if (vPrior && this.slotOwning) {
+					// todo OMG call not-to-be on those lost
+				}*/
 				this.propagateToCallers( callers);
 				if (gpulse() > this.pulseObserved
 					|| find(this.lazy, [kOnceAsked, kAlways,true])) {
@@ -831,6 +823,7 @@ class Cell {
 		//            this.md.cellsFlushed.push([this.name, this.pulseObserved]);
 		//        }
 	}
+
 	optimizeAwayMaybe(vPrior) {
 		if (this.rule
 			&& !this.useds.size
@@ -853,10 +846,21 @@ class Cell {
 			}
 		}
 	}
+
+	// todo test not-to-be, quiesce, opti-away, etc
 	quiesce() {
-		this.unlinkFromCallers();
-		this.unlinkFromUsed('quiesce');
-	}
+        this.unlinkFromCallers();
+        this.unlinkFromUsed('quiesce');
+    }
+
+    unlinkFromCallers() {
+	    this.state = kUncurrent;
+        for (let caller of this.callers.values()) {
+            //clg(`${this.name} unlinks fromused dueto ${why}`);
+            this.callerDrop(caller);
+        }
+        this.callers.clear();
+    }
 
 	// ---------- next we offer support for the ever important Family concept -------------------
 
@@ -887,10 +891,15 @@ class Cell {
 		return this.md.fmDown( what, how, key);
 	}
 	// todo deprecate this
+	/*
 	fmd (what, key, how) {
 		return fmDown( what, key, how);
 	}
+	*/
 }
+
+window['Cell'] = Cell; // <-- Constructor
+Cell.prototype['mx'] = Cell.prototype.mx;
 
 function mdSlotValueStore( me, slotName, value) {
 	// me[slotName] = value; vestigial? todo clean up if so
@@ -905,7 +914,7 @@ function cF(formula, options) {
 	return Object.assign( new Cell(null, formula, false, false, null)
 		, options);
 }
-
+window['cF'] = cF;
 
 // todo get consistent with all cMakers accepting options
 // todo validate options against, eg, ephmeralp
@@ -940,11 +949,13 @@ function cFI(formula, options) {
     return Object.assign(new Cell(null, formula, true, false, null)
         , options);
 }
+window['cFI'] = cFI;
 function cI(value, options) {
 	// standard input cell
 	return Object.assign(new Cell(value, null, true, false, null)
 		, options);
 }
+window['cI'] = cI;
 function cIe(value, options) {
 	// ephemeral input cell
 	return Object.assign(new Cell(value, null, true, true, null)

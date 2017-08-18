@@ -15,25 +15,27 @@ class Todo extends MXStorable {
     static mxLoad() {
         return mkm( null, 'Todo',
             { itemsRaw: cI( MXStorable.loadAllItems( Todo, TODO_LS_PREFIX)
-                .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
+                                        .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
 
-                items: cF( c => c.md.itemsRaw.filter( td => !td.deleted)),
+                items: cF( function(c) { // clg('the md!', c.mx());
+                                        c.mx().itemsRaw.filter( td => !td.deleted);}),
 
                 routeItems: cF( c => {
                     let selection = todoRoute.v;
-                    return c.md.items
+                    clg('routeitems rule cmx ', c.mx().name, c.mx());
+                    return c.mx().items
                         .filter( td => selection==='All'
                             || xor( selection==='Active', td.completed))
                         .sort( (a,b) => a.created < b.created ? -1 : 1)}),
 
-                empty: cF( c => c.md.items.length === 0)})
+                empty: cF( c => c.mx().items.length === 0)})
     }
 }
 
-const todoRoute = cFI( c=> {let r = localStorage.getObject("todo-matrix.route");
+const todoRoute = cFI( c=> {let r = window.localStorage.getObject("todo-matrix.route");
         return r === null ? "All" : r;},
     { observer: (n, md, newv ) =>
-        localStorage.setObject("todo-matrix.route", newv)});
+        window.localStorage.setObject("todo-matrix.route", newv)});
 
 const Todos = Todo.mxLoad();
 

@@ -1,53 +1,30 @@
-/*
- * The MIT License
- *
- * Copyright 2016 Kenneth Tilton.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+
 
 /* global kNascent, kUntilAsked, kAlways, kAwake, qAwaken,  Cell */
 //@formatter:off
 
-function clg() {
-	console.log(Array.from(arguments).join(","));
-}
-function ast (test, msg) {
-	console.assert(test,msg);
-}
-
+/*
 Object.defineProperty(Array.prototype,'packedFlat'
-    ,{ value: function(r) {
-        for (var a=this, i=0, r = r || []; i < a.length; ++i)
+    ,{ value: function(r=[]) {
+        for (let a=this, i=0; i < a.length; ++i)
             if ( a[i] != null)
                 a[i] instanceof Array ? a[i].packedFlat(r) : r.push(a[i]);
         return r}});
+
+Array.prototype['packedFlat'] = Array.prototype.packedFlat;
+*/
 
 function cdrArgs(args) {
     // expects a special arguments instance, array-like but not really
     return Array.apply(null, args).slice(1)
 }
+window['cdrArgs'] = cdrArgs;
 
 function cddrArgs(args) {
     // expects a special arguments instance, array-like but not really
     return Array.apply(null, args).slice(2)
 }
+window['cddrArgs'] = cddrArgs;
 
 //var UU = require('node-uuid');
 
@@ -56,6 +33,7 @@ const kDoomed = "md-doomed";
 const kDead = "md-dead";
 
 var sid = 0; // aka "serial ID"
+window['sid'] = sid;
 
 class Model {
 	// todo: maybe forget constructors ever working like CLOS and standardize on "make" as preferred over "new"
@@ -76,8 +54,10 @@ class Model {
 		// clg("Model entry name=" + name + ", par= "+ parent + ', gPar=' + gPar);
 		this.par = parent || gPar; // we build models as parent<->>kids
 		// clg("Model this " + islots.name + " gets par " + this.par + " named " + (this.par? this.par.name : "unnamed"));
+		this.id = undefined;
 		this.name = name;
 		this.mdType = null; // eg, "selMgr" for list items to seek out
+        this.kids = null;
 		this.cells = {};
 		this.others = {}; // cache here other models tracked down by formulas
 		// so we have them handy if the rule runs again
@@ -161,11 +141,11 @@ class Model {
 	}
 	fm( what, how, key) {
 		// todo an up-only option to just search ascendants
-		if (false) { //(how) {
+		/*if (false) {
 			clg(how.insidep);
 			clg('fm mustp' + how.mustp);
 			clg(`fm entry this=${this.name} mustp=${how.mustp}`);
-		}
+		}*/
 		let found = null;
 		if (key) {
 			let known = this.others[key];
@@ -211,7 +191,7 @@ class Model {
 	fmatch(seek) {
 		let m = ((typeof seek === 'function' && seek(this))
 		|| (typeof seek === 'string' && this.name === seek)
-		|| (typeof seek === 'symbol' && this.mdType === seek)
+		// todo OK without this? || (typeof seek === "symbol" && this.mdType === seek)
 		|| this === seek)? this : null;
 		return m;
 	}
@@ -241,24 +221,36 @@ class Model {
 	}
 	mDeadp() {return this.state===kDead;}
 }
+// goog.exportSymbol('Model', Model);
+window['Model'] = Model;
+Model.prototype['awaken'] = Model.prototype.awaken;
 
 //module.exports.Model = Model;
 
 var isModel = x => x instanceof Model;
-var isTag = x => x instanceof Tag;
 
-function mkm( par, id, props, kids, factory=Model) {
+function mkm( par, id, props, kids, factory='Model') {
 	//clg('mkm ', typeof par, id, par === null, isModel(par), typeof par ==='undefined', factory.cname());
-	opts = Object.assign({}
+    clg('mkm sees ', id, factory);
+	let opts = Object.assign({}
 	                    , props
-		                , kids ? {kids: cKids( kids)} : null);
-	let md = new factory( par, id, opts);
+		                , kids ? {kids: cKids( kids)} : null),
+	    md = new window[factory]( par, id, opts);
 	//clg(`mkm sees ids ${id} and mdid ${md.id} name ${md.name}`);
     if (!isModel(md)) throw 'mkm made not-modelp';
 	return md;
 }
+window['mkm'] = mkm;
 
-function cKids( kidFactories, options) {
+function pkdFlat (ary, r=[]) {
+    for (let i = 0; i < ary.length; ++i)
+        if ( ary[i] != null)
+            ary[i] instanceof Array ? pkdFlat( ary[i], r) : r.push( ary[i]);
+    return r;
+}
+
+
+function cKids( kidFactories, options = {}) {
     // kidFactories can be one generative function or an array of such.
     // These functions can return null, models, kidFactories, or arrays of such.
     // Thus they must return null, a Model, an array, or a function.
@@ -276,11 +268,12 @@ function cKids( kidFactories, options) {
 
 			        let ks = kfExpand( c, kidFactories);
 			        //clg('ckids kids',ks);
-			        return ks instanceof Array? ks.packedFlat():ks
+			        return ks instanceof Array? pkdFlat(ks) : [ks];
             }
 			, false, false, null)
 			, options);
 }
+window['cKids'] = cKids;
 
 var kfExpandFinal = m => m === null
                     || isModel(m)

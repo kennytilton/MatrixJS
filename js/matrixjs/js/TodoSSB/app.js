@@ -2,7 +2,7 @@ const todoSession = mkm( null, 'TodoSSBSession',
                         { routes: {'/completed': ()=> todoRoute.v = 'Completed',
                                     '/active': ()=>  todoRoute.v = 'Active',
                                     '/': ()=> todoRoute.v = 'All'}},
-                        null, TagSession);
+                        null, 'TagSession');
 
 function todoSSB() {
     todoSession.init();
@@ -10,7 +10,7 @@ function todoSSB() {
     return Tag.mxToHTML(
         [ section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos"),
+                h1("todos"+Math.random()),
                 input({ class: "new-todo", autofocus: true,
                     placeholder: "What needs doing?",
                     onkeypress: 'todoAddNew'})),
