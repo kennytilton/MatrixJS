@@ -1,16 +1,14 @@
 # Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to Matrix, a family of simple but expressive and efficient web and mobile development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
-
-A React Native incarnation is being explored.
+Welcome to Matrix, a family of simple but expressive and efficient web development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to TodoMVC implementations built with each. All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 
 #### A quick note on the name
 Forget the movie. In the movie, the Matrix harnessed humans to suck energy from them. Not nice. In English, a matrix provides the conditions for new things to come to life. Nice! 
 
 The dataflow component of this library drives a proxy web page that continuously, transparently, and incrementally builds and responds to an actual browser page. It brings our code to life. Hence, "Matrix".
 
-### Distinguishing Features
+### Key Features
 Let us look at the key features of MatrixJS, the most interesting being the dataflow component. 
 
 > Two kindred frameworks also feature powerful dataflow components: [binding.Scala](https://github.com/ThoughtWorksInc/todo) and [Hoplon/Javelin](https://github.com/lynaghk/todoFRP/tree/master/todo/javelin). 
@@ -18,25 +16,41 @@ Let us look at the key features of MatrixJS, the most interesting being the data
 #### The Un-Framework: It is just HTML
 JS frameworks are tough. They are powerful, but they are harder to master than a new programming language. 
 
-Sure, HTML and CSS are anachronistic brutes, but that is why we have UI designers, who may not need us once they have MatrixJS. We digress.
-
 MatrixJS pages are authored as if we were coding conventional HTML, using a library of HTML-generating functions whose API closely parallels HTML. Where HTML has <*tag* *attributes*> *children* </*tag*>, Matrix HTML generators have JS *tag*(*attributes*, *child*, *child*) or CLJS (*tag* {*attributes*} *child* *child* ...). In all cases, your documentation is [over at MDN](https://developer.mozilla.org/en-US/docs/Web/HTML).
 
 An example. Here is a bit of the HTML provided by [the TodoMVC challenge](https://github.com/tastejs/todomvc/blob/master/app-spec.md):
 ````html
+
 <header class="header">
   <h1>todos</h1>
   <input class="new-todo" placeholder="What needs to be done?" autofocus>
 </header>
 ````
+
+Nice, and most UI frameworks try to stick close to HTML. Here is some ReactJS:
+
+```js
+<header className="header">
+    <h1>todos</h1>
+    <input className="new-todo"
+            placeholder="What needs to be done?"
+            value={that.state.name}
+            autoFocus={true}
+    />
+</header>    
+```
+
 And here is how that looks in MatrixJS
 ````javascript
+
 header({class: "header"}, c => [
   h1("todos"),
   input({ class: "new-todo", placeholder: "What needs to be?", autofocus: true})])
 ````
+
 And now in the ClojureScript version:
 ````clojure
+
 (header {:class "header"}
    (h1 {} "todos")
    (input {:class "new-todo" placeholder "What needs to be done?" :autofocus true})))
