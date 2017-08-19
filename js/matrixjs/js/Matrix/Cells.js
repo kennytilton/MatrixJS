@@ -493,7 +493,7 @@ class Cell {
 		/*let uct = (this.unchangedIf || this.unchangedTest);
 		ast(uct, 'unchanged test required');
 		return !uct(newv, oldv);*/
-		return newv === oldv;
+		return newv !== oldv;
 	}
 	currentp() {
 		//clg(`currentp this pulse ${this.pulse} vs pulse ${gpulse()}`);

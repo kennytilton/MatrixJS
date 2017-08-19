@@ -26,7 +26,7 @@ function obsKids (slot, md, newv, oldv, c) {
 
     ast(pdom);
 
-    for (kx=0; kx < newv.length; ++kx ) {
+    for (let kx=0; kx < newv.length; ++kx ) {
         let newk = newv[kx];
         if (find( newk, oldv)) {
             ast(newk.dom);
@@ -61,7 +61,7 @@ function obsTagEventHandler (property, md, newv, oldv, c) {
 	md.dom.style.set[property] = newv;
 }
 
-AttrAliases = new Map([['class','className']]);
+var AttrAliases = new Map([['class','className']]);
 
 function obsAttrGlobal (property, md, newv, oldv, c) {
 	if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
@@ -171,7 +171,7 @@ class Tag extends Model {
 				obs = obsKids;
 			} else if (slot === 'disabled') {
 				obs = obsDisabled;
-			} else if (CommonCSSPropertiesJS.get(slot)) {
+			} else if (CommonCSSPropsJS.get(slot)) {
 				obs = obsStyleProperty;
 			} else if (TagEvents.has(slot)) {
 				obs = obsTagEventHandler;
@@ -202,7 +202,7 @@ function setClick (dom, event) {
 
 // ---- formerly tags.js ------------------------------------------
 
-/* global Tag TagEvents CommonCSSPropertiesJS */
+/* global Tag TagEvents CommonCSSPropsJS */
 const TagAttributesGlobal =  new Set(['accesskey','autofocus','checked','class','contenteditable'
 	,'contextmenu','dir'
 	,'draggable','dropzone','hidden','href','id','itemid','itemprop','itemref','itemscope'
@@ -219,7 +219,7 @@ const TagEvents =  new Set(['onabort','onautocomplete','onautocompleteerror','on
 	,'onselect','onshow','onsort','onstalled','onsubmit','onsuspend','ontimeupdate','ontoggle'
 	,'onvolumechange','onwaiting']);
 
-HtmlProperties = new Set([
+const HtmlProperties = new Set([
 	'contentEditable','dataset','dir','isContentEditable','lang'
 	,'offsetHeight','offsetLeft','offsetParent','offsetTop','offsetWidth','onabort','onblur'
 	,'onchange','onclick','onclose','oncontextmenu','oncopy','oncut','ondblclick'
@@ -231,7 +231,7 @@ HtmlProperties = new Set([
 	,'onsubmit','ontouchcancel','ontouchmove','ontouchstart','outerText','style','tabIndex'
 	,'title']);
 
-CSSProperties = new Set(['align-content','align-items','align-self','all','<angle>','animation'
+const CSSProps = new Set(['align-content','align-items','align-self','all','<angle>','animation'
 	,'animation-delay','animation-direction','animation-duration','animation-fill-mode','animation-iteration-count'
 	,'animation-name','animation-play-state','animation-timing-function','backface-visibility'
 	,'background','background-attachment','background-blend-mode','background-clip','background-color'
@@ -281,7 +281,7 @@ CSSProperties = new Set(['align-content','align-items','align-self','all','<angl
 	,'vertical-align','vh','visibility','vmax','vmin','vw','white-space','widows','width','will-change','word-break'
 	,'word-spacing','word-wrap','writing-mode','z-index','zoom']);
 
-CommonCSSPropertiesJS = new Map([['background','background'], ['backgroundAttachment','background-attachment']
+const CommonCSSPropsJS = new Map([['background','background'], ['backgroundAttachment','background-attachment']
 	, ['backgroundColor','background-color'], ['backgroundImage','background-image']
 	, ['backgroundPosition','background-position'], ['backgroundRepeat','background-repeat']
 	, ['border','border'], ['borderBottom','border-bottom'], ['borderBottomColor','border-bottom-color']
@@ -358,7 +358,7 @@ function tagStyleBuild(md) {
 	let ss = '';
 	for (let prop in md) {
 		if (md.hasOwnProperty(prop)) {
-			let cssProp = CommonCSSPropertiesJS.get(prop);
+			let cssProp = CommonCSSPropsJS.get(prop);
 			//clg('md prop '+prop+'='+cssProp);
 			if (cssProp) {
 				let cssValue = md[prop];
@@ -473,15 +473,17 @@ class MXStorable extends Model {
                 {deleted: islots.deleted || cI(null)});
 
         super(null, null, netSlots, false);
+
+        this.store();
     }
 
     static storableProperties () { return ["id", "created","deleted"]}
 
-    static make( klass, islots ) {
+/*    static make( klass, islots ) {
         let s = new klass( islots);
         s.store();
         return s;
-    }
+    }*/
 
     toJSON () {
         // clg('or constructor', this.constructor.storableProperties());

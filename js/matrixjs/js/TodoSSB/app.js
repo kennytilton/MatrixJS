@@ -1,5 +1,7 @@
 const todoSession = new TagSession( null, 'TodoSSBSession',
-                        { routes: {'/completed': ()=> todoRoute.v = 'Completed',
+                        { routes: {'/completed': ()=> { clg('routev completed');
+                                                        todoRoute.v = 'Completed';
+                                                        return null;},
                                     '/active': ()=>  todoRoute.v = 'Active',
                                     '/': ()=> todoRoute.v = 'All'}});
 
@@ -40,10 +42,12 @@ function todoAddNew (dom, e) {
     if (e.key !== 'Enter') return;
 
     let title = e.target.value.trim();
-    if (title !== '')
+    if (title !== '') {
         // gotta force a new array so matrix internals will see the change
-        Todos.itemsRaw = Todos.itemsRaw.concat( MXStorable.make( Todo, {title: title}));
-
+        // Todos.itemsRaw = Todos.itemsRaw.concat( MXStorable.make( Todo, {title: title}));
+        Todos.itemsRaw = Todos.itemsRaw.concat(new Todo({title: title}));
+        clg('added todo raw len now', Todos.itemsRaw.length);
+    }
     e.target.value = null;
 }
 

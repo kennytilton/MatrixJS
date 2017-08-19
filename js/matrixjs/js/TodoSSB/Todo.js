@@ -17,12 +17,12 @@ class Todo extends MXStorable {
             { itemsRaw: cI( MXStorable.loadAllItems( Todo, TODO_LS_PREFIX)
                                         .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
 
-                items: cF( function(c) { // clg('the md!', c.mx());
+                items: cF( function(c) { clg('todogroup computing items off raw', c.mx().itemsRaw.length);
                                         return c.mx().itemsRaw.filter( td => !td.deleted);}),
 
                 routeItems: cF( c => {
                     let selection = todoRoute.v;
-                    // clg('routeitems rule cmx ', c.mx().name, c.mx().items, c.mx()['items']);
+                    clg('routeitems rule cmx ', c.mx().name, selection);
                     // clg('  cmc props', Object.getOwnPropertyNames( c.mx()));
                     return c.mx().items.filter( td => selection==='All'
                                                     || xor( selection==='Active', td.completed))
