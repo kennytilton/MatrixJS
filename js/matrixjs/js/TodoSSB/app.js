@@ -11,49 +11,55 @@ function todoSSB() {
     return Tag.mxToHTML(
         [ section({ class: "todoapp", name: "todoapp"},
             header({class: "header"},
-                h1("todos"+Math.random()),
+                h1("todos"),
                 input({ class: "new-todo", autofocus: true,
                     placeholder: "What needs doing?",
                     onkeypress: 'todoAddNew'})),
 
             section({class: "main",
                         hidden: cF( c => Todos.empty)},
+
                 input({ id: "toggle-all",
                         type: "checkbox",
                         class: "toggle-all",
                         checked: cF( c => Todos.items.length > 0
                                           && Todos.items.every( i => i.completed))}),
+
                 label( "Mark all as complete",
                     { for: "toggle-all",
                       onclick: 'toggleAllCompletion( this)'}),
+
                 ul({ class: "todo-list", name: "todo-list",
                      kidValues: cF( c=> Todos.routeItems),
                      kidKey: k => k.todo,
                      kidFactory: todoListItem},
                    c => c.kidValuesKids())),
+
             todoDashboard()),
+
         footer({class: "info"},
             ['Double-click a todo to edit it',
              'Created by... <a href="http://tiltontec.com">Kenneth Tilton',
              'Inspired by <a href="http://todomvc.com">TodoMVC</a>'].map( s => p({},s)))]);
 }
 
+window['todoSSB'] = todoSSB;
+
 function todoAddNew (dom, e) {
     if (e.key !== 'Enter') return;
 
     let title = e.target.value.trim();
-    if (title !== '') {
+    if (title !== '')
         // gotta force a new array so matrix internals will see the change
-        // Todos.itemsRaw = Todos.itemsRaw.concat( MXStorable.make( Todo, {title: title}));
         Todos.itemsRaw = Todos.itemsRaw.concat(new Todo({title: title}));
-        clg('added todo raw len now', Todos.itemsRaw.length);
-    }
+
     e.target.value = null;
 }
 
 function toggleAllCompletion (dom) {
     let toggall = document.getElementById("toggle-all"),
-        makeDone = !dom2mx(toggall).checked; // blame the spec for these semantics
+        makeDone = !dom2mx(toggall).checked;
+
     Todos.items.filter( td => xor( td.completed, makeDone))
                 .map( td => td.completed = makeDone);
 }
@@ -98,20 +104,20 @@ function todoStartEditing (dom,e) {
 
 function todoEdit ( edtdom, e) {
     let li = edtdom.li;
-    if (li.dom.classList.contains("editing")) {
-        if (e.type === 'blur' || ['Escape', 'Enter'].includes( e.key)) {
-            if ( e.key === 'Escape') {
-                e.target.value = li.todo.title;
+    if ( !li.dom.classList.contains("editing")) return;
+
+    if (e.type === 'blur' || ['Escape', 'Enter'].includes( e.key)) {
+        if ( e.key === 'Escape') {
+            e.target.value = li.todo.title;
+        } else {
+            let title = e.target.value.trim();
+            if (title === '') {
+                li.todo.delete();
             } else {
-                let title = e.target.value.trim();
-                if (title === '') {
-                    li.todo.delete();
-                } else {
-                    li.todo.title = e.target.value = title;
-                }
+                li.todo.title = e.target.value = title;
             }
-            li.dom.classList.remove('editing');
         }
+        li.dom.classList.remove('editing');
     }
 }
 

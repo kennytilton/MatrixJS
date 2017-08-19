@@ -15,18 +15,14 @@ class Todo extends MXStorable {
     static mxLoad() {
         return mkm( null, 'TodoGroup',
             { itemsRaw: cI( MXStorable.loadAllItems( Todo, TODO_LS_PREFIX)
-                                        .sort( (a,b) => a.created < b.created ? -1 : 1)|| []),
+                                        .sort( (a,b) => a.created < b.created ? -1 : 1) || []),
 
-                items: cF( function(c) { clg('todogroup computing items off raw', c.mx().itemsRaw.length);
-                                        return c.mx().itemsRaw.filter( td => !td.deleted);}),
+                items: cF( c => c.mx().itemsRaw.filter( td => !td.deleted)),
 
-                routeItems: cF( c => {
-                    let selection = todoRoute.v;
-                    clg('routeitems rule cmx ', c.mx().name, selection);
-                    // clg('  cmc props', Object.getOwnPropertyNames( c.mx()));
-                    return c.mx().items.filter( td => selection==='All'
-                                                    || xor( selection==='Active', td.completed))
-                                        .sort( (a,b) => a.created < b.created ? -1 : 1)}),
+                routeItems: cF( c => c.mx().items
+                                        .filter( td => todoRoute.v === 'All'
+                                                    || xor( todoRoute.v==='Active', td.completed))
+                                        .sort( (a,b) => a.created < b.created ? -1 : 1)),
 
                 empty: cF( c => c.mx().items.length === 0)})
     }

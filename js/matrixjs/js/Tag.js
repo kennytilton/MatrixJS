@@ -493,7 +493,9 @@ class MXStorable extends Model {
     }
 
     static load (klass, id) {
-        return new klass( window.localStorage.getObject( id))
+        let obj = window.localStorage.getObject( id);
+        //clg('loading', id, obj.deleted);
+        return new klass( obj)
     }
 
     static obsAnyChange ( slot, row, newv, priorv, c) {
@@ -502,7 +504,6 @@ class MXStorable extends Model {
 
     slotObserverResolve(slot) {
         // tell the Matrix engine about our slot observer (same for all slots)
-
         return MXStorable.obsAnyChange
     }
 

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+java -jar compiler.jar                         \
+	--compilation_level SIMPLE_OPTIMIZATIONS   \
+	--language_in ECMASCRIPT_2015              \
+	--language_out ECMASCRIPT5                 \
+	--js js/Matrix/Cells.js                    \
+	--js js/Matrix/Model.js                    \
+	--js js/Tag.js                             \
+	--js js/TodoSSB/Todo.js                    \
+	--js js/TodoSSB/app.js                     \
+	--externs js/extRouter.js                  \
+	--js_output_file public/TodoSSB.app.smp.js
