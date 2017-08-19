@@ -1,28 +1,4 @@
-/*
- * The MIT License
- *
- * Copyright 2016 Kenneth Tilton.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 
-/*global kUnbound sid jsDom */
 
 const jsDom = []; // here we will link JS "mirror" DOM to actual DOM by their numerical ids
 
@@ -95,20 +71,26 @@ function obsAttrGlobal (property, md, newv, oldv, c) {
 
 class TagSession extends Model {
     constructor(parent, name, islots) {
-        let superSlots = Object.assign({}, islots);
+
+        let superSlots = Object.assign({sid: ++sid}, islots);
 
         super(parent, (name || islots.name), superSlots, false);
 
-        this.sid = ++sid;
-
+        // this.routes = islots['routes'];
+    }
+    static make(parent, name, islots) {
+        let ts = new TagSession( parent, name, islots);
         // todo this is unfortunate: perhaps we do as another automatic call such as to super, or as Model static
-        if (this.awakenOnInitp) {
-            this.awaken();
+        if (ts.awakenOnInitp) {
+            ts.awaken();
         } else {
-            withIntegrity(qAwaken, this, x => this.awaken())
+            withIntegrity(qAwaken, ts, ts => {
+                clg('awakening tag session!!!', ts.name);
+                ts.awaken();
+                return null;
+            })
         }
     }
-
     static cname() {
         return "TagSession"
     }
@@ -120,6 +102,7 @@ window['TagSession'] = TagSession;
 
 class Tag extends Model {
 	constructor(parent, name, islots) {
+
 		let superSlots = Object.assign({}, islots);
 		delete superSlots.id;
 

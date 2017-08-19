@@ -9,9 +9,10 @@ params = urllib.urlencode([
     #('js_code', sys.argv[1]),
     ('code_url', 'https://raw.githubusercontent.com/kennytilton/MatrixJS/master/js/matrixjs/js/Matrix/Cells.js'),
     ('code_url', 'https://raw.githubusercontent.com/kennytilton/MatrixJS/master/js/matrixjs/js/Matrix/Model.js'),
+    ('code_url', 'https://raw.githubusercontent.com/kennytilton/MatrixJS/master/js/matrixjs/js/Tag.js'),
     ('compilation_level', 'ADVANCED_OPTIMIZATIONS'),
     ('output_format', 'text'),
-    ('output_info', 'compiled_code'),
+    ('output_info', 'warnings'),
   ])
 
 # Always use the following value for the Content-type header.

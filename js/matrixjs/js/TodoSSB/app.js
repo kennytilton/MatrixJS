@@ -1,8 +1,7 @@
-const todoSession = mkm( null, 'TodoSSBSession',
+const todoSession = new TagSession( null, 'TodoSSBSession',
                         { routes: {'/completed': ()=> todoRoute.v = 'Completed',
                                     '/active': ()=>  todoRoute.v = 'Active',
-                                    '/': ()=> todoRoute.v = 'All'}},
-                        null, 'TagSession');
+                                    '/': ()=> todoRoute.v = 'All'}});
 
 function todoSSB() {
     todoSession.init();
