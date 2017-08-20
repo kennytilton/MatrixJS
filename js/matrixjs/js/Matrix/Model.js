@@ -65,9 +65,9 @@ class Model {
 
 		this.state = kNascent;
 		this.doomed = false; // aka in mid-notToBe
-		// this.fnz = false; // dunno. short for finalization? not in play
+		// this.fnz = false; // sth to do with finalization. not in play
 		this.awakenOnInitp = false; // ie, bypass qAwaken
-		this.adoptCt = 0; // rare case of non-child but "hosted"
+		this.adoptCt = 0; // how often adopted (by host), for (very) rare non-child but "hosted"
 
 		for (let slot in islots) {
 			if (!islots.hasOwnProperty(slot))
@@ -78,9 +78,7 @@ class Model {
 
 			if (value instanceof Cell) {
 				value.name = slot;
-				// clg('md cell named '+slot+' gets md named '+this.name);
 				value.md = this; // md aka model
-				//clg('md cell named '+slot+' has md named '+value.md.name);
 				this.cells[slot] = value;
 				Object.defineProperty(this
 					, slot, {
@@ -90,13 +88,12 @@ class Model {
 			});
 			} else {
 				Object.defineProperty(this
-					, slot, {
-						enumerable: true
+					, slot
+					, { enumerable: true
 						, get: () =>  value
-					, set: (newv) => {
-					throw `Slot ${slot} cannot be set to ${newv} because it is not mediated by an input Cell`;
-				}
-			});
+						, set: (newv) => {
+							throw `Slot ${slot} cannot be set to ${newv} because it is not mediated by an input Cell`;
+					}});
 			}
 		}
 
@@ -105,8 +102,7 @@ class Model {
 				this.awaken();
 			} else {
 				withIntegrity(qAwaken, this, x=> {
-					this.awaken();
-			});
+					this.awaken();});
 			}
 		}
 	}
@@ -221,23 +217,17 @@ class Model {
 	}
 	mDeadp() {return this.state===kDead;}
 }
-// goog.exportSymbol('Model', Model);
 window['Model'] = Model;
 Model.prototype['awaken'] = Model.prototype.awaken;
-
-//module.exports.Model = Model;
 
 var isModel = x => x instanceof Model;
 
 function mkm( par, id, props, kids, factory='Model') {
-	//clg('mkm ', typeof par, id, par === null, isModel(par), typeof par ==='undefined', factory.cname());
-    clg('mkm sees ', id, factory);
 	let opts = Object.assign({}
 	                    , props
 		                , kids ? {kids: cKids( kids)} : null),
 	    md = new window[factory]( par, id, opts);
-	//clg(`mkm sees ids ${id} and mdid ${md.id} name ${md.name}`);
-    if (!isModel(md)) throw 'mkm made not-modelp';
+	if (!isModel(md)) throw 'mkm made not-modelp';
 	return md;
 }
 window['mkm'] = mkm;

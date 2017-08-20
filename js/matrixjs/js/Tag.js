@@ -17,6 +17,17 @@ function obsContent (slot, md, newv, oldv, c) {
 	md.dom.innerHTML = newv;
 }
 
+function notToBe( mx) {
+    mx.state = kDoomed;
+    for( let k of mx.kids) {
+        notToBe( k);
+    }
+    for (let slot in mx.cells) {
+        let c = mx.cells[slot];
+        c.quiesce();
+    }
+    mx.state = kDead;
+}
 function obsKids (slot, md, newv, oldv, c) {
 
 	if (oldv===kUnbound) return; // on awaken all HTML is assembled at once
@@ -26,13 +37,17 @@ function obsKids (slot, md, newv, oldv, c) {
 
     ast(pdom);
 
-    for (let kx=0; kx < newv.length; ++kx ) {
-        let newk = newv[kx];
+    for (let oldk of oldv)
+        if (!find(oldk,newv)) {
+            notToBe(oldk);
+        }
+
+    for (let newk of newv) {
         if (find( newk, oldv)) {
-            ast(newk.dom);
-            frag.appendChild( pdom.removeChild(newk.dom)); // todo can we skip remove?
+            frag.appendChild( pdom.removeChild(newk.dom));
         } else {
             let incubator = document.createElement('div');
+
             incubator.innerHTML = newk.toHTML();
 
             let newDom = newk.domCache = incubator.removeChild( incubator.firstChild);
@@ -128,7 +143,10 @@ class Tag extends Model {
 				if (this.domCache===null) {
 					this.domCache = document.getElementById(this.id);
 					ast(this.domCache, "Unable to locate DOM for Tag via Tag.id " + this.id);
-					if (!this.domCache) throw 'Tag unanble find DOM';
+					if (!this.domCache) {
+					    clg('no dom', name);
+					    throw 'Tag unanble find DOM';
+                    }
 				}
 				return this.domCache;}});
 
@@ -149,8 +167,7 @@ class Tag extends Model {
 			, s = tagStyleBuild(this)
 			, attrs = `${others} ${s}`;
 		ast(tag);
-
-		return `<${tag} id="${this.id}" ${attrs}>${this.content || this.kidsToHTML()}</${tag}>`;
+        return `<${tag} ${attrs}>${this.content || this.kidsToHTML()}</${tag}>`;
 	}
 
     static mxToHTML (mx) {
@@ -204,8 +221,7 @@ function setClick (dom, event) {
 
 /* global Tag TagEvents CommonCSSPropsJS */
 const TagAttributesGlobal =  new Set(['accesskey','autofocus','checked','class','contenteditable'
-	,'contextmenu','dir'
-	,'draggable','dropzone','hidden','href','id','itemid','itemprop','itemref','itemscope'
+	,'contextmenu','dir','draggable','dropzone','hidden','href','id','itemid','itemprop','itemref','itemscope'
 	,'itemtype','lang','spellcheck','src','style','tabindex','title','translate', 'type']);
 
 const TagEvents =  new Set(['onabort','onautocomplete','onautocompleteerror','onblur','oncancel'
