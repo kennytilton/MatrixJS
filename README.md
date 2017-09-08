@@ -58,7 +58,7 @@ And now in the ClojureScript version:
 Of course, those only *look* like mark-up. They are in fact neatly nested function calls, each producing a *proxy* DOM element. In other words, we are looking at conventionsl JS/CLJS code. Are you thinking what we are thinking?
 
 #### Programmatic HTML
-Because Matrix apps are just JS/CLJS functions, we can write whatever JS/CLJS code we like to generate our proxy DOM. Here for example is another example from the original TodoMVC HTML, a row of radio buttons specifying which kind of to-do items the user would like to see:
+Because Matrix apps are just JS/CLJS functions, we can write whatever JS/CLJS code we like to generate our proxy DOM. Here for example is some more code from the original TodoMVC HTML, a row of radio buttons specifying which class of to-do items to show:
 ````html
 <ul class="filters">
     <li>
@@ -81,11 +81,11 @@ ul( { class: "filters"}, c =>
                                 content: label,
                                 class: (label==="All") ? "selected":"")})])}))
 ````
-`ul`, `a`, and `li` are all functions provide by `Tag`, the HTML subcomponent of Matrix. They emulate the syntax of HTML tags and generate tag proxies for the matrix. But because this is all just JS, of course it is trivial to generate HTML programatically.
+`ul`, `a`, and `li` are all functions provide by `Tag`, the HTML subcomponent of Matrix. They emulate the syntax of HTML tags and generate tag proxies for the matrix. 
 
 > Other frameworks such as [JSX](https://facebook.github.io/jsx/) support "JS in HTML" differently, though JSX for one then requires supportive tooling to build runnable JS.
 
-Great, HTML is not just rigid mark-up any more. But the above merely gets a static initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
+Great, HTML is not just rigid mark-up any more. But the above merely gets an initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
 
 #### Page dynamism: Reactive HTML
 Matrix lets us specify *dynamic* HTML regenerated as the user interacts with the page. For example, as they click on each route/label above, the "selected" class needs to be assigned or removed to highlight the labels suitably. Here is the CLJS version:
@@ -96,9 +96,7 @@ Matrix lets us specify *dynamic* HTML regenerated as the user interacts with the
                :class (c? (when (=== label todoRoute.v) // see below for todoRoute.v
                              "selected"))} label))))
 ````
-What is that `c?` creature? `c?` is short for "formulaic cell". The code body of `c?` will run initially and then again when any of its dependencies change. After each run, optional observer callbacks are invoked to handle new results and dependent formulae if any are recursively re-evaluated.
-
-Here, each time the user changes the filter/route by clicking an item, all three items' formulae will be re-evaluated to decide if the "selected" class is appropriate. An `on-change` observer callback provided by `Tag` will automatically update the corresponding DOM element's `classList`, completing the loop from user action to Matrix dataflow and back to the browser DOM.
+What is that `c?` creature? `c?` is short for "formulaic cell". The code body of `c?` will run initially and then again when any of its dependencies change. After each run, optional observer callbacks are invoked to handle new results. Here, each time the user changes the filter `route.v` by clicking an item, all three items' formulae will be re-evaluated to decide if the "selected" class is appropriate. An `on-change` observer callback provided by `Tag` will automatically update the corresponding DOM element's `classList`, completing the loop from user action to Matrix dataflow and back to the browser DOM.
 
 But we left something out. Where did we subscribe to the route (and where is the route stored)? Second question first: it is stored in a global input Cell:
 ````javascript
