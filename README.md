@@ -76,8 +76,7 @@ Fortunately, a short list, but still. And now the MatrixJS equivalent:
 ````javascript
 ul( { class: "filters"}, c =>
   [["All", "#/"], ["Active","#/active"], ["Completed","#/completed"]]
-      .map( which => {
-          var [ label, route] = which;
+      .map( [ label, route] => {
           return li({}, c=> [a({href: route,
                                 content: label,
                                 class: (label==="All") ? "selected":"")})])}))
