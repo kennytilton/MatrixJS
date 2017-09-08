@@ -1,7 +1,7 @@
 # Matrix
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-Welcome to Matrix, a family of simple but expressive and efficient web development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to classic TodoMVC implementations built with each (but renameded TodoFRP for *funcional reactive programming*). All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
+Welcome to Matrix, a family of simple but expressive and efficient web development frameworks. Current variants exist for [Javascript](https://github.com/kennytilton/MatrixJS/tree/master/js/matrixjs) and [ClojureScript](https://github.com/kennytilton/MatrixJS/tree/master/cljs/matrix). Follow those links to classic TodoMVC implementations built with each (but renamed TodoFRP for *funcional reactive programming*). All frameworks are driven usefully by JS/CLJS ports of the [Cells](https://github.com/kennytilton/cells) dataflow/reactive engine.
 
 #### A quick note on the name
 Forget the movie. In the movie, the Matrix harnessed humans to suck energy from them. Not nice. In English, a matrix provides the conditions for new things to come to life. Nice! 
@@ -83,7 +83,7 @@ ul( { class: "filters"}, c =>
 ````
 `ul`, `a`, and `li` are all functions provide by `Tag`, the HTML subcomponent of Matrix. They emulate the syntax of HTML tags and generate tag proxies for the matrix. But because this is all just JS, of course it is trivial to generate HTML programatically.
 
-> Other frameworks such as [JSX](https://facebook.github.io/jsx/)] support "JS in HTML" differently, though JSX for one then requires supportive tooling to build runnable JS.
+> Other frameworks such as [JSX](https://facebook.github.io/jsx/) support "JS in HTML" differently, though JSX for one then requires supportive tooling to build runnable JS.
 
 Great, HTML is not just rigid mark-up any more. But the above merely gets a static initial page built, with "All" selected. How do we move the `selected` class around as the user clicks different options?
 
